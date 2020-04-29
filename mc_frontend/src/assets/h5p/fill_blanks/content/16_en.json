@@ -1,0 +1,52 @@
+{
+    "questions": [
+      "<p>According to Marcus Cicero, what triggers his brother's arrival? Give the Latin text.<br> *maximam laetitiam / laetitiam maximam*<\/p>",  
+      "<p>Cicero attributes two positive functions to his brother Quintus, which explain why Quintus is popular. Name the Latin words in the series of occurrences.<br> *custodem / custos* and *hospitem / hospes*<\/p>"
+    ],
+    "showSolutions": "Show solutions",
+    "tryAgain": "Try again",
+    "text": "<p><b><i>Esse, quocumque veneris, et publice et privatim maximam laetitiam, cum urbs custodem non tyrannum, domus hospitem non expilatorem recepisse videatur?<\/i><\/b><\/p><br><p>Or that wherever you go, both in public and in private homes, the highest happiness breaks out, because it turns out that the city has taken in a guard and not a tyrant, the private house a guest and not a robber?<\/p>\n",
+    "checkAnswer": "Check",
+    "notFilledOut": "Please fill in all blanks",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Finish ?",
+      "body": "Are you sure you wish to finish ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "You got @score of @total blanks correct."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }

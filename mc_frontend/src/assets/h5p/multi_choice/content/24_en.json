@@ -1,0 +1,118 @@
+{
+    "answers": [
+      {
+        "correct": true,
+        "text": "<div>Cicero's brother is governor in the province of Asia.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": true,
+        "text": "<div>The province of Asia has many things in abundance.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": true,
+        "text": "<div>Quintus is popular with everyone in the province.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>Asia is an unknown province.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>Quintus is corruptible and unrestrained.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>The provincial administration is in the hands of the Senate of Rome.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      }
+    ],
+    "UI": {
+        "showSolutionButton": "Show solution",
+        "tryAgainButton": "Retry",
+        "checkAnswerButton": "Ready",
+        "tipsLabel": "Show tip",
+        "scoreBarLabel": "You got :num out of :total points",
+        "tipAvailable": "Tip available",
+        "feedbackAvailable": "Feedback available",
+        "readFeedback": "Read feedback",
+        "wrongAnswer": "Wrong answer",
+        "correctAnswer": "Correct answer",
+        "shouldCheck": "Should have been checked",
+        "shouldNotCheck": "Should not have been checked",
+        "noInput": "Please answer before viewing the solution"
+    },
+    "question": "<p>Select statements that apply to the content.<br> <small>If you are not sure what to choose, then read the text again.<\/small><\/p><p>[...] And this is not what I am writing to you now to encourage you to such good action, but so that you can rejoice that you have already acted and have acted in this way. It is something very special to have had such unrestricted violence for three years in the province of Asia that no statue, no picture, no vase [...] nor an offer of money has brought you away from your absolute incorruptibility and self-control, although your province offers all these things in abundance. But what can prove to be greater and more desirable than your efficiency, your serenity and your modesty [...] being spread out in the public of the province of Asia, before the eyes of the highly famous province and before the ears of all tribes and peoples? Or that people are not frightened by your journeys through the province, not sucked away by the cost of your reception, not disturbed by your coming? Or that wherever you go, both in public and in private homes, the highest joy breaks out because it turns out that the city has taken in a guardian and not a tyrant, the private home a hospitality and not a robber? In this regard, practice has certainly taught you that it is by no means enough to possess all these excellent qualities yourself, but that it is necessary to take care that in the provincial administration not only you alone, but all your subordinates seem to be responsible to the allies, the citizens and the state.<\/p>\n",
+    "behaviour": {
+        "enableRetry": false,
+        "enableSolutionsButton": true,
+        "singlePoint": true,
+        "randomAnswers": true,
+        "showSolutionsRequiresInput": false,
+        "type": "auto",
+        "disableImageZooming": true,
+        "confirmCheckDialog": false,
+        "confirmRetryDialog": false,
+        "autoCheck": false,
+        "passPercentage": 100,
+        "showScorePoints": true,
+        "enableCheckButton": true
+    },
+    "confirmCheck": {
+        "header": "Finish ?",
+        "body": "Are you sure you wish to finish ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+        "header": "Retry ?",
+        "body": "Are you sure you wish to retry ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+        {
+            "from": 0,
+            "to": 0,
+            "feedback": "Wrong"
+        },
+        {
+            "from": 1,
+            "to": 99,
+            "feedback": "Almost!"
+        },
+        {
+            "from": 100,
+            "to": 100,
+            "feedback": "Correct!"
+        }
+    ]
+}

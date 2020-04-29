@@ -1,0 +1,15 @@
+.bash_history
+build
+.cache/
+.coverage*
+coverage.xml
+dist
+htmlcov/
+.idea/
+*.log*
+machina_callida.egg-info
+.project
+__pycache__/
+.pydevproject
+.pylintrc
+.vscode/

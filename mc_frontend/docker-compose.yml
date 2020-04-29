@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+  mc_frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ng build --prod app
+    environment:
+      - CHROME_BIN=google-chrome
+    stdin_open: true
+    tty: true
+#    do not use mounted volume in combination with the node_modules directory being ignored in .dockerignore
+#    volumes:
+#      - .:/home/mc/mc_frontend
+    volumes:
+      - $PWD/www:/home/mc/mc_frontend/www
+  nginx:
+    command: nginx -g "daemon off;"
+    image: nginx:alpine
+    ports:
+      - "8100:80"
+    restart: always
+    volumes:
+      - $PWD/www:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - mc_frontend
+networks:
+  default:
+    external: true
+    name: mc_backend_default

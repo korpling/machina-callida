@@ -1,0 +1,52 @@
+{
+    "questions": [
+      "<p>Gib die Prädikate in der Reihenfolge des Satzes an und ordne jedem Prädikat die passende Person - Marcus (M.) oder Quintus (Q.) - zu.<br> *facias* --> *Quintus / Q.*<br> *gaudeas* --> *Quintus / Q.*<br> *scribo* --> *Marcus / M.*<\/p>"
+    ],
+    "showSolutions": "Lösungen zeigen",
+    "tryAgain": "Erneut versuchen",
+    "text": "<p>Nachdem Du nun schon den gesamten lateinischen Text gelesen hast, geht es in den folgenden Abschnitten darum, dass Du den Text gut verstehst und gleichzeitig etwas über wichtige Wörter in ihrem Kontext lernst.<br><b>Aufgabe:<\/b> Bitte gib Deine Antworten sorgfältig ein. Achte auf die Rechtschreibung.<br><br><b>Marcus Tullius Cicero (schreibt) an seinen Bruder Quintus: Du bist ein guter Statthalter!<\/b><br>Cicero betont in seinem Brief an den Bruder Quintus, wie herausragend dessen Verwaltung der Provinz Asia sei und dass er sich darum kümmern müsse, dass auch seine Untergebenen ebenso positiv auffallen.<br><br><b><i>[…] Atque haec nunc non, ut facias, sed ut te facere et fecisse gaudeas, scribo;<\/i><\/b><br><br>[…] Und dies schreibe ich dir jetzt nicht, um Dich zu solchem guten Handeln anzuregen, sondern damit Du Dich darüber freuen kannst, dass Du bereits so handelst und gehandelt hast.<br><\/p>\n",
+    "checkAnswer": "Weiter",
+    "notFilledOut": "Bitte alle Lücken füllen",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Beenden ?",
+      "body": "Willst du wirklich beenden ?",
+      "cancelLabel": "Abbrechen",
+      "confirmLabel": "Beenden"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "Du hast @score von @total Lücken korrekt ausgefüllt."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

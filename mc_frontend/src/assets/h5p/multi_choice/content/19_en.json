@@ -1,0 +1,101 @@
+{
+    "answers": [
+      {
+        "correct": true,
+        "text": "<div>to his brother<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>to his father<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>to his son<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>to his friend<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      }
+    ],
+    "UI": {
+        "showSolutionButton": "Show solution",
+        "tryAgainButton": "Retry",
+        "checkAnswerButton": "Continue",
+        "tipsLabel": "Show tip",
+        "scoreBarLabel": "You got :num out of :total points",
+        "tipAvailable": "Tip available",
+        "feedbackAvailable": "Feedback available",
+        "readFeedback": "Read feedback",
+        "wrongAnswer": "Wrong answer",
+        "correctAnswer": "Correct answer",
+        "shouldCheck": "Should have been checked",
+        "shouldNotCheck": "Should not have been checked",
+        "noInput": "Please answer before viewing the solution"
+      },
+      "question": "<p><b>Task:<\/b><small>Read the given text carefully in both languages. Always compare the translation with the original. Answer the comprehension questions for each section. You have 10 minutes.<\/small><\/p><br><h4>Quintus as a model governor<\/h4><p><small>In a letter to his brother Quintus, Cicero emphasizes how outstanding his administration of the province of Asia is and that he must take care that his subordinates also stand out positively.<\/small><\/p><p><i>[...] Atque haec nunc non, ut facias, sed ut te facere et fecisse gaudeas, scribo;<\/i><\/p><p>[...] And this is not what I am writing to you now to encourage you to such good action, but so that you can rejoice that you have already acted and have acted in this way.<\/p><p>To whom does Cicero write?<\/p>\n",
+      "behaviour": {
+        "enableRetry": false,
+        "enableSolutionsButton": true,
+        "singlePoint": true,
+        "randomAnswers": true,
+        "showSolutionsRequiresInput": false,
+        "type": "auto",
+        "disableImageZooming": true,
+        "confirmCheckDialog": false,
+        "confirmRetryDialog": false,
+        "autoCheck": false,
+        "passPercentage": 100,
+        "showScorePoints": true,
+        "enableCheckButton": true
+      },
+      "confirmCheck": {
+        "header": "Finish ?",
+        "body": "Are you sure you wish to finish ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Finish"
+      },
+      "confirmRetry": {
+        "header": "Retry ?",
+        "body": "Are you sure you wish to retry ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Confirm"
+      },
+      "overallFeedback": [
+        {
+          "from": 0,
+          "to": 0,
+          "feedback": "Wrong"
+        },
+        {
+          "from": 1,
+          "to": 99,
+          "feedback": "Almost!"
+        },
+        {
+          "from": 100,
+          "to": 100,
+          "feedback": "Correct!"
+        }
+      ]
+    }
+    

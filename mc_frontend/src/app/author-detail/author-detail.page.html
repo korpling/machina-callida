@@ -1,0 +1,30 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+        </ion-buttons>
+        <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+        <ion-title *ngIf="helperService.applicationState | async as state">{{ state.currentSetup.currentAuthor?.name }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="ion-padding">
+    <ion-list *ngIf="helperService.applicationState | async as state">
+        <ion-item *ngFor="let corpus of state.currentSetup.currentAuthor?.corpora">
+            <button (click)="showPossibleReferences(corpus)">
+                <span>{{corpus.title}}</span>
+            </button>
+        </ion-item>
+    </ion-list>
+    <ion-button (click)="navCtrl.pop()">{{ 'BACK' | translate }}</ion-button>
+</ion-content>

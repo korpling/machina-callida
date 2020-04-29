@@ -1,0 +1,15 @@
+{
+  "/mc-service": {
+    "pathRewrite": {
+      "^/mc-service": ""
+    },
+    "target": {
+      "host": "localhost",
+      "port": 5000,
+      "protocol": "http"
+    },
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  }
+}

@@ -1,0 +1,117 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+            <div>
+                <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+                <ion-title>{{ 'DOC_VOC_UNIT' | translate }}
+                </ion-title>
+            </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-grid>
+        <ion-row>
+            <h2>{{'DOC_VOC_UNIT_HYP_TITLE' | translate}}</h2>
+        </ion-row>
+        <ion-row>
+            <ul>
+                <li *ngFor="let i of hypothesisIndices">
+                    {{ 'DOC_VOC_UNIT_HYP_' + (i + 1).toString() | translate }}
+                </li>
+            </ul>
+        </ion-row>
+        <ion-row>
+            <h2>{{'DOC_VOC_UNIT_RQ_TITLE' | translate}}</h2>
+        </ion-row>
+        <ion-row>
+            <ol>
+                <li *ngFor="let i of questionsIndices">
+                    {{ 'DOC_VOC_UNIT_RQ_' + (i + 1).toString() | translate }}
+                </li>
+            </ol>
+        </ion-row>
+        <ion-row>
+            <h2>{{'DOC_VOC_UNIT_ST_TITLE' | translate}}</h2>
+        </ion-row>
+        <ion-row>
+            {{'DOC_VOC_UNIT_ST_TEXT_SELECTION' | translate}}
+        </ion-row>
+        <ion-row>
+            {{'DOC_VOC_UNIT_ST_TEXT_SELECTION_JUSTIFICATION' | translate}}
+        </ion-row>
+        <ion-row>
+            {{'DOC_VOC_UNIT_ST_VOC_SELECTION_GENERAL' | translate}}
+        </ion-row>
+        <ion-row>
+            {{'DOC_VOC_UNIT_ST_VOC_SELECTION_SPECIAL' | translate}}
+        </ion-row>
+        <ion-row>
+            <h4>{{'DOC_VOC_UNIT_ST_SEQ_TITLE' | translate}} </h4>
+        </ion-row>
+        <ion-row>
+            <ol>
+                <li *ngFor="let i of sequenceIndices">
+                    {{ 'DOC_VOC_UNIT_ST_SEQ_' + (i + 1).toString() | translate }}
+                </li>
+            </ol>
+        </ion-row>
+        <ion-row>
+            {{'DOC_VOC_UNIT_ST_SEQ_JUSTIFICATION' | translate}}
+        </ion-row>
+        <ion-row>
+            <h4>{{'DOC_VOC_UNIT_ST_EX_TYPES_TITLE' | translate}} </h4>
+        </ion-row>
+        <ion-row>
+            {{'DOC_VOC_UNIT_ST_EX_TYPES_TEXT' | translate}}
+        </ion-row>
+        <ion-row>
+            <h4>{{'DOC_VOC_UNIT_ST_REAL_TITLE' | translate}} </h4>
+        </ion-row>
+        <ion-row>
+            {{'DOC_VOC_UNIT_ST_REAL_TEXT' | translate}}
+        </ion-row>
+        <ion-row>
+            <h4>{{'DOC_VOC_UNIT_ST_EVA_TITLE' | translate}} </h4>
+        </ion-row>
+        <ion-row>
+            {{'DOC_VOC_UNIT_ST_EVA_TEXT' | translate}}<br>
+        </ion-row>
+    </ion-grid>
+</ion-content>
+
+<ion-footer>
+    <ion-toolbar>
+        <ion-tabs>
+            <ion-tab-bar slot="bottom">
+                <ion-tab-button (click)="helperService.goToInfoPage(navCtrl)">
+                    <ion-icon name="information-circle"></ion-icon>
+                    <ion-label>{{ 'ABOUT' | translate }}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToDocSoftwarePage(navCtrl)">
+                    <ion-icon name="code"></ion-icon>
+                    <ion-label>{{ 'DOC_SOFTWARE' | translate}}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToDocExercisesPage(navCtrl)">
+                    <ion-icon name="tablet-landscape"></ion-icon>
+                    <ion-label>{{'DOC_EXERCISES' | translate}}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToImprintPage(navCtrl)">
+                    <ion-icon name="today"></ion-icon>
+                    <ion-label>{{ 'IMPRINT' | translate }}</ion-label>
+                </ion-tab-button>
+            </ion-tab-bar>
+        </ion-tabs>
+    </ion-toolbar>
+</ion-footer>

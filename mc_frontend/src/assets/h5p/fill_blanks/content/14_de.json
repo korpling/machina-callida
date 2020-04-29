@@ -1,0 +1,52 @@
+{
+    "questions": [
+        "<p>Gib die lateinischen Textbelege für die vorgegebenen deutschen Wörter: <br> \"von Deinen Reisen\":<br> *itineribus tuis* <br> \"durch Dein Kommen\":<br> *adventu* <br> \"beunruhigt werden\":<br> *commoveri*<\/p>"
+    ],
+    "showSolutions": "Lösungen zeigen",
+    "tryAgain": "Erneut versuchen",
+    "text": "<p><b><i>Non itineribus tuis perterreri homines, non sumptu exhauriri, non adventu commoveri?<\/i><\/b><\/p><br><p>Oder dass die Menschen von Deinen Reisen durch die Provinz nicht erschreckt, durch die Kosten für Deinen Empfang nicht ausgesaugt noch durch Dein Kommen beunruhigt werden?<\/p>\n",
+    "checkAnswer": "Weiter",
+    "notFilledOut": "Bitte alle Lücken füllen",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Beenden ?",
+      "body": "Willst du wirklich beenden ?",
+      "cancelLabel": "Abbrechen",
+      "confirmLabel": "Beenden"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "Du hast @score von @total Lücken korrekt ausgefüllt."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

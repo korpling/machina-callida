@@ -1,0 +1,91 @@
+{
+  "answers": [
+    {
+      "correct": true,
+      "text": "<div>Ich schreibe das, damit du handelst.<\/div>\n",
+      "tipsAndFeedback": {
+        "tip": "",
+        "chosenFeedback": "",
+        "notChosenFeedback": ""
+      }
+    },
+    {
+      "correct": false,
+      "text": "<div>Ich schreibe dies, um zu handeln.<\/div>\n",
+      "tipsAndFeedback": {
+        "tip": "",
+        "chosenFeedback": "",
+        "notChosenFeedback": ""
+      }
+    },
+    {
+      "correct": false,
+      "text": "<div>Ich schreibe dies, damit ihr handelt.<\/div>\n",
+      "tipsAndFeedback": {
+        "tip": "",
+        "chosenFeedback": "",
+        "notChosenFeedback": ""
+      }
+    }
+  ],
+  "UI": {
+    "showSolutionButton": "Lösung zeigen",
+    "tryAgainButton": "Retry",
+    "checkAnswerButton": "Weiter",
+    "tipsLabel": "Show tip",
+    "scoreBarLabel": "You got :num out of :total points",
+    "tipAvailable": "Tip available",
+    "feedbackAvailable": "Feedback available",
+    "readFeedback": "Read feedback",
+    "wrongAnswer": "Wrong answer",
+    "correctAnswer": "Correct answer",
+    "shouldCheck": "Should have been checked",
+    "shouldNotCheck": "Should not have been checked",
+    "noInput": "Please answer before viewing the solution"
+  },
+  "question": "<p>Entscheide Dich für eine passende Bedeutung:</p><p><em>haec ut facias scribo.</em><\/p>\n",
+  "behaviour": {
+    "enableRetry": false,
+    "enableSolutionsButton": true,
+    "singlePoint": true,
+    "randomAnswers": true,
+    "showSolutionsRequiresInput": false,
+    "type": "auto",
+    "disableImageZooming": true,
+    "confirmCheckDialog": false,
+    "confirmRetryDialog": false,
+    "autoCheck": false,
+    "passPercentage": 100,
+    "showScorePoints": true,
+    "enableCheckButton": true
+  },
+  "confirmCheck": {
+    "header": "Beenden ?",
+    "body": "Willst du wirklich beenden ?",
+    "cancelLabel": "Abbrechen",
+    "confirmLabel": "Beenden"
+  },
+  "confirmRetry": {
+    "header": "Retry ?",
+    "body": "Are you sure you wish to retry ?",
+    "cancelLabel": "Cancel",
+    "confirmLabel": "Confirm"
+  },
+  "overallFeedback": [
+    {
+      "from": 0,
+      "to": 0,
+      "feedback": "Falsch"
+    },
+    {
+      "from": 1,
+      "to": 99,
+      "feedback": "Almost!"
+    },
+    {
+      "from": 100,
+      "to": 100,
+      "feedback": "Korrekt!"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+    "answers": [
+        {
+            "correct": true,
+            "text": "<div>incorruptibility<\/div>\n",
+            "tipsAndFeedback": {
+                "tip": "",
+                "chosenFeedback": "",
+                "notChosenFeedback": ""
+            }
+        },
+        {
+            "correct": false,
+            "text": "<div>prudence<\/div>\n",
+            "tipsAndFeedback": {
+                "tip": "",
+                "chosenFeedback": "",
+                "notChosenFeedback": ""
+            }
+        },
+        {
+            "correct": false,
+            "text": "<div>bravery<\/div>\n",
+            "tipsAndFeedback": {
+                "tip": "",
+                "chosenFeedback": "",
+                "notChosenFeedback": ""
+            }
+        },
+        {
+            "correct": false,
+            "text": "<div>thoughtfulness<\/div>\n",
+            "tipsAndFeedback": {
+                "tip": "",
+                "chosenFeedback": "",
+                "notChosenFeedback": ""
+            }
+        }
+    ],
+    "UI": {
+        "showSolutionButton": "Show solution",
+        "tryAgainButton": "Retry",
+        "checkAnswerButton": "Continue",
+        "tipsLabel": "Show tip",
+        "scoreBarLabel": "You got :num out of :total points",
+        "tipAvailable": "Tip available",
+        "feedbackAvailable": "Feedback available",
+        "readFeedback": "Read feedback",
+        "wrongAnswer": "Wrong answer",
+        "correctAnswer": "Correct answer",
+        "shouldCheck": "Should have been checked",
+        "shouldNotCheck": "Should not have been checked",
+        "noInput": "Please answer before viewing the solution"
+    },
+    "question": "<p><i>Quid autem reperiri tam eximium aut tam expetendum potest quam istam virtutem, moderationem animi, temperantiam non latere in tenebris neque esse abditam, sed in luce Asiae, in oculis clarissimae provinciae atque in auribus omnium gentium ac nationum esse positam?<\/i><\/p><p>But what can turn out to be greater and more desirable than that your efficiency, your serenity and your modesty are not and were not hidden in the darkness, but that they were spread out in the public of the province of Asia, before the eyes of the highly famous province and before the ears of all tribes and peoples?<\/p><p>What does Cicero consider to be the excellent qualities of the addressee?<\/p>\n",
+    "behaviour": {
+        "enableRetry": false,
+        "enableSolutionsButton": true,
+        "singlePoint": true,
+        "randomAnswers": true,
+        "showSolutionsRequiresInput": false,
+        "type": "auto",
+        "disableImageZooming": true,
+        "confirmCheckDialog": false,
+        "confirmRetryDialog": false,
+        "autoCheck": false,
+        "passPercentage": 100,
+        "showScorePoints": true,
+        "enableCheckButton": true
+    },
+    "confirmCheck": {
+        "header": "Finish ?",
+        "body": "Are you sure you wish to finish ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+        "header": "Retry ?",
+        "body": "Are you sure you wish to retry ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+        {
+            "from": 0,
+            "to": 0,
+            "feedback": "Wrong"
+        },
+        {
+            "from": 1,
+            "to": 99,
+            "feedback": "Almost!"
+        },
+        {
+            "from": 100,
+            "to": 100,
+            "feedback": "Correct!"
+        }
+    ]
+}

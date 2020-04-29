@@ -1,0 +1,54 @@
+{
+    "questions": [
+        "<p>Name the Latin phrase for \"your efficiency\".<br> *istam virtutem*<\/p>",
+        "<p>Which English word corresponds to the Latin combination of words \"moderationem animi\"?<br> *serenity / the serenity / your serenity*<\/p>",
+        "<p>Who sees and hears of the efficiency of Quintus? Indicate the appropriate genitive attributes.<br> *clarissimae provinciae* and *omnium gentium ac nationum*<\/p>"
+    ],
+    "showSolutions": "Show solutions",
+    "tryAgain": "Try again",
+    "text": "<p><b><i>Quid autem reperiri tam eximium aut tam expetendum potest quam istam virtutem, moderationem animi, temperantiam [...] in luce Asiae, in oculis clarissimae provinciae atque in auribus omnium gentium ac nationum esse positam?<\/i><\/b><\/p><br><p>But what can turn out to be greater and more desirable than that your efficiency, your serenity and your modesty [...] were spread out in the public of the province of Asia, before the eyes of the highly famous province and before the ears of all tribes and peoples?<\/p>\n",
+    "checkAnswer": "Check",
+    "notFilledOut": "Please fill in all blanks",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Finish ?",
+      "body": "Are you sure you wish to finish ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "You got @score of @total blanks correct."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

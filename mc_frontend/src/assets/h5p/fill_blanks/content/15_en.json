@@ -1,0 +1,53 @@
+{
+    "questions": [
+        "<p>Give the Latin combination of words behind the translation \"in this regard\".<br> *his in rebus*<\/p>",
+        "<p>To whom are Quintus and his subordinates accountable? Give the Latin words in the order of their occurrence.<br> *sociis / socii* *civibus / cives* *rei publicae / res publica*<\/p>"
+    ],
+    "showSolutions": "Show solutions",
+    "tryAgain": "Try again",
+    "text": "<p><b><i>His autem in rebus iam te usus ipse profecto erudivit nequaquam satis esse ipsum has te habere virtutes, sed esse circumspiciendum diligenter ut in hac custodia provinciae non te unum sed omnis ministros imperi tui sociis et civibus et rei publicae praestare videaris.<\/i><\/b><\/p><br><p>In this regard, the practice has certainly already taught you that it is not enough to possess all these excellent qualities, but that it is necessary to take care that in the provincial administration not only you alone, but all your subordinates seem to be responsible to your allies, to the citizens and to the state. <\/p>\n",
+    "checkAnswer": "Check",
+    "notFilledOut": "Please fill in all blanks",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Finish ?",
+      "body": "Are you sure you wish to finish ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "You got @score of @total blanks correct."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

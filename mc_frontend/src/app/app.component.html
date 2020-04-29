@@ -1,0 +1,96 @@
+<ion-app>
+    <ion-menu contentId="content1" side="end" menuId="{{configMC.menuId}}">
+        <ion-header>
+            <ion-toolbar>
+                <ion-title>{{ 'MACHINA_CALLIDA' | translate }}</ion-title>
+                <ion-buttons slot="end">
+                    <ion-button (click)="closeMenu(true)">
+                        <ion-icon name="close-circle"></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+            <ion-grid style="text-align: left">
+                <ion-row>
+                    <ion-col>
+                        <a (click)="helperService.goToHomePage(navCtrl).then(closeMenu.bind(this))">
+                            {{'HOME' | translate}}
+                        </a>
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-col>
+                        <a (click)="helperService.goToAuthorPage(navCtrl).then(closeMenu.bind(this))">
+                            {{ 'EXERCISE_GENERATE' | translate }}
+                        </a>
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-col>
+                        <a (click)="helperService.goToExerciseListPage(navCtrl).then(closeMenu.bind(this))">
+                            {{ 'EXERCISE_LIST' | translate }}
+                        </a>
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-col>
+                        <a (click)="helperService.goToTestPage(navCtrl).then(closeMenu.bind(this))">
+                            {{ 'TEST' | translate }}
+                        </a>
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-col>
+                        <a (click)="helperService.goToSemanticsPage(navCtrl).then(closeMenu.bind(this))">
+                            {{ 'SEMANTICS' | translate }}
+                        </a>
+                    </ion-col>
+                </ion-row>
+                <ion-row>
+                    <ion-grid style="text-align: left; padding: 0">
+                        <ion-title>
+                            <h2>{{ 'DOCUMENTATION' | translate }}</h2>
+                        </ion-title>
+                        <ion-row>
+                            <ion-col>
+                                <a (click)="helperService.goToInfoPage(navCtrl).then(closeMenu.bind(this))">
+                                    {{ 'ABOUT' | translate }}
+                                </a>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <a (click)="helperService.goToDocSoftwarePage(navCtrl).then(closeMenu.bind(this))">
+                                    {{ 'DOC_SOFTWARE' | translate }}
+                                </a>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <a (click)="helperService.goToDocExercisesPage(navCtrl).then(closeMenu.bind(this))">
+                                    {{ 'DOC_EXERCISES' | translate }}
+                                </a>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <a (click)="helperService.goToDocVocUnitPage(navCtrl).then(closeMenu.bind(this))">
+                                    {{ 'DOC_VOC_UNIT' | translate }}
+                                </a>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <a (click)="helperService.goToSourcesPage(navCtrl).then(closeMenu.bind(this))">
+                                    {{ 'SOURCES' | translate }}
+                                </a>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-row>
+            </ion-grid>
+        </ion-content>
+    </ion-menu>
+    <ion-router-outlet id="content1"></ion-router-outlet>
+</ion-app>

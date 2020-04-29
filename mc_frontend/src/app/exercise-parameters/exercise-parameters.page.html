@@ -1,0 +1,199 @@
+<!--
+  Generated template for the ExerciseParametersPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+        </ion-buttons>
+        <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+        <ion-title>{{ 'EXERCISE_PARAMETERS' | translate }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="ion-padding">
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <!-- don't use ion-select because the font-size for ion-option cannot be changed -->
+                <label>
+                    <h2 class="label">{{ 'EXERCISE_TYPE' | translate }}</h2>
+                    <select [(ngModel)]="corpusService.exercise.type" name="exerciseType"
+                            (change)="corpusService.adjustTranslations()">
+                        <option *ngFor="let key of ObjectKeys(ExerciseType)" [value]=ExerciseType[key]>
+                            {{ ExerciseTypeTranslation[key] | translate }}
+                        </option>
+                    </select>
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngFor="let query of corpusService.exercise.queryItems; let i = index">
+            <ion-col>
+                <ion-grid [class.matching]="corpusService.exercise.type === ExerciseType.matching" style="padding: 0;">
+                    <ion-row *ngIf="corpusService.exercise.type === ExerciseType.matching">
+                        <ion-col>
+                            <h4>{{ (i === 0 ? 'HEAD_WORD' : 'DEPENDENT_WORD') | translate }}</h4>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row style="padding: 0 0 1em 0">
+                        <ion-col>
+                            <label>
+                                <h2 class="label">{{ 'QUERY_PHENOMENON' | translate }}</h2>
+                                <select [(ngModel)]="query.phenomenon" name="queryPhenomenon"
+                                        (change)="corpusService.adjustQueryValue(query, i)">
+                                    <option *ngFor="let phenomenon of ObjectKeys(Phenomenon)" [value]=phenomenon>
+                                        {{ PhenomenonTranslation[phenomenon] | translate }}
+                                    </option>
+                                </select>
+                            </label>
+                        </ion-col>
+                        <ion-col>
+                            <ng-container
+                                    *ngIf="corpusService.exercise.type === ExerciseType.matching; else notMatching">
+                                <label>
+                                    <h2 class="label">{{ 'QUERY_VALUE' | translate }}</h2>
+                                    <select [(ngModel)]="query.values[0]" name="queryValue"
+                                            (change)="corpusService.updateBaseWord(query, i)">
+                                        <option *ngFor="let key of corpusService.getSortedQueryValues(query, i)"
+                                                [value]=key>{{ getDisplayValue(query, key, i) }}
+                                        </option>
+                                    </select>
+                                </label>
+                            </ng-container>
+                            <ng-template #notMatching>
+                                <label>
+                                    <h2 class="label">{{ 'QUERY_VALUE' | translate }}</h2>
+                                    <select [(ngModel)]="query.values" name="queryValue" multiple
+                                            size="{{Math.min(corpusService.getSortedQueryValues(query, i).length, 20)}}">
+                                        <option *ngFor="let key of corpusService.getSortedQueryValues(query, i)"
+                                                [value]=key>{{ getDisplayValue(query, key, i) }}
+                                        </option>
+                                    </select>
+                                </label>
+                            </ng-template>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf="corpusService.exercise.type === ExerciseType.kwic; else notKWIC">
+            <ion-col>
+                <label>
+                    {{ 'LEFT_CONTEXT_SIZE' | translate }}:
+                    <input [(ngModel)]="leftContextSize" type="number" min="1" name="leftContextSize"/>
+                </label>
+            </ion-col>
+            <ion-col>
+                <label>
+                    {{ 'RIGHT_CONTEXT_SIZE' | translate }}:
+                    <input [(ngModel)]="rightContextSize" type="number" min="1" name="rightContextSize"/>
+                </label>
+            </ion-col>
+        </ion-row>
+        <ng-template #notKWIC>
+            <ion-row>
+                <ion-col style="display: inline-grid">
+                    <ion-grid style="text-align: left">
+                        <ion-row>
+                            <ion-col class="toggle-menu" style="padding: 0">
+                                <button *ngIf="showFeedback; else dropright" (click)="showFeedback = !showFeedback">
+                                    <ion-icon name="caret-down"></ion-icon>
+                                </button>
+                                <ng-template #dropright>
+                                    <button (click)="showFeedback = !showFeedback">
+                                        <ion-icon name="caret-forward"></ion-icon>
+                                    </button>
+                                </ng-template>
+                                <div>
+                                    <h4 class="label" (click)="showFeedback = !showFeedback" style="padding:0.5em;">
+                                        {{ 'INSTRUCTIONS' | translate }}
+                                        + {{ 'EXERCISE_FEEDBACK' | translate }}</h4>
+                                </div>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row *ngIf="showFeedback">
+                            <ion-col style="padding: 0;">
+                                <ion-grid style="text-align: left; font-size: 1.2em;">
+                                    <ion-row>
+                                        <ion-col>
+                                            <label>
+                                                <input [(ngModel)]="corpusService.exercise.instructionsTranslation"
+                                                       type="text" name="instructionsTranslation"/>
+                                            </label>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-col>
+                                            <b>{{ 'EXERCISE_FEEDBACK' | translate }}:</b>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-col>
+                                            <label>
+                                                {{ 'EXERCISE_FEEDBACK_GENERAL' | translate }}:
+                                                <input type="text" [(ngModel)]="corpusService.exercise.feedback.general"
+                                                       name="feedbackGeneral"/>
+                                            </label>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-col>
+                                            <label>
+                                                {{ 'EXERCISE_FEEDBACK_CORRECT' | translate }}:
+                                                <input type="text" [(ngModel)]="corpusService.exercise.feedback.correct"
+                                                       name="feedbackCorrect"/>
+                                            </label>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-col>
+                                            <label>
+                                                {{ 'EXERCISE_FEEDBACK_PARTIALLY_CORRECT' | translate }}:
+                                                <input type="text"
+                                                       [(ngModel)]="corpusService.exercise.feedback.partiallyCorrect"
+                                                       name="feedbackPartiallyCorrect"/>
+                                            </label>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-col>
+                                            <label>
+                                                {{ 'EXERCISE_FEEDBACK_INCORRECT' | translate }}:
+                                                <input type="text"
+                                                       [(ngModel)]="corpusService.exercise.feedback.incorrect"
+                                                       name="feedbackIncorrect"/>
+                                            </label>
+                                        </ion-col>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+            </ion-row>
+        </ng-template>
+        <ion-row>
+            <ion-col>
+                <ion-button (click)="generateExercise().then()">{{ 'PREVIEW' | translate }}</ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-button (click)="navCtrl.pop()">{{ 'BACK' | translate }}</ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

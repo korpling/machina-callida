@@ -1,0 +1,54 @@
+{
+    "questions": [
+        "<p>Nenne die lateinische Formulierung für \"Deine Tüchtigkeit\".<br> *istam virtutem*<\/p>",
+        "<p>Welches deutsche Wort entspricht der lateinischen Wortverbindung \"moderationem animi\"?<br> *die Gelassenheit / Gelassenheit / Deine Gelassenheit*<\/p>",
+        "<p>Vor wessen Augen und Ohren zeigt sich die Tüchtigkeit von Quintus? Gib die passenden Genitivattribute an.<br> *clarissimae provinciae* und *omnium gentium ac nationum*<\/p>"
+    ],
+    "showSolutions": "Lösungen zeigen",
+    "tryAgain": "Erneut versuchen",
+    "text": "<p><b><i>Quid autem reperiri tam eximium aut tam expetendum potest quam istam virtutem, moderationem animi, temperantiam [...] in luce Asiae, in oculis clarissimae provinciae atque in auribus omnium gentium ac nationum esse positam?<\/i><\/b><\/p><br><p>Was aber kann sich als großartiger und erstrebenswerter erweisen, als dass Deine Tüchtigkeit, Deine Gelassenheit und Deine Bescheidenheit [...] in der Öffentlichkeit der Provinz Asia, d.h. vor den Augen der hochberühmten Provinz und vor den Ohren aller Stämme und Völker ausgebreitet wurden?<\/p>\n",
+    "checkAnswer": "Weiter",
+    "notFilledOut": "Bitte alle Lücken füllen",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Beenden ?",
+      "body": "Willst du wirklich beenden ?",
+      "cancelLabel": "Abbrechen",
+      "confirmLabel": "Beenden"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "Du hast @score von @total Lücken korrekt ausgefüllt."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

@@ -1,0 +1,34 @@
+{
+    "taskDescription": "<p><b>Aufgabe:<\/b>Ordne die Wörter aus dem Pool sinnvoll zu, indem Du den Kontext beachtest. (4/6)<\/p>\n",
+    "checkAnswer": "Weiter",
+    "tryAgain": "Erneut versuchen",
+    "showSolution": "Lösung zeigen",
+    "behaviour": {
+        "enableRetry": true,
+        "enableSolutionsButton": true,
+        "instantFeedback": false,
+        "enableCheckButton": true
+    },
+    "textField": "non *itineribus* tuis perterreri homines, non sumptu exhauriri, non *adventu* *commoveri : Verb*?\n",
+    "overallFeedback": [
+        {
+            "from": 0,
+            "to": 3,
+            "feedback": "Score: @score of @total."
+        }
+    ],
+    "dropZoneIndex": "Drop Zone @index.",
+    "empty": "Drop Zone @index is empty.",
+    "contains": "Drop Zone @index contains draggable @draggable.",
+    "draggableIndex": "Draggable @text. @index of @count draggables.",
+    "tipLabel": "Tipp!",
+    "correctText": "Richtig!",
+    "incorrectText": "Leider falsch!",
+    "resetDropTitle": "Reset drop",
+    "resetDropDescription": "Are you sure you want to reset this drop zone?",
+    "grabbed": "Draggable is grabbed.",
+    "cancelledDragging": "Cancelled dragging.",
+    "correctAnswer": "Richtige Antwort:",
+    "feedbackHeader": "Feedback",
+    "scoreBarLabel": "Du hast :num von :total Punkten."
+}

@@ -1,0 +1,150 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+            <div>
+                <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+                <ion-title>{{ 'SOURCES' | translate }}
+                </ion-title>
+            </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+    <ion-grid style="text-align: left">
+        <ion-row>
+            <ion-col><h4>Software-Entwicklung</h4></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><h6>Machina Callida - Backend</h6></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <p>Die im Rahmen des Callidus-Projektes entwickelte Software - Machina Callida - ist ein
+                    Open Source-Projekt. Der Code ist bei GitLab zu finden.<br>
+                    <a href="https://scm.cms.hu-berlin.de/callidus/mc_backend" target="_blank">Backend</a>
+                </p>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><h6>Machina Callida - Frontend</h6></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <p>
+                    Das Frontend ist ebenfalls bei GitLab zu finden.<br>
+                    <a href="https://scm.cms.hu-berlin.de/callidus/mc_frontend" target="_blank">Frontend</a>
+                </p>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><h4>Software-Abhängigkeiten</h4></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><h6>Ancient Greek and Latin Dependency Treebank</h6></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <p>
+                    The Ancient Greek and Latin Dependency Treebank (AGLDT) is the earliest treebank for Ancient Greek
+                    and Latin.<br>
+                    <a href="https://perseusdl.github.io/treebank_data/" target="_blank">Perseus</a>
+                </p>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><h6>Bamberger Wortschatz</h6></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <p>
+                    Das zugrunde liegende Lektürecorpus wurde durch eine genaue Analyse der geltenden Lehrpläne
+                    sowie durch einen Abgleich der wichtigsten Textausgaben ermittelt. Es enthält die gesamte Palette
+                    der in der Mittelstufe gelesenen Texte und Autoren. Sie sind im Nachwort mitsamt den erfassten
+                    Textstellen angegeben. Der Gesamtumfang des untersuchten Corpus ist mit über 140.000 Wortformen
+                    beträchtlich: nach Abzug der Belegstellen von Namen immerhin 7.154 Lemmata, d.h. potenzielle
+                    Lernwörter. Umso überraschender und erfreulicher ist das Ergebnis: Mit 1248 Vokabeln sind
+                    gut 83% dieses Textcorpus erfassbar.<br>
+                    Die eingehenden Untersuchungen und Vorarbeiten für die neue Wortkunde-Generation fanden im
+                    Rahmen eines vom Verlag geförderten didaktischen Projekts unter dem Titel Bamberger Wortschatz
+                    statt.<br>
+                    <a href="https://www.ccbuchner.de/reihe-0-0/adeo-53/" target="_blank">ADEO-Basiswortschatz</a>
+                </p>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><h6>PROIEL Treebank</h6></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <p>
+                    The PROIEL Treebank is a treebank of ancient Indo-European languages, including Latin and
+                    Ancient Greek. It uses a refined version of dependency grammar and is available under
+                    a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International.<br>
+                    <a href="https://proiel.github.io/" target="_blank">PROIEL Treebank</a>
+                </p>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><h6>ANNIS</h6></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <p><a href="https://korpling.org/annis3/" target="_blank">ANNIS</a> ist ein browserbasiertes,
+                    Open-Source Such- und Visualisierungswerkzeug für komplexe linguistische Mehrebenenkorpora. ANNIS
+                    steht für Annotation der Informationsstruktur und wurde im Rahmen des SFB 632 "Informationsstruktur:
+                    Die sprachlichen Mittel der Gliederung von Äußerung, Satz und Text" entwickelt.<br>
+                    ANNIS basiert nicht auf einer bestimmten linguistischen Theorie und kann somit unterschiedlichste
+                    Korpora durchsuchen und darstellen. So können sprachliche Phänomene unterschiedlicher Ebenen
+                    gemeinsam dargestellt und durchsucht werden wie beispielsweise Syntax, Semantik, Morphologie,
+                    Prosodie, Referentialität und Lexik. Mit ANNIS ist es ebenfalls möglich, multimediale Daten wie
+                    Audio- und Videodateien einzubinden.
+                </p>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><h6><a href="https://github.com/rug-compling/conllu-viewer" target="_blank">CoNLL-U Viewer</a></h6></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><h4>Copyright Bilder</h4></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><img src="assets/imgs/logo.png" width="64px" height="64px"></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <div style="font-size:0.8em">Icon made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> <br>
+                    from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+                    is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0"
+                                      target="_blank">CC 3.0 BY</a><br>
+                </div>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>
+<ion-footer>
+    <ion-toolbar>
+        <ion-tabs>
+            <ion-tab-bar slot="bottom">
+                <ion-tab-button (click)="helperService.goToAuthorPage(navCtrl)">
+                    <ion-icon name="walk"></ion-icon>
+                    <ion-label>Übung erstellen</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToTestPage(navCtrl)">
+                    <ion-icon name="school"></ion-icon>
+                    <ion-label>Test beginnen</ion-label>
+                </ion-tab-button>
+            </ion-tab-bar>
+        </ion-tabs>
+    </ion-toolbar>
+</ion-footer>

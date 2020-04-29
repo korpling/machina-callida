@@ -1,0 +1,187 @@
+<ion-header>
+    <ion-toolbar>
+        <div class="toolbar-left">
+            <ion-title>{{ (exerciseService.currentExerciseIndex == 0 ? 'TEST' : (isTestMode ? 'START_TEST' : 'START_LEARNING')) | translate }}</ion-title>
+        </div>
+        <div class="toolbar-right">
+            <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+            <span *ngIf="isTestMode" id="timer"></span>
+            <button (click)="attemptExit($event)">
+                <ion-icon name="close-circle"></ion-icon>
+            </button>
+        </div>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-grid>
+        <!-- for easy navigation during development       -->
+        <ion-row *ngIf="helperService.isDevMode; else production">
+            <ion-col>
+                <ion-label>Show exercise:</ion-label>
+                <ion-select [(ngModel)]="exerciseService.currentExerciseIndex" name="currentExerciseIndex"
+                            (ngModelChange)="showNextExercise(exerciseService.currentExerciseIndex)">
+                    <ion-select-option *ngFor="let number of exerciseIndices"
+                                       [value]="number">{{ number + 1 }}</ion-select-option>
+                </ion-select>
+            </ion-col>
+            <ion-col>
+                <ion-label>Show solutions for:</ion-label>
+                <ion-select [(ngModel)]="exerciseService.currentExerciseIndex" name="currentExerciseIndex"
+                            (ngModelChange)="showNextExercise(exerciseService.currentExerciseIndex, true)">
+                    <ion-select-option *ngFor="let number of exerciseIndices"
+                                       [value]="number">{{ number + 1 }}</ion-select-option>
+                </ion-select>
+            </ion-col>
+        </ion-row>
+        <ng-template #production>
+            <ion-row *ngIf="currentState !== TestModuleState.inProgress || helperService.isDevMode">
+                <ion-col>
+                    <ion-label>{{ 'TEST_MODULE_GO_TO_EXERCISE' | translate}}:</ion-label>
+                    <ion-select [(ngModel)]="exerciseService.currentExerciseIndex" name="currentExerciseIndex"
+                                (ngModelChange)="showNextExercise(exerciseService.currentExerciseIndex, true)">
+                        <ion-select-option *ngFor="let number of exerciseIndices"
+                                           [value]="number">{{ number + 1 }}</ion-select-option>
+                    </ion-select>
+                </ion-col>
+            </ion-row>
+        </ng-template>
+        <ion-row *ngIf="currentState == TestModuleState.inProgress">
+            <ion-col>
+                <ion-label>{{ 'TEST_MODULE_PROGRESS_PART' | translate }} {{exerciseService.currentExercisePartIndex + 1}}</ion-label>
+                <ion-progress-bar value="{{progressBarValue}}"></ion-progress-bar>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf="!exerciseService.currentExerciseName.startsWith(nonH5Pstring)">
+            <ion-col>
+                {{ 'TEST_MODULE_EXERCISE_ID' | translate }}: #{{ exerciseService.currentExerciseIndex + 1 }}
+            </ion-col>
+        </ion-row>
+        <!-- step 1: intro -->
+        <div *ngIf="exerciseService.currentExerciseIndex == 0">
+            <ion-row>
+                <ion-col>
+                    <h4>{{ 'UNIT_INTRO_TITLE' | translate }}</h4>
+                    {{ 'UNIT_INTRO_TEXT' | translate }}
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>{{ 'UNIT_MODUS_LEARNING' | translate}}</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>{{ 'UNIT_MODUS_TEST' | translate}}</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>{{ 'UNIT_INTRO_SUBTEXT' | translate}}</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>{{ 'UNIT_DATA_SECURITY' | translate}}</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>{{ 'TEST_MODULE_LINK_TO_CONCEPT' | translate}}
+                    <a href="{{configMC.machinaCallidaConceptUrl}}" target="_blank">Link</a>!
+                </ion-col>
+            </ion-row>
+            <ion-row class="button-continue">
+                <ion-col>
+                    <ion-button (click)="continueToNextExercise(false)">{{ 'START_LEARNING' | translate}}</ion-button>
+                </ion-col>
+                <ion-col>
+                    <ion-button (click)="continueToNextExercise()">{{'START_TEST' | translate }}</ion-button>
+                </ion-col>
+            </ion-row>
+        </div>
+        <!-- step 2: start vocabulary test -->
+        <!-- step 3: read the text and answer questions, preparing the exercise unit -->
+        <!-- step 4: fill in the gap exercise or learn voc -->
+        <!-- step 5: repeat the voc test -->
+        <ion-row id="h5p-row">
+            <ion-col>
+                <div class="h5p-container"></div>
+            </ion-col>
+        </ion-row>
+        <ion-row
+                *ngIf="(!isTestMode || currentState == TestModuleState.showSolutions) &&
+                !exerciseService.currentExerciseName.startsWith(nonH5Pstring)">
+            <ion-button (click)="continueToNextExercise(isTestMode)">
+                {{ 'BUTTON_CONTINUE' | translate}}
+            </ion-button>
+        </ion-row>
+        <!-- step 6: show results -->
+        <div *ngIf="currentState == TestModuleState.showResults && exerciseService.currentExerciseIndex === exerciseIndices.length - 1">
+            <ion-row>
+                <ion-col>
+                    <h4>{{'UNIT_EVALUATION_HEADER' | translate}}</h4>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <ion-card>
+                        <ion-item *ngIf="isTestMode">
+                            <ion-icon name="stats-chart" slot="start"></ion-icon>
+                            <ion-label position="stacked">
+                                <h2>{{ 'RESULT' | translate }} {{ 'UNIT_DIAGNOSIS_TITLE' | translate}}:</h2></ion-label>
+                            <br>
+                            {{results[resultsBaseIndex - 2][0]}} {{ 'OF' | translate}} {{results[resultsBaseIndex - 2][1]}}
+                            {{ 'UNIT_EVALUATION_TASKS' | translate}}
+                        </ion-item>
+                        <ion-item>
+                            <ion-icon name="book" slot="start"></ion-icon>
+                            <ion-label position="stacked">
+                                <h2>{{ 'RESULT' | translate }} {{ 'UNIT_APPLICATION_TITLE' | translate}}:</h2>
+                            </ion-label>
+                            {{results[resultsBaseIndex - 1][0]}} {{ 'OF' | translate}} {{results[resultsBaseIndex - 1][1]}}
+                            {{ 'UNIT_EVALUATION_TASKS' | translate}}
+                        </ion-item>
+                        <ion-item>
+                            <ion-icon name="walk" slot="start"></ion-icon>
+                            <ion-label position="stacked">
+                                <h2>{{ 'RESULT' | translate }} {{ 'UNIT_EXERCISE_TITLE' | translate}}:</h2></ion-label>
+                            <div *ngIf="testType == TestType.cloze; else list">
+                                {{results[resultsBaseIndex][0]}} {{ 'OF' | translate}} {{results[resultsBaseIndex][1]}}
+                                {{ 'UNIT_EVALUATION_GAPS' | translate }}
+                            </div>
+                            <ng-template #list>
+                                {{results[resultsBaseIndex][0]}} {{ 'OF' | translate}} {{results[resultsBaseIndex][1]}}
+                                {{ 'UNIT_EVALUATION_WORDS' |translate }}
+                                {{knownCount[0]}}
+                            </ng-template>
+                        </ion-item>
+                        <ion-item>
+                            <ion-icon name="pulse" slot="start"></ion-icon>
+                            <ion-label position="stacked">
+                                <h2>{{ 'RESULT' | translate }} {{ 'UNIT_TEST_TITLE' | translate}}:</h2></ion-label>
+                            {{results[resultsBaseIndex + 1][0]}} {{ 'OF' | translate}} {{results[resultsBaseIndex + 1][1]}}
+                            {{ 'UNIT_EVALUATION_TASKS' | translate}}<br>
+                            <div *ngIf="isTestMode">
+                                {{ 'UNIT_EVALUATION_CHANGE' | translate}}
+                                {{ (((results[resultsBaseIndex - 2][0] - results[resultsBaseIndex + 1][0]) / (results[resultsBaseIndex - 2][0] > 0 ? results[resultsBaseIndex - 2][0] : 1)) * -100).toFixed(2) }}
+                                %
+                            </div>
+                        </ion-item>
+                    </ion-card>
+                </ion-col>
+            </ion-row>
+        </div>
+    </ion-grid>
+</ion-content>
+<ion-footer *ngIf="currentState != TestModuleState.inProgress">
+    <ion-toolbar>
+        <ion-tabs>
+            <ion-tab-bar slot="bottom">
+                <ion-tab-button (click)="sendData()">
+                    <ion-icon name="send"></ion-icon>
+                    <ion-label>{{ 'TEST_MODULE_SEND_DATA' | translate }}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToAuthorPage(navCtrl).then()">
+                    <ion-icon name="walk"></ion-icon>
+                    <ion-label>{{ 'EXERCISE_GENERATE' | translate }}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="resetTestEnvironment()">
+                    <ion-icon name="school"></ion-icon>
+                    <ion-label>{{ 'TEST_REPEAT' | translate }}</ion-label>
+                </ion-tab-button>
+            </ion-tab-bar>
+        </ion-tabs>
+    </ion-toolbar>
+</ion-footer>

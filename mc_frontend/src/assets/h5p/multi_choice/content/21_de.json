@@ -1,0 +1,101 @@
+{
+    "answers": [
+      {
+        "correct": true,
+        "text": "<div>Unbestechlichkeit<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>Klugheit<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>Tapferkeit<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>Besonnenheit<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      }
+    ],
+    "UI": {
+      "showSolutionButton": "Lösung zeigen",
+      "tryAgainButton": "Retry",
+      "checkAnswerButton": "Weiter",
+      "tipsLabel": "Show tip",
+      "scoreBarLabel": "You got :num out of :total points",
+      "tipAvailable": "Tip available",
+      "feedbackAvailable": "Feedback available",
+      "readFeedback": "Read feedback",
+      "wrongAnswer": "Wrong answer",
+      "correctAnswer": "Correct answer",
+      "shouldCheck": "Should have been checked",
+      "shouldNotCheck": "Should not have been checked",
+      "noInput": "Please answer before viewing the solution"
+    },
+    "question": "<p><i>Quid autem reperiri tam eximium aut tam expetendum potest quam istam virtutem, moderationem animi, temperantiam non latere in tenebris neque esse abditam, sed in luce Asiae, in oculis clarissimae provinciae atque in auribus omnium gentium ac nationum esse positam?<\/i><\/p><p>Was aber kann sich als großartiger und erstrebenswerter erweisen, als dass Deine Tüchtigkeit, Deine Gelassenheit und Deine Bescheidenheit nicht in der Dunkelheit verborgen sind und auch nicht waren, sondern dass sie in der Öffentlichkeit der Provinz Asia, vor den Augen der hochberühmten Provinz und vor den Ohren aller Stämme und Völker ausgebreitet wurden?<\/p><p>Was zählt Cicero zu den vorzüglichen Eigenschaften des Adressaten?<\/p>\n",
+    "behaviour": {
+      "enableRetry": false,
+      "enableSolutionsButton": true,
+      "singlePoint": true,
+      "randomAnswers": true,
+      "showSolutionsRequiresInput": false,
+      "type": "auto",
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "autoCheck": false,
+      "passPercentage": 100,
+      "showScorePoints": true,
+      "enableCheckButton": true
+    },
+    "confirmCheck": {
+      "header": "Beenden ?",
+      "body": "Willst du wirklich beenden ?",
+      "cancelLabel": "Abbrechen",
+      "confirmLabel": "Beenden"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 0,
+        "feedback": "Falsch"
+      },
+      {
+        "from": 1,
+        "to": 99,
+        "feedback": "Almost!"
+      },
+      {
+        "from": 100,
+        "to": 100,
+        "feedback": "Korrekt!"
+      }
+    ]
+  }
+  

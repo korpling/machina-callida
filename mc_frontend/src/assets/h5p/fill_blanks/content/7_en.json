@@ -1,0 +1,55 @@
+{
+    "questions": [
+      "<p>la luz --> *lux*<\/p>",
+      "<p>mayor --> *magnus*<\/p>",
+      "<p>el vestido --> *vestis*<\/p>",
+      "<p>tuyo --> *tuus*<\/p>"
+    ],
+    "showSolutions": "Show solutions",
+    "tryAgain": "Try again",
+    "text": "<p>Give the Latin word of origin to every Spanish word:<\/p>\n",
+    "checkAnswer": "Check",
+    "notFilledOut": "Please fill in all blanks",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Finish ?",
+      "body": "Are you sure you wish to finish ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "You got @score of @total blanks correct."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

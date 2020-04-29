@@ -1,0 +1,18 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title><h5>{{ 'CONFIRM_CANCEL' | translate}}</h5></ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-button (click)="confirm()">{{ 'YES' | translate }}</ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button (click)="exit()">{{ 'CANCEL' | translate }}</ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

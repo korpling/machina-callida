@@ -1,0 +1,53 @@
+{
+    "questions": [
+        "<p>Nenne die lateinische Wortverbindung, die sich hinter der Übersetzung \"diesbezüglich\" verbirgt.<br> *his in rebus*<\/p>",
+        "<p>Wem gegenüber sind Quintus und seine Untergebenen verantwortlich? Nenne die lateinischen Begriffe in der Reihenfolge ihres Vorkommens. <br> *sociis / socii* *civibus / cives* *rei publicae / res publica*<\/p>"
+    ],
+    "showSolutions": "Lösungen zeigen",
+    "tryAgain": "Erneut versuchen",
+    "text": "<p><b><i>His autem in rebus iam te usus ipse profecto erudivit nequaquam satis esse ipsum has te habere virtutes, sed esse circumspiciendum diligenter ut in hac custodia provinciae non te unum, sed omnes ministros imperi tui sociis et civibus et rei publicae praestare videaris.<\/i><\/b><\/p><br><p>Diesbezüglich hat Dich aber die Praxis sicherlich schon gelehrt, dass es keinesfalls genug ist, selbst alle diese vorzüglichen Eigenschaften zu besitzen, sondern dass man sorgfältig dafür sorgen muss, dass bei der Provinzverwaltung nicht nur Du allein, sondern alle Deine Untergebenen den Bundesgenossen, den Bürgern und dem Staat verantwortlich zu sein scheinen.<\/p>\n",
+    "checkAnswer": "Weiter",
+    "notFilledOut": "Bitte alle Lücken füllen",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Beenden ?",
+      "body": "Willst du wirklich beenden ?",
+      "cancelLabel": "Abbrechen",
+      "confirmLabel": "Beenden"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "Du hast @score von @total Lücken korrekt ausgefüllt."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

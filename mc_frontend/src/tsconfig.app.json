@@ -1,0 +1,47 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "downlevelIteration": true,
+    "outDir": "../out-tsc/app",
+    "types": []
+  },
+  "exclude": [
+    "test.ts",
+    "**/*.spec.ts",
+    "app/translate-testing/translate-testing.module.ts",
+    "app/models/h5pEventDispatcherMock.ts",
+    "app/models/mockMC.ts",
+    "environments/environment.prod.ts",
+    "app/models/xAPI/IdFormattedSubStatement.ts",
+    "app/models/xAPI/ClientModel.ts",
+    "app/models/xAPI/FilterAgent.ts",
+    "app/models/xAPI/FormattedContextActivities.ts",
+    "app/models/xAPI/FullActivityModel.ts",
+    "app/models/xAPI/IdFormattedActivity.ts",
+    "app/models/xAPI/IdFormattedActor.ts",
+    "app/models/xAPI//IdFormattedContext.ts",
+    "app/models/xAPI/IdFormattedVerb.ts",
+    "app/models/xAPI/IdFormattedSubStatementObject.ts",
+    "app/models/xAPI/AttachmentModel.ts",
+    "app/models/xAPI/IdFormattedStatementObject.ts",
+    "app/models/xAPI/IdFormattedStatementBase.ts",
+    "app/models/xAPI/IdFormattedStatement.ts",
+    "app/models/xAPI/Part.ts",
+    "app/models/xAPI/Statement.ts",
+    "app/models/xAPI/StatementHash.ts",
+    "app/models/xAPI/StatementsResult.ts",
+    "app/models/xAPI/UnstoredStatementModel.ts",
+    "app/models/xAPI/StoredStatementModel.ts",
+    "app/models/xAPI/UpRef.ts",
+    "app/models/xAPI/UnstoredStatementModel.ts"
+  ]
+  //  "files": [
+  //    "main.ts",
+  //    "zone-flags.ts",
+  //    "polyfills.ts"
+  //  ],
+  //  "include": [
+  //    "app/models/**/*.ts",
+  //    "app/**/*.module.ts"
+  //  ]
+}

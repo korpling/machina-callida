@@ -1,0 +1,38 @@
+div {
+  display: inline;
+}
+
+h4 {
+  font-size: 1.2em;
+}
+
+h5 {
+  font-size: 1em;
+  display: inline-block;
+}
+
+input[type=text] {
+  padding: 5px;
+  margin-right: 10px;
+  min-width: 20em;
+}
+
+ol {
+  text-align: left;
+}
+
+textarea {
+  border-radius: 10px;
+  border: solid lightgrey;
+}
+
+.button-icon-only {
+  -ms-transform: scale(1.5); /* IE */
+  -moz-transform: scale(1.5); /* FF */
+  -webkit-transform: scale(1.5); /* Safari and Chrome */
+  -o-transform: scale(1.5); /* Opera */
+}
+
+.first {
+  max-width: 250px;
+}

@@ -1,0 +1,51 @@
+{
+    "questions": [
+        "<p><h4>et </h4> *und / auch / und, auch / und,auch : und*</p>"
+    ],
+    "showSolutions": "L\u00f6sungen zeigen",
+    "tryAgain": "Erneut versuchen",
+    "text": "<p>Gib m\u00f6gliche Wortbedeutungen an:</p><br><p><label><input type=\"checkbox\" id=\"known\"> Ich beherrsche dieses Wort.</label></p>\n",
+    "checkAnswer": "Weiter",
+    "notFilledOut": "Bitte alle L\u00fccken f\u00fcllen",
+    "behaviour": {
+        "enableSolutionsButton": true,
+        "autoCheck": false,
+        "caseSensitive": false,
+        "showSolutionsRequiresInput": false,
+        "separateLines": false,
+        "enableRetry": false,
+        "disableImageZooming": true,
+        "confirmCheckDialog": false,
+        "confirmRetryDialog": false,
+        "acceptSpellingErrors": false,
+        "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+        "header": "Beenden ?",
+        "body": "Willst du wirklich beenden ?",
+        "cancelLabel": "Abbrechen",
+        "confirmLabel": "Beenden"
+    },
+    "confirmRetry": {
+        "header": "Retry ?",
+        "body": "Are you sure you wish to retry ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+        {
+            "from": 0,
+            "to": 100,
+            "feedback": "Du hast @score von @total L\u00fccken korrekt ausgef\u00fcllt."
+        }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+}

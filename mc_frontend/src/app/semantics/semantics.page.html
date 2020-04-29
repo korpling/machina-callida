@@ -1,0 +1,93 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+            <div>
+                <ion-title>{{ 'SEMANTICS' | translate }}
+                </ion-title>
+            </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <mat-slide-toggle [(ngModel)]="isKWICview" color="primary" name="isKWICview">
+                    {{ 'FIND_SIMILAR_CONTEXTS' | translate }}
+                </mat-slide-toggle>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <label>{{ 'SEARCH' | translate }}
+                    <input type="text" [(ngModel)]="searchRegex" name="searchRegex">
+                </label>
+            </ion-col>
+        </ion-row>
+        <div *ngIf="!isKWICview">
+            <ion-row>
+                <ion-col>
+                    <label>{{ 'MINIMUM_WORD_FREQUENCY_COUNT' | translate }}
+                        <input type="number" min="1" [(ngModel)]="minCount" name="minCount">
+                    </label>
+                </ion-col>
+            </ion-row>
+        </div>
+        <ion-row>
+            <ion-col>
+                <label>{{ 'NEAREST_NEIGHBORS_COUNT' | translate }}
+                    <input type="number" min="1" [(ngModel)]="nearestNeighborCount" name="nearestNeighborsCount">
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <label>{{ 'HIGHLIGHT' | translate }}
+                    <input type="text" [(ngModel)]="highlightRegex" name="highlightRegex">
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-button (click)="updateView()">{{ 'APPLY' | translate }}</ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+                <div *ngIf="!isKWICview; else contexts" id="{{svgElementSelector.slice(1)}}"></div>
+                <ng-template #contexts>
+                    <ion-grid>
+                        <ion-row *ngFor="let context of similarContexts">
+                            <ion-col style="text-align: left">
+                                <span *ngFor="let tok of context"><span
+                                        [class.highlight]="highlightSet.has(tok)">{{tok}}</span>{{ getWhiteSpace() }}</span>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ng-template>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <p *ngFor="let part of metadata">{{part}}</p>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-button (click)="navCtrl.pop()">{{ 'BACK' | translate }}</ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

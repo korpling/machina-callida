@@ -1,0 +1,101 @@
+{
+  "answers": [
+    {
+      "correct": true,
+      "text": "<div>in the province of Asia<\/div>\n",
+      "tipsAndFeedback": {
+        "tip": "",
+        "chosenFeedback": "",
+        "notChosenFeedback": ""
+      }
+    },
+    {
+      "correct": false,
+      "text": "<div>in the province of Achaia<\/div>\n",
+      "tipsAndFeedback": {
+        "tip": "",
+        "chosenFeedback": "",
+        "notChosenFeedback": ""
+      }
+    },
+    {
+      "correct": false,
+      "text": "<div>in the province of Egypt<\/div>\n",
+      "tipsAndFeedback": {
+        "tip": "",
+        "chosenFeedback": "",
+        "notChosenFeedback": ""
+      }
+    },
+    {
+      "correct": false,
+      "text": "<div>in the province of Athens<\/div>\n",
+      "tipsAndFeedback": {
+        "tip": "",
+        "chosenFeedback": "",
+        "notChosenFeedback": ""
+      }
+    }
+  ],
+  "UI": {
+      "showSolutionButton": "Show solution",
+      "tryAgainButton": "Retry",
+      "checkAnswerButton": "Continue",
+      "tipsLabel": "Show tip",
+      "scoreBarLabel": "You got :num out of :total points",
+      "tipAvailable": "Tip available",
+      "feedbackAvailable": "Feedback available",
+      "readFeedback": "Read feedback",
+      "wrongAnswer": "Wrong answer",
+      "correctAnswer": "Correct answer",
+      "shouldCheck": "Should have been checked",
+      "shouldNotCheck": "Should not have been checked",
+      "noInput": "Please answer before viewing the solution"
+    },
+    "question": "<p><i>Praeclarum est enim summo cum imperio fuisse in Asia triennium sic, ut nullum te signum, nulla pictura, nullum vas, nulla vestis, nullum mancipium, nulla forma cuiusquam, nulla condicio pecuniae, quibus rebus abundat ista provincia, ab summa integritate continentiaque deduxerit.<\/i><\/p><p>It is something very special to have had such unrestricted violence in the province of Asia for three years that no statue, no picture, no vase, no clothes, no slave, no beauty of any kind whatsoever, no offer of money has brought you away from your absolute incorruptibility and self-control, even though your province offers all these things in abundance.<\/p><p>Where is the one written by Cicero?<\/p>\n",
+    "behaviour": {
+      "enableRetry": false,
+      "enableSolutionsButton": true,
+      "singlePoint": true,
+      "randomAnswers": true,
+      "showSolutionsRequiresInput": false,
+      "type": "auto",
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "autoCheck": false,
+      "passPercentage": 100,
+      "showScorePoints": true,
+      "enableCheckButton": true
+    },
+    "confirmCheck": {
+      "header": "Finish ?",
+      "body": "Are you sure you wish to finish ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 0,
+        "feedback": "Wrong"
+      },
+      {
+        "from": 1,
+        "to": 99,
+        "feedback": "Almost!"
+      },
+      {
+        "from": 100,
+        "to": 100,
+        "feedback": "Correct!"
+      }
+    ]
+  }
+  

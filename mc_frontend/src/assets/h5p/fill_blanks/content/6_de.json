@@ -1,0 +1,54 @@
+{
+  "questions": [
+    "<p>pecuniae  --> *pecunia* --> *Geld / das Geld / Vieh / das Vieh*<\/p>",
+    "<p>animi --> *animus* --> *Herz / Mut / das Herz / der Mut*<\/p>",
+    "<p>virtutem --> *virtus* --> *Tugend / die Tugend / die Tapferkeit / Tapferkeit*<\/p>",
+    "<p>gentium  --> *gens* --> *Volksstamm / die Sippe / das Volk / Volk / Sippe / der Volksstamm*<\/p>"
+  ],
+  "showSolutions": "Lösungen zeigen",
+  "tryAgain": "Erneut versuchen",
+  "text": "<p>Gib die Grundform (Nom. Sg.) und eine deutsche Bedeutung der Grundform an.<\/p>\n",
+  "checkAnswer": "Weiter",
+  "notFilledOut": "Bitte alle Lücken füllen",
+  "behaviour": {
+    "enableSolutionsButton": true,
+    "autoCheck": false,
+    "caseSensitive": false,
+    "showSolutionsRequiresInput": false,
+    "separateLines": false,
+    "enableRetry": false,
+    "disableImageZooming": true,
+    "confirmCheckDialog": false,
+    "confirmRetryDialog": false,
+    "acceptSpellingErrors": false,
+    "enableCheckButton": true
+  },
+  "answerIsCorrect": "&#039;:ans&#039; is correct",
+  "answerIsWrong": "&#039;:ans&#039; is wrong",
+  "answeredCorrectly": "Answered correctly",
+  "answeredIncorrectly": "Answered incorrectly",
+  "solutionLabel": "Correct answer:",
+  "inputLabel": "Blank input @num of @total",
+  "inputHasTipLabel": "Tip available",
+  "tipLabel": "Tip",
+  "confirmCheck": {
+    "header": "Beenden ?",
+    "body": "Willst du wirklich beenden ?",
+    "cancelLabel": "Abbrechen",
+    "confirmLabel": "Beenden"
+  },
+  "confirmRetry": {
+    "header": "Retry ?",
+    "body": "Are you sure you wish to retry ?",
+    "cancelLabel": "Cancel",
+    "confirmLabel": "Confirm"
+  },
+  "overallFeedback": [
+    {
+      "from": 0,
+      "to": 100,
+      "feedback": "Du hast @score von @total Lücken korrekt ausgefüllt."
+    }
+  ],
+  "scoreBarLabel": "You got :num out of :total points"
+}

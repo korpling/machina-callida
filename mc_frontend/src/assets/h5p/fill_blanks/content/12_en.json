@@ -1,0 +1,55 @@
+{
+    "questions": [
+      "<p>Give the latin word for \"very special\".<br> *praeclarum*<\/p>",
+      "<p>Name the Latin combination of words that hides behind the translation \"unrestricted violence\".<br> *summo cum imperio*<\/p>",
+      "<p>Indicate the appropriate Latin phrase for the wording \"offer of money\".<br> *condicio pecuniae*<\/p>",
+      "<p>Give the Latin text passage for \"has brought away\".<br> *deduxerit*<\/p>"
+    ],
+    "showSolutions": "Show solutions",
+    "tryAgain": "Try again",
+    "text": "<p><b><i>Praeclarum est enim summo cum imperio fuisse in Asia triennium sic, ut nullum te signum, nulla pictura, nullum vas, [...] nulla condicio pecuniae, quibus rebus abundat ista provincia, ab summa integritate continentiaque deduxerit<\/i><\/b><\/p><br><p>It is something very special to have had such unrestricted violence in the province of Asia for three years that no statue, no picture, no vase, [...] no offer of money has brought you away from your absolute incorruptibility and self-control, even though your province offers all these things in abundance.<\/p>\n",
+    "checkAnswer": "Check",
+    "notFilledOut": "Please fill in all blanks",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Finish ?",
+      "body": "Are you sure you wish to finish ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "You got @score of @total blanks correct."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

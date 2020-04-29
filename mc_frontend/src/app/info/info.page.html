@@ -1,0 +1,99 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+            <div>
+                <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+                <ion-title>{{ 'ABOUT' | translate }}
+                </ion-title>
+            </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+<ion-content padding>
+    <ion-grid>
+        <ion-row>
+            <h1>CALLIDUS</h1>
+        </ion-row>
+        <ion-row>
+            <a href="https://www.projekte.hu-berlin.de/de/callidus/index.html" target="_blank">
+                <b>C</b>omputer-<b>A</b>ided <b>L</b>anguage <b>L</b>earning: Lexikonerwerb im Late<b>i</b>nunterricht
+                <b>d</b>urch korp<b>us</b>gestützte Methoden</a> (Vocabulary Acquisition in Latin using Corpus-based
+            Methods)
+        </ion-row>
+        <ion-row>
+            <a href="http://gepris.dfg.de/gepris/projekt/316618374" target="_blank">
+                {{'RESEARCH_PROJECT_DATA_FUNDED' | translate}}</a>
+        </ion-row>
+        <ion-row>
+            <h4>{{'RESEARCH_APPROACH_TITLE' | translate}}</h4>
+        </ion-row>
+        <ion-row>
+            {{'RESEARCH_APPROACH_TEXT' | translate}}
+        </ion-row>
+        <ion-row>
+            <h4>{{'RESEARCH_STUDIES_TITLE' | translate}}</h4>
+        </ion-row>
+        <ion-row>
+            {{'RESEARCH_STUDIES_TEXT' | translate}}<br>
+        </ion-row>
+        <ion-row>
+            <ul>
+                <li *ngFor="let i of studiesIndices">
+                    {{ 'RESEARCH_STUDIES_' + (i + 1).toString() | translate }}
+                </li>
+            </ul>
+        </ion-row>
+        <ion-row>
+            <h4>{{'RESEARCH_PUBL_TITLE' | translate}}</h4>
+        </ion-row>
+        <ion-row>
+            <ul>
+                <li *ngFor="let i of studiesIndices">
+                    {{ 'RESEARCH_PUBL_' + (i + 1).toString() | translate }}
+                </li>
+            </ul>
+        </ion-row>
+        <ion-row>
+            <h4>{{'RESEARCH_PROJECT_DATA_TITLE' | translate}}</h4>
+        </ion-row>
+        <ion-row>
+            {{'RESEARCH_PROJECT_DATA_TEXT' | translate}}<br>
+        </ion-row>
+    </ion-grid>
+</ion-content>
+<ion-footer>
+    <ion-toolbar>
+        <ion-tabs>
+            <ion-tab-bar slot="bottom">
+                <ion-tab-button (click)="helperService.goToDocSoftwarePage(navCtrl)">
+                    <ion-icon name="code"></ion-icon>
+                    <ion-label>{{ 'DOC_SOFTWARE' | translate}}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToDocExercisesPage(navCtrl)">
+                    <ion-icon name="tablet-landscape"></ion-icon>
+                    <ion-label>{{'DOC_EXERCISES' | translate}}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToDocVocUnitPage(navCtrl)">
+                    <ion-icon name="school"></ion-icon>
+                    <ion-label>{{'DOC_VOC_UNIT' | translate}}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToImprintPage(navCtrl)">
+                    <ion-icon name="today"></ion-icon>
+                    <ion-label>{{ 'IMPRINT' | translate }}</ion-label>
+                </ion-tab-button>
+            </ion-tab-bar>
+        </ion-tabs>
+    </ion-toolbar>
+</ion-footer>

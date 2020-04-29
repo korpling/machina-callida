@@ -1,0 +1,12 @@
+stages:
+  - test
+coverage:
+  stage: test
+  script:
+    - docker-compose build
+    - docker-compose run --rm --entrypoint="npm run test-ci" mc_frontend
+  coverage: '/Statements.*?(\d+(?:\.\d+)?)%/'
+  tags:
+    - node
+    - npm
+    - angular

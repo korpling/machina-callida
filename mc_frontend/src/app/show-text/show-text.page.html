@@ -1,0 +1,124 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+        </ion-buttons>
+        <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+        <ion-title *ngIf="corpusService.currentCorpus | async as cc">
+            {{cc.title}}
+            {{corpusService.currentUrn?.split(":")[corpusService.currentUrn?.split(":").length - 1]}}
+        </ion-title>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="ion-padding">
+    <h2 class="ion-padding">
+        {{'SHOW_TEXT_TITLE' | translate}}
+    </h2>
+    <ion-grid *ngIf="corpusService.currentText.length > 0; else loading">
+        <ion-row *ngIf="helperService.isVocabularyCheck">
+            <ion-col style="text-align:left; padding-left:10px;">
+                <label>
+                    <input type="checkbox" [(ngModel)]="highlightOOV"/>
+                    <span class="checkbox">{{ "TEXT_SHOW_OOV" | translate}}</span>
+                </label>
+                <br>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col class="text" size="8">
+                <div *ngIf="highlightOOV; else noOOV">
+                    <!-- do not add whitespace/newline etc. between the span elements!                   -->
+                    <span *ngFor="let node of corpusService.annisResponse.nodes; index as i"><span class="tok"
+                                                                                                   [class.oov]="node.is_oov">{{node.annis_tok}}</span>{{ getWhiteSpace(i) }}</span>
+                </div>
+                <ng-template #noOOV>
+                    <span class="tok">{{corpusService.currentText}}</span>
+                </ng-template>
+            </ion-col>
+            <ion-col class="toggle-menu" style="text-align:left; padding: 0">
+                <ion-grid style="padding: 0">
+                    <ion-row>
+                        <button *ngIf="showTextComplexity; else dropright"
+                                (click)="showTextComplexity = !showTextComplexity">
+                            <ion-icon name="caret-down"></ion-icon>
+                        </button>
+                        <ng-template #dropright>
+                            <button (click)="showTextComplexity = !showTextComplexity">
+                                <ion-icon name="caret-forward"></ion-icon>
+                            </button>
+                        </ng-template>
+                        <div>
+                            <h2 (click)="showTextComplexity = !showTextComplexity"
+                                style="padding: 0 0.2em 0.2em 0; margin: 0">
+                                {{ 'TEXT_COMPLEXITY' | translate }}</h2>
+                        </div>
+                        <button (click)="showTextComplexityDoc = !showTextComplexityDoc" style="padding:0.2em;">
+                            <ion-icon name="help-circle"></ion-icon>
+                        </button>
+                    </ion-row>
+                    <ion-row *ngIf="showTextComplexity" style="text-align:left; padding: 0 0 1em 0">
+                        <ion-grid>
+                            <ion-row *ngFor="let key of ObjectKeys(textComplexityMap)">
+                                <label>
+                                    {{ textComplexityMap[key] | translate }}:
+                                    {{corpusService.annisResponse.text_complexity[key]}}
+                                </label>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-row>
+                    <ion-row *ngIf="showTextComplexityDoc" style="text-align:left; padding: 0 0 1em 0">
+                        {{ 'TEXT_COMPLEXITY_DOCUMENTATION' | translate }}
+                    </ion-row>
+                    <ion-row>
+                        <a (click)="generateDownloadLink(FileType[FileType.docx])" style="padding:0.5em;">
+                            {{ 'GENERATE_FILE_DOCX' | translate }}
+                        </a>
+                    </ion-row>
+                    <ion-row>
+                        <a (click)="generateDownloadLink(FileType[FileType.pdf])" style="padding:0.5em;">
+                            {{ 'GENERATE_FILE_PDF' | translate }}
+                        </a>
+                    </ion-row>
+                </ion-grid>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-spinner *ngIf="isDownloading"></ion-spinner>
+                <!--  hidden download link, do not delete this!
+                This is preferable compared to a button click event, because the browser knows from the beginning that
+                it is going to be a download (instead of an ordinary link or click).         -->
+                <a style="display: none" id="download" href="" download>Download</a>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-button (click)="navCtrl.pop()">{{ 'BACK' | translate }}</ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button (click)="helperService.goToVocabularyCheckPage(navCtrl)">
+                    {{ 'VOCABULARY_CHECK' | translate }}</ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button (click)="helperService.goToExerciseParametersPage(navCtrl).then()">
+                    {{ "EXERCISE_SET_PARAMETERS" | translate}}</ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ng-template #loading>
+        <ion-spinner></ion-spinner>
+    </ng-template>
+</ion-content>

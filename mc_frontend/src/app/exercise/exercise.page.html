@@ -1,0 +1,17 @@
+<ion-header>
+    <ion-toolbar>
+        <div class="toolbar-left">
+            <ion-title>{{ 'EXERCISE' | translate }}</ion-title>
+        </div>
+        <div class="toolbar-right">
+            <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+            <button (click)="helperService.goToHomePage(navCtrl)">
+                <ion-icon name="home"></ion-icon>
+            </button>
+        </div>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <div class="h5p-container"></div>
+</ion-content>

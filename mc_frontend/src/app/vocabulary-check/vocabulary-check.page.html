@@ -1,0 +1,106 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+        </ion-buttons>
+        <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+        <ion-title>{{ 'VOCABULARY_CHECK' | translate }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="ion-padding">
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <label>
+                    <h4>{{ 'VOCABULARY_QUERY_CORPUS' | translate }}</h4>
+                    <span *ngIf="corpusService.currentCorpus | async as cc; else choose" class="button-like"
+                          (click)="chooseCorpus()">
+                        <span *ngIf="corpusService.currentTextRange | async as tr; else choose">
+                            {{ cc.author}}: {{cc.title}} {{filterArray(tr.start).join('.')}}
+                            -{{filterArray(tr.end).join('.')}}
+                        </span>
+                    </span>
+                    <ng-template #choose>
+                        <span class="button-like" (click)="chooseCorpus()">
+                            {{ 'VOCABULARY_CHOOSE_CORPUS' | translate }}
+                        </span>
+                    </ng-template>
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <label>
+                    <h4>{{ 'VOCABULARY_REFERENCE_CORPUS' | translate }}</h4>
+                    <select [(ngModel)]="vocService.currentReferenceVocabulary" name="currentReferenceVocabulary"
+                            (change)="vocService.updateReferenceRange()">
+                        <option *ngFor="let key of ObjectKeys(vocService.refVocMap)" [value]=VocabularyCorpus[key]>
+                            {{ VocabularyCorpusTranslation[key] | translate}} ({{vocService.refVocMap[key].totalCount}}
+                            {{'VOCABULARY_ITEMS' | translate}})
+                        </option>
+                    </select>
+                </label>
+                <br>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <label>
+                    <span>{{ 'VOCABULARY_REFERENCE_RANGE_START' | translate }}
+                        <select
+                                *ngIf="!vocService.getCurrentReferenceVocabulary().hasFrequencyOrder; else hasFrequencyOrder"
+                                [(ngModel)]="vocService.frequencyUpperBound" name="frequencyUpperBound">
+                            <option
+                                    *ngFor="let subcount of vocService.getCurrentReferenceVocabulary().possibleSubcounts"
+                                    [value]=subcount>
+                                {{subcount}}
+                            </option>
+                        </select>
+                        <ng-template #hasFrequencyOrder>
+                            <input type="number" [(ngModel)]="vocService.frequencyUpperBound"/>
+                        </ng-template>
+                        {{ 'VOCABULARY_REFERENCE_RANGE_END' | translate }}
+                    </span>
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <label>
+                    <h4>{{ 'VOCABULARY_SENTENCE_COUNT' | translate }}</h4>
+                    <input type="number" [(ngModel)]="vocService.desiredSentenceCount"/>
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <label>
+                    <input type="checkbox" [(ngModel)]="adaptPassages"/>
+                    <span class="checkbox">{{ "VOCABULARY_CHECK_ADAPT_PASSAGES" | translate}}</span><br>
+                    {{'VOCABULARY_CHECK_ADAPT_PASSAGES_OPTION' | translate}}
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-button (click)="checkVocabulary()">{{ 'VOCABULARY_CHECK' | translate }}</ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-button (click)="navCtrl.pop()">{{ 'BACK' | translate }}</ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

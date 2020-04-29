@@ -1,0 +1,127 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+            </div>
+            <div style="padding-left: 0.5em;">
+                {{'MACHINA_CALLIDA' | translate}}
+            </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <div>
+                <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+                <ion-select [(ngModel)]="helperService.currentLanguage" (ngModelChange)="changeLanguage($event)"
+                            name="currentLanguage" placeholder="{{helperService.currentLanguage?.name}}">
+                    <ion-select-option *ngFor="let lang of helperService.languages" value="{{lang.shortcut}}">
+                        {{lang.name}}</ion-select-option>
+                </ion-select>
+            </div>
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-grid *ngIf="!isCorpusUpdateInProgress; else loading">
+        <ion-row style="text-align:left">
+            <h1>{{'HOME_TITLE' | translate }}</h1>
+            <p>{{'HOME_INTRO' | translate }}
+                <b>"You shall know a word by the company it keeps."</b>
+            </p>
+            <br>
+            <br>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <div class="card">
+                    <img src="assets/imgs/drag_drop_exercise.png" alt="Übungsbeispiel"
+                         style="padding: 0.5em 0.25em 0 0.25em;">
+                    <h1>{{ 'EXERCISE_GENERATE' | translate }}</h1>
+                    <p>{{'TEXT_SELECTION' | translate }}<br>
+                        {{'TEXT_COMPLEXITY' | translate }}<br>
+                        {{'VOCABULARY_CHECK' | translate }}<br>
+                        {{'EXERCISE_PARAMETERS' | translate }}
+                    </p>
+                    <p>
+                        <ion-button (click)="helperService.goToAuthorPage(navCtrl)">{{ 'CONTINUE' | translate }}
+                        </ion-button>
+                    </p>
+                </div>
+            </ion-col>
+            <ion-col>
+                <div class="card">
+                    <img src="assets/imgs/database.png" alt="Screenshot der Datenbank"
+                         style="padding: 0.5em 0.25em 0 0.25em;">
+                    <h1>{{ 'EXERCISE_LIST' | translate }}</h1>
+                    <p> {{'EXERCISES_CREATED' | translate }}<br>
+                        {{'EXERCISE_TYPE_CLOZE' | translate }}<br>
+                        {{'EXERCISE_TYPE_MARK_WORDS' | translate }}<br>
+                        {{'EXERCISE_TYPE_MATCHING' | translate }}<br>
+                    </p>
+                    <p>
+                        <ion-button (click)="helperService.goToExerciseListPage(navCtrl)">{{ 'CONTINUE' | translate }}
+                        </ion-button>
+                    </p>
+                </div>
+            </ion-col>
+            <ion-col>
+                <div class="card">
+                    <img src="assets/imgs/results_testmode.png" alt="Ergebnisübersicht des Testmoduls"
+                         style="padding: 0.5em 0.25em 0 0.25em;">
+                    <h1>{{ 'TEST' | translate }}</h1>
+                    <p>
+                        {{'TEXT_WORK' | translate }}<br>
+                        {{'EXERCISES' | translate }}<br>
+                        {{'UNIT_TEST_TITLE' | translate }}<br>
+                        {{'UNIT_EVALUATION_TITLE' | translate }}
+                    </p>
+                    <p>
+                        <ion-button (click)="helperService.goToTestPage(navCtrl)">{{ 'CONTINUE' | translate }}
+                        </ion-button>
+                    </p>
+                </div>
+            </ion-col>
+            <ion-col>
+                <div class="card">
+                    <img src="assets/imgs/callidus_skizze_klein.png"
+                         alt="Skizze, wie die Software-Architektur aussehen soll"
+                         style="padding: 0.5em 0.25em 0 0.25em;">
+                    <h1>{{ 'DOCUMENTATION' | translate }}</h1>
+                    <p>{{'ABOUT' | translate }}<br>
+                        {{'DOC_SOFTWARE' | translate }}<br>
+                        {{'DOC_EXERCISES' | translate }}<br>
+                        {{'DOC_VOC_UNIT' | translate }}<br>
+                    </p>
+                    <p>
+                        <ion-button (click)="helperService.goToInfoPage(navCtrl)">{{ 'CONTINUE' | translate }}
+                        </ion-button>
+                    </p>
+                </div>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ng-template #loading>
+        <ion-spinner></ion-spinner>
+        <ion-button (click)="isCorpusUpdateInProgress = false">{{ 'CANCEL' | translate }}</ion-button>
+    </ng-template>
+</ion-content>
+
+<ion-footer>
+    <ion-toolbar>
+        <ion-tabs id="tabs">
+            <ion-tab-bar slot="bottom">
+                <ion-tab-button (click)="helperService.goToImprintPage(navCtrl)">
+                    <ion-icon name="today"></ion-icon>
+                    <ion-label>{{ 'IMPRINT' | translate }}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="refreshCorpora()">
+                    <ion-icon name="refresh"></ion-icon>
+                    <ion-label>{{ 'CORPORA_REFRESH' | translate }}</ion-label>
+                </ion-tab-button>
+            </ion-tab-bar>
+        </ion-tabs>
+    </ion-toolbar>
+</ion-footer>

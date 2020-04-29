@@ -1,0 +1,177 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+        </ion-buttons>
+        <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+        <ion-title *ngIf="corpusService.currentCorpus | async as cc">{{cc.title}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="ion-padding">
+    <div *ngIf="corpusService.currentCorpus | async as cc">
+        <ion-grid *ngIf="corpusService.currentTextRange | async as tr">
+            <ion-row>
+                <h2>{{'TEXT_RANGE' | translate}}</h2>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    {{ 'START_OF_TEXT' | translate }}
+                </ion-col>
+                <ion-col>
+                    <ion-grid>
+                        <ion-row>
+                            <input id="input1" [(ngModel)]="tr.start[0]" (focus)="currentInputId = 1"
+                                   (ngModelChange)="corpusService.setCurrentTextRange(currentInputId);
+                                   showFurtherReferences(true).then()"
+                                   placeholder="{{cc.citation_level_1}}" (blur)="resetCurrentInputId()"/>
+                        </ion-row>
+                        <ion-row>
+                            <ion-list *ngIf="currentInputId === 1">
+                                <ion-item *ngFor="let key of ObjectKeys(cc.citations)">
+                                    <button class="autocomplete" (click)="tr.start[0] = key; applyAutoComplete(true)">
+                                        {{ key }}
+                                    </button>
+                                </ion-item>
+                            </ion-list>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+                <ion-col *ngIf="cc.citation_level_2 !== CitationLevel[CitationLevel.default]">
+                    <ion-grid>
+                        <ion-row>
+                            <input [(ngModel)]="tr.start[1]" id="input2"
+                                   (ngModelChange)="corpusService.setCurrentTextRange(currentInputId);
+                                   showFurtherReferences(true).then()"
+                                   placeholder="{{ cc.citation_level_2 }}" (focus)="currentInputId = 2"
+                                   (blur)="resetCurrentInputId()"
+                                   disabled="{{!cc.citations.hasOwnProperty(tr.start[0])}}"/>
+                        </ion-row>
+                        <ion-row>
+                            <ion-list *ngIf="currentInputId === 2">
+                                <ion-item *ngFor="let key of ObjectKeys(cc.citations[tr.start[0]].subcitations)">
+                                    <button class="autocomplete" (click)="tr.start[1] = key; applyAutoComplete(true)">
+                                        {{ key }}
+                                    </button>
+                                </ion-item>
+                            </ion-list>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+                <ion-col *ngIf="cc.citation_level_3 !== CitationLevel[CitationLevel.default]">
+                    <ion-grid>
+                        <ion-row>
+                            <input [(ngModel)]="tr.start[2]" id="input3"
+                                   (ngModelChange)="corpusService.setCurrentTextRange(currentInputId);
+                                   showFurtherReferences(true).then()"
+                                   placeholder="{{ cc.citation_level_3 }}" (focus)="currentInputId = 3"
+                                   (blur)="resetCurrentInputId()" [disabled]="isInputDisabled[1] | async"/>
+                        </ion-row>
+                        <ion-row>
+                            <ion-list *ngIf="currentInputId === 3">
+                                <ion-item
+                                        *ngFor="let key of ObjectKeys(cc.citations[tr.start[0]].subcitations[tr.start[1]].subcitations)">
+                                    <button class="autocomplete" (click)="tr.start[2] = key; applyAutoComplete(true)">
+                                        {{ key }}
+                                    </button>
+                                </ion-item>
+                            </ion-list>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    {{ 'END_OF_TEXT' | translate }}
+                </ion-col>
+                <ion-col>
+                    <ion-grid>
+                        <ion-row>
+                            <input [(ngModel)]="tr.end[0]" id="input4"
+                                   (ngModelChange)="corpusService.setCurrentTextRange(currentInputId);
+                                   showFurtherReferences(false).then()"
+                                   placeholder="{{ cc.citation_level_1 }}" (focus)="currentInputId = 4"
+                                   (blur)="resetCurrentInputId()"/>
+                        </ion-row>
+                        <ion-row>
+                            <ion-list *ngIf="currentInputId === 4">
+                                <ion-item *ngFor="let key of ObjectKeys(cc.citations)">
+                                    <button class="autocomplete" (click)="tr.end[0] = key; applyAutoComplete(false)">
+                                        {{ key }}
+                                    </button>
+                                </ion-item>
+                            </ion-list>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+                <ion-col *ngIf="cc.citation_level_2 !== CitationLevel[CitationLevel.default]">
+                    <ion-grid>
+                        <ion-row>
+                            <input [(ngModel)]="tr.end[1]" id="input5"
+                                   (ngModelChange)="corpusService.setCurrentTextRange(currentInputId);
+                                   showFurtherReferences(false).then()"
+                                   placeholder="{{ cc.citation_level_2 }}" (focus)="currentInputId = 5"
+                                   (blur)="resetCurrentInputId()"
+                                   disabled="{{!cc.citations.hasOwnProperty(tr.end[0])}}"/>
+                        </ion-row>
+                        <ion-row>
+                            <ion-list *ngIf="currentInputId === 5">
+                                <ion-item *ngFor="let key of ObjectKeys(cc.citations[tr.end[0]].subcitations)">
+                                    <button class="autocomplete" (click)="tr.end[1] = key; applyAutoComplete(false)">
+                                        {{ key }}
+                                    </button>
+                                </ion-item>
+                            </ion-list>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+                <ion-col *ngIf="cc.citation_level_3 !== CitationLevel[CitationLevel.default]">
+                    <ion-grid>
+                        <ion-row>
+                            <input [(ngModel)]="tr.end[2]" id="input6"
+                                   (ngModelChange)="corpusService.setCurrentTextRange(currentInputId);
+                                   showFurtherReferences(false).then()"
+                                   placeholder="{{ cc.citation_level_3 }}" (focus)="currentInputId = 6"
+                                   (blur)="resetCurrentInputId()" [disabled]="isInputDisabled[0] | async"/>
+                        </ion-row>
+                        <ion-row>
+                            <ion-list *ngIf="currentInputId === 6">
+                                <ion-item
+                                        *ngFor="let key of ObjectKeys(cc.citations[tr.end[0]].subcitations[tr.end[1]].subcitations)">
+                                    <button class="autocomplete" (click)="tr.end[2] = key; applyAutoComplete(false)">
+                                        {{ key }}
+                                    </button>
+                                </ion-item>
+                            </ion-list>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <ion-button (click)="navCtrl.pop()">{{ 'BACK' | translate }}</ion-button>
+                </ion-col>
+                <ion-col>
+                    <ion-button (click)="confirmSelection()">
+                        {{ (helperService.isVocabularyCheck ? "VOCABULARY_CHECK" : "SHOW_TEXT") | translate }}
+                    </ion-button>
+                </ion-col>
+                <ion-col>
+                    <ion-button (click)="confirmSelection(true)">
+                        {{ "EXERCISE_SET_PARAMETERS" | translate }}
+                    </ion-button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
+</ion-content>

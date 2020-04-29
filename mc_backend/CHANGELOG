@@ -1,0 +1,261 @@
+[33m08d2554[m[33m ([m[1;36mHEAD -> [m[1;32mdevelop[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m put test Mocks in their own file
+[33m5ed1fc3[m improved performance of frequency analysis and introduced new unit tests
+[33m36bd443[m CI: combined badge tasks
+[33m151073f[m CI: updated regex for coverage parsing
+[33m8ca7f32[m CI: added installation of dependencies
+[33mfc520c6[m updated CI to work with gitlab-runner
+[33m564875d[m updated CI config
+[33m66c787a[m fixed python version for CI
+[33mc0bde97[m fixed pip installation on CI server
+[33m723c6ea[m reintroducing CI
+[33mf98c223[m included text complexity information into the rawTextAPI, while leaving it also as its own, independent API for target querying of certain measures
+[33m836c747[m added frequency analysis API to provide more support for matching exercises
+[33m9d31295[m excluded cached json files from source code repository
+[33mad9dd0a[m Merge branch 'develop' of https://scm.cms.hu-berlin.de/callidus/mc_backend into develop
+[33m3ae5638[m optimized database access to prevent idle transactions
+[33m993698f[m Lexical density measure added to the text complexity api
+[33mbf45368[m Small code fixing on the Text Complexity API
+[33me8f1ea9[m fixed a bug in the subgraph API
+[33mfe83d3d[m mark words exercises now have the maximum number of correct solutions in their description
+[33m23adc81[m raw text basis for CONLLU annotation data is now uniform (whitespace always stripped)
+[33m560a5c3[m fixed POS counting measure in text complexity
+[33maa5bc49[m Merge branch 'develop' of https://scm.cms.hu-berlin.de/callidus/mc_backend into develop
+[33me046ed2[m extended subgraph API for more flexible retrieval of smaller graphs from a larger one
+[33m857f1fa[m fixing code to integrate text complexity api
+[33maf033c2[m started integrating text complexity with main application
+[33m2796afd[m Merge branch 'develop' of https://scm.cms.hu-berlin.de/callidus/mc_backend into develop
+[33mf7643c5[m simplified and cleaner database access, session are now ended on quitting the application
+[33m228de51[m Merge branch 'master' of https://scm.cms.hu-berlin.de/callidus/mc_backend
+[33mb7a7169[m AQL queries
+[33mb60ca29[m Merge branch 'develop'
+[33m314e2f0[m fix corrupted exercise data
+[33mf4341c8[m Merge branch 'develop'
+[33m9539ad3[m fixed logging and the response type of the vocabulary check API
+[33mf382908[m Merge branch 'develop'
+[33m136b80a[m adjust rawTextAPI to the new AnnisResponse model
+[33mbf33414[m Merge branch 'develop'
+[33m9c9a059[m exercise API now supports querying of single old exercises, in conjunction with an exercise repository (exerciseList API)
+[33m89e3352[m Merge branch 'develop'
+[33m4c42c43[m fixed URNs for vocabulary check / subgraph data
+[33mdcc8bfd[m Merge branch 'develop'
+[33m5d3102b[m file API can now generate PDF and DOCX from HTML
+[33mb10fdf6[m Merge branch 'develop'
+[33mf96aeaa[m refactoring of all imports so the backend can be used without docker more easily
+[33ma8245ce[m Merge branch 'develop'
+[33m185c432[m reff and texts/annotations are now more precisely identifiable by CTS URN
+[33m923f648[m Merge branch 'develop'
+[33mc06a1ae[m static exercise API now also gives URN and lemmata, but crawls only solutions instead of the whole exercise
+[33mcea2076[m Merge branch 'develop'
+[33m63ffe39[m added file export (PDF, DOCX) for the mark words exercise
+[33m33a627b[m Merge branch 'develop'
+[33m2facd85[m Merge branch 'develop' of https://scm.cms.hu-berlin.de/callidus/mc_backend into develop
+[33m589f9b6[m introducing new exercise type: Mark Words
+[33mf7c5c1a[m Merge branch 'develop' of https://scm.cms.hu-berlin.de/callidus/mc_backend into develop
+[33m7b758c0[m Text Complexity Revision and Expansion
+[33m7098da5[m Merge branch 'develop'
+[33me5f68e8[m introducing the Static Exercises API which offers deep links to exercises for various Latin words
+[33me42626f[m Merge branch 'develop'
+[33m0c46b8d[m fixed logging for docker
+[33m544f3fa[m Merge branch 'develop'
+[33m9e547b7[m added whitespace before cloze exercise gaps
+[33m02e86b3[m updated unit tests and fixed a minor issue in the text complexity API
+[33m3b0f797[m added text complexity initialization
+[33m7a86145[m Merge branch 'develop' of https://scm.cms.hu-berlin.de/callidus/mc_backend into develop
+[33m039f30a[m Introducing the Text Complexity API
+[33m4c18575[m Merge branch 'develop'
+[33mfed041a[m fixed file permissions for learning results
+[33m4570e88[m Merge branch 'develop'
+[33m5311d44[m fixes for file API (request parsing locations) and file directories
+[33m34dbe7a[m Merge branch 'develop'
+[33mff83e2f[m fix for the arguments of the file API
+[33m6b15a21[m Merge branch 'develop'
+[33mfffe4d5[m file API now accepts POST requests to save learning results
+[33m04695b1[m Merge branch 'develop'
+[33mc6188b5[m added more file permissions to the temporary export files so Docker can handle them more easily
+[33m904374e[m Merge branch 'develop'
+[33m6d9911f[m added UDPipe binary for windows
+[33m0cca892[m Merge branch 'develop'
+[33m50247f1[m fixed a bug where exercises for textbooks with vocabulary filters were not loaded due to a mismatch in the solution architecture
+[33m9fe94a4[m Merge branch 'develop'
+[33m796f307[m introduced recovery after database connection failures, e.g. due to broken SSL connections
+[33m5718f7d[m Merge branch 'develop'
+[33m2bdb366[m fix PyCharm debugging for Docker
+[33m88d6ae3[m Merge branch 'develop'
+[33m4f0e4a8[m Merge branch 'develop' of https://scm.cms.hu-berlin.de/callidus/mc_backend into develop
+[33mbe0005f[m introduced tags for Moodle XML and fixed database migration with Docker
+[33m0c9ca73[m Merge branch 'develop' into 'master'
+[33m42cdc17[m Proper Nouns are now recognized as a match in the Vocabulary API
+[33mcb811be[m KWIC API now builds SVG data from ANNIS graphs
+[33mf3d49ed[m fix a bug in the valid reff cache where it would use the raw CTS URN as a file name instead of a disk URN
+[33m7e9eb60[m improved docker setup by separating the Corpus Storage Manager from the main application
+[33m39dbb37[m introducing Docker and a fix to CSM initialization
+[33m4d5adf4[m improved CSM initialization
+[33m628b727[m small fix to custom corpus handling
+[33m8600b3f[m introducing H5P API and KWIC API
+[33m3c865a5[m introducing vocabulary checks for the PROIEL treebank
+[33m040a9ba[m improved vocabulary check
+[33ma64226f[m exported files now do not have additional whitespace before punctuation signs anymore
+[33m76c65c5[m small fix to vocabulary API where errors occurred in custom corpora if the desired sentence range was bigger than the actual sub-graph
+[33md385130[m file API now supports restricting solutions to certain indices (e.g. only known vocabulary)
+[33m601c4dc[m fix to config checks
+[33m06ab42e[m rollback to threads instead of processes
+[33ma2d9d7b[m further fix for migration script
+[33m51b9a7f[m further fixes for migration script
+[33m75da7d7[m quick fix for the migration script
+[33m1e4c1ee[m hotfix for custom corpus processing
+[33mf0054e8[m quick fix for selecting sentence sub-graphs of custom corpora
+[33m3c2846d[m small fix for exercise export of custom corpora
+[33m7ac8ce6[m improved corpus update mechanism
+[33m288fbcb[m added the PROIEL treebank texts and annotations to the corpus
+[33m49ee733[m fixed graph cache for sub-corpora
+[33mae43147[m fixed text generation for sub-graphs
+[33m98570dc[m improved corpus retrieval performance (more caching)
+[33m9d8f8d0[m rawTextAPI now supports getting smaller parts of CTS corpora, even if those parts do not match the usual citation boundaries
+[33md8854b5[m small fixes to CSM detection and the respective corpus handling
+[33m5508209[m fixed corpus access from inside and outside of CSM
+[33m6200323[m quick fix for vocabulary filter, added VIVA vocabulary
+[33mbc01cfd[m introducing the vocabulary filter
+[33mf005634[m fix for missing cache directory
+[33m1bf0011[m small fix for the custom corpus initialization
+[33m23503d2[m small fix to file write operations
+[33m2e96c92[m corpora and validReff are now cached on disk
+[33m4aefe3c[m ANNIS now delivers arbitrary numbers of results all in one go
+[33m289e06f[m fixed root dependency search and text annotations consistency
+[33m0398d7b[m small fix for adding corpora
+[33mf4e3678[m exercises now support multiple search values for the same phenomenon
+[33mbcaa586[m Merge branch 'master' into develop
+[33m9ecfe75[m added sudo and pwd to CI script
+[33m764c9ca[m added tags to the CI config
+[33mf7ae850[m introducing CI
+[33mda03e6c[m added the matching exercise type and added CONLL annotations to the exercise database model
+[33mf13bece[m backup save
+[33m456937f[m fixed upgrade script for the database
+[33m7bacd0a[m exercises can now be exported to .DOCX, database needs to be adapted for that
+[33mf429b7c[m added query feature for dependencies and lemma search
+[33mc580e06[m exercises now support AQL queries for all the POS tags according to the UD schema
+[33mf1864a0[m database initialization is now exclusively performed by the Corpus Storage Manager thread
+[33m4b97dca[m major restructuring to make the app distributable as a wheel with setuptools; VScode config may need some small fixes to file paths
+[33m1a70b54[m update interval for corpus age check is now customizable
+[33mf795634[m trying to prevent flush errors during corpus list updates
+[33m2094195[m database access is now (partially) handled by multithreading instead of multiprocessing, because HTTP requests do not seem to work in a multiprocessing environment
+[33m671c5e6[m fixed flush errors in the corpus service when accessing the database
+[33m9bc2a8a[m fixed I/O error for trying to print in background processes
+[33mec4362c[m fixed concurrency issues with the corpus service and its database access
+[33m018ba3e[m improved error handling for database errors due to concurrency
+[33m8bb5556[m small fix to the citation level handling
+[33md237c48[m the validReff API now sends only the directly relevant citations (without nesting)
+[33m5147860[m Merge branch 'master' into develop
+[33m4172267[m added support for the VIVA textbook, and non-CTS corpora in general
+[33m4aafba5[m Less verbose logging to keep the logfile smaller
+[33m1ef726e[m quick fix for the file API
+[33mc7d6ba4[m[33m ([m[1;31morigin/feature/graphannis-exercise[m[33m)[m Merge branch 'master' into develop
+[33m174a1af[m fixed logging
+[33m8828c8a[m Merge branch 'develop' of https://scm.cms.hu-berlin.de/callidus/mc-backend into develop
+[33m1782b1f[m corpus storage manager now runs in an external process so it can always serve the same instance
+[33m6c6dec1[m Set venv environment for VS Code
+[33m175bec4[m Set venv environment for VS Code
+[33m47c800b[m replaced ujson package with rapidjson
+[33m70fae52[m improved speed of JSON serialization during exercise generation
+[33m770e117[m Merge branch 'master' into develop
+[33m7e62225[m fixed recursion error in the exercise API
+[33m207a0bf[m Remove the app.db
+[33me126770[m improved file handling, is now cross-platform
+[33m4a7f096[m changed gunicorn async workers from aiohttp to eventlet
+[33m815b9fa[m changed gunicorn config to use async workers
+[33m6c9457f[m trying to fix intermittent CORS issues
+[33m9e74d09[m fixed request args for file api
+[33m89f6780[m fixed requirements
+[33m50131b6[m fixed PDF export in file API
+[33m9b48359[m fixed gitignore for files
+[33mb1f6a22[m Revert "added PDF export to the file API"
+[33m98ce220[m added PDF export to the file API
+[33m7e9ea0a[m improved temp file handling and added general feedback parameter exercise generation
+[33m8e1da84[m fixed CORS issues, improved XML for exercise generation (more customization possible)
+[33m2dc4abb[m fixed CORS for file API
+[33m63a66d6[m modified exercise API to contain url for file download, added Exercise table in the database, added file download API
+[33mf1b40ec[m reinforced CORS for post requests to the exercise API
+[33m6c231ff[m fixed ordering links in the exercise API
+[33mc1494c7[m tidy up unit tests
+[33m99fa4de[m the application now always uses the same instance of the graph store object, with a customizable location on disk
+[33m3afe1b6[m fixed request parsing and added unit tests for exercise API
+[33m4117c7f[m Merge branch 'feature/graphannis-exercise'
+[33md4a7586[m added annotation service
+[33m40a8ed4[m exercise API now looks for raw text in the body
+[33m251be8c[m update
+[33mc6779f7[m reformatted blank lines
+[33m02ef657[m requirements now include conllu and networkx
+[33m9715b9f[m updated readme
+[33meca859f[m Merge branch 'feature/graphannis-exercise' of https://scm.cms.hu-berlin.de/callidus/mc-backend into feature/graphannis-exercise
+[33m8ea5597[m Merge branch 'master' of https://scm.cms.hu-berlin.de/callidus/mc-backend
+[33m78664ca[m updated git clone url
+[33m22bec95[m remember solution
+[33m07f5e76[m add also the dependency edges as pointing relations
+[33m79220ce[m Use "title" instead of textname
+[33md8f8e2b[m Replace the token value and remove the lemma for matches
+[33me7c0f5e[m Return the subgraph as node link JSON data
+[33m7518e2d[m Map all fields, not only pos and lemma
+[33m9b7a8ca[m Clean up current state by putting some functionality into extra functions
+[33m098bf5a[m Map tokens with their lemma and pos
+[33m40bd75c[m Parse CONLL with https://github.com/EmilStenstrom/conllu
+[33mbc8959c[m Begin to parse CONLL
+[33m70909ca[m Nicer debugger params
+[33m156759b[m Add VS Code debug config
+[33m79bd944[m Add some example code
+[33m7477937[m Ignore app.db and .env file
+[33m437325b[m fixed new raw text API
+[33mbacb56e[m gunicorn now has autoreload on source code change
+[33m7628b5c[m added raw text retrieval API
+[33m5fd6e36[m updated readme & config
+[33m9afc9df[m updated readme
+[33m9d78b1d[m updated readme
+[33mb2455c9[m added mock data for exercise generation
+[33mdca331d[m updated config handling
+[33mad8b2a2[m fixed log file pointer
+[33m2c261d8[m added new logging mechanism for gunicorn
+[33mcec641c[m removed print statement from production context
+[33m0bcd268[m relocated database initialization so it only happens when the main script is called directly
+[33m987da6c[m added columns for citation levels
+[33me4dfe64[m added migration script
+[33mca937ca[m added citation level foreign keys in corpus table
+[33mc4458de[m added citationlevel table
+[33md9afc39[m added code documentation
+[33md21a1bb[m increased gunicorn worker count
+[33m14da52a[m added logging to gunicorn
+[33mabb17a6[m added gunicorn config
+[33mdf78de8[m updated instructions and corpus URN
+[33ma129d74[m added some debug info
+[33m6cd0741[m moved host IP handling to .env
+[33m7feb49c[m fixed host name handling
+[33m770d1cb[m moved host name to .env
+[33mad9e612[m updated git URL
+[33m7baee25[m added timestamp to logging
+[33mb8e6869[m fixed error logging
+[33m719d6f9[m added blinker dependency
+[33m7333350[m added exception handler
+[33m89fdb4a[m added logging
+[33m73e64ef[m changed API response to "real" JSON wrapped in a Flask Response
+[33mafe070d[m now allowing CORS
+[33m9a28f6d[m initial commit with updated readme
+[33m98f8826[m update
+[33m8f76619[m Merge branch 'master' of https://scm.cms.hu-berlin.de/callidus/backend
+[33m9761ec3[m update
+[33m1ee1f9b[m update
+[33m4a8bad0[m update
+[33meac85ec[m update
+[33ma16b70a[m update
+[33mb68889f[m update
+[33m0f33d9b[m update
+[33mf1bd5ec[m update
+[33mf22d2eb[m Merge branch 'master' of https://bitbucket.org/burrocar/mcserver
+[33m37a8545[m update
+[33mae1f9ad[m .env deleted online with Bitbucket
+[33m2dd17f6[m update
+[33m38fbeb3[m update
+[33m6cc7a5c[m update
+[33m2821544[m env
+[33m6fbbc1e[m rewrite
+[33m1a169c5[m update
+[33m60696ed[m update
+[33m922102e[m upd
+[33md1d37bb[m Update README.md
+[33m33e3c66[m Add new file

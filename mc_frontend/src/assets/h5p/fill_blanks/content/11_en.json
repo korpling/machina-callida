@@ -1,0 +1,52 @@
+{
+    "questions": [
+      "<p>Give the predicates in the order of the sentence and assign the right person - Marcus (M.) oder Quintus (Q.) - to each predicate.<br> *facias* --> *Quintus / Q.*<br> *gaudeas* --> *Quintus / Q.*<br> *scribo* --> *Marcus / M.*<\/p>"
+    ],
+    "showSolutions": "Show solutions",
+    "tryAgain": "Try again",
+    "text": "<p><b>Task: <\/b>In the following vocabulary exercise you will practice understanding words in their context. Please answer all questions carefully. Pay attention to the spelling of the words you type.<br><br><b>Cicero to his brother Quintus: You're a good governor!<\/b><br>In a letter to his brother, Cicero emphasizes how outstanding his administration of the province of Asia is and that he must ensure that his subordinates also attract attention as positively.<br><br><b><i>[…] Atque haec nunc non, ut facias, sed ut te facere et fecisse gaudeas, scribo;<\/i><\/b><br><br>[…] And this is not what I am writing to you now to encourage you to such good action, but so that you can rejoice that you have already acted and have acted in this way.<\/p>\n",
+    "checkAnswer": "Check",
+    "notFilledOut": "Please fill in all blanks",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Finish ?",
+      "body": "Are you sure you wish to finish ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "You got @score of @total blanks correct."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

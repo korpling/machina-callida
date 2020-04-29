@@ -1,0 +1,62 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+            <div>
+                <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+                <ion-title>{{ 'VOCABULARY_RANKING' | translate }}
+                </ion-title>
+            </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="ion-padding">
+    <ion-grid *ngIf="vocService.ranking && vocService.ranking.length > 0; else loading">
+        <ion-row>
+            <ion-col size="3">
+            </ion-col>
+            <ion-col>
+                <h4>{{ 'VOCABULARY_SENTENCE_IDS' | translate }}</h4>
+            </ion-col>
+            <ion-col>
+                <h4>{{ 'VOCABULARY_MATCHING_DEGREE' | translate }}</h4>
+            </ion-col>
+            <ion-col size="3">
+            </ion-col>
+        </ion-row>
+        <ion-row *ngFor="let rank of vocService.ranking">
+            <ion-col size="3">
+            </ion-col>
+            <ion-col>
+                <div class="link" (click)="showText(rank)">
+                    {{rank[0].id + "-" + rank[rank.length - 1].id}}
+                </div>
+            </ion-col>
+            <ion-col>{{Math.round(vocService.getMean(rank)) + "%"}}
+            </ion-col>
+            <ion-col size="3">
+            </ion-col>
+        </ion-row>
+        <br>
+        <ion-row>
+            <ion-col>
+                <ion-button (click)="navCtrl.pop()">{{ 'BACK' | translate }}
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ng-template #loading>
+        <ion-spinner></ion-spinner>
+    </ng-template>
+</ion-content>

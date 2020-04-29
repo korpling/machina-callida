@@ -1,0 +1,18 @@
+{
+    "checkAnswerButton": "Continue",
+    "tryAgainButton": "Retry",
+    "showSolutionButton": "Solution",
+    "behaviour": {
+        "enableRetry": true,
+        "enableSolutionsButton": true
+    },
+    "taskDescription": "<p>Before you really get into the exercises, we will start with an overview of the original text.<\/p><p><b>The historical context<\/b><br>Place and time: Rome, 59 B.C.<br>M. Tullius Cicero writes to his younger brother Quintus, who has just been confirmed for a third year by the Senate as Propraetor of the Province of Asia. He does not hold any office at the moment, but he is involved in the Senate in his own and his brother's interests. This also includes asking his brother to continue to administer the province of Asia in an exemplary manner and to make as many new and useful contacts as possible.<\/p><p>Task: <b>Mark the predicates.</b></p>\n",
+    "textField": "[…] Atque haec nunc non, ut *facias*, sed ut te facere et fecisse *gaudeas*, *scribo*; *Praeclarum est* enim summo cum imperio fuisse in Asia triennium sic, ut nullum te signum, nulla pictura, nullum vas, […] nulla condicio pecuniae, quibus rebus *abundat* ista provincia, ab summa integritate continentiaque *deduxerit*. Quid autem reperiri tam eximium aut tam expetendum *potest* quam istam virtutem, moderationem animi, temperantiam […] in luce Asiae, in oculis clarissimae provinciae atque in auribus omnium gentium ac nationum esse positam? non itineribus tuis perterreri homines, non sumptu exhauriri, non adventu commoveri? esse, quocumque *veneris*, et publice et privatim maximam laetitiam, cum urbs custodem non tyrannum, domus hospitem non expilatorem recepisse *videatur*? his autem in rebus iam te usus ipse profecto *erudivit* nequaquam satis esse ipsum has te habere virtutes, sed esse circumspiciendum diligenter, ut in hac custodia provinciae non te unum, sed omnes ministros imperi tui sociis et civibus et rei publicae praestare *videaris*. ",
+    "overallFeedback": [
+        {
+            "from": 0,
+            "to": 100,
+            "feedback": "Score: @score of @total."
+        }
+    ]
+}

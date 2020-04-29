@@ -1,0 +1,100 @@
+{
+    "answers": [
+        {
+            "correct": true,
+            "text": "<div>the addressee and his officials<\/div>\n",
+            "tipsAndFeedback": {
+                "tip": "",
+                "chosenFeedback": "",
+                "notChosenFeedback": ""
+            }
+        },
+        {
+            "correct": false,
+            "text": "<div>only the officials of the addressee<\/div>\n",
+            "tipsAndFeedback": {
+                "tip": "",
+                "chosenFeedback": "",
+                "notChosenFeedback": ""
+            }
+        },
+        {
+            "correct": false,
+            "text": "<div>only the addressee as governor<\/div>\n",
+            "tipsAndFeedback": {
+                "tip": "",
+                "chosenFeedback": "",
+                "notChosenFeedback": ""
+            }
+        },
+        {
+            "correct": false,
+            "text": "<div>the Roman Senate and its officials<\/div>\n",
+            "tipsAndFeedback": {
+                "tip": "",
+                "chosenFeedback": "",
+                "notChosenFeedback": ""
+            }
+        }
+    ],
+    "UI": {
+        "showSolutionButton": "Show solution",
+        "tryAgainButton": "Retry",
+        "checkAnswerButton": "Ready",
+        "tipsLabel": "Show tip",
+        "scoreBarLabel": "You got :num out of :total points",
+        "tipAvailable": "Tip available",
+        "feedbackAvailable": "Feedback available",
+        "readFeedback": "Read feedback",
+        "wrongAnswer": "Wrong answer",
+        "correctAnswer": "Correct answer",
+        "shouldCheck": "Should have been checked",
+        "shouldNotCheck": "Should not have been checked",
+        "noInput": "Please answer before viewing the solution"
+    },
+    "question": "<p><i>his autem in rebus iam te usus ipse profecto erudivit nequaquam satis esse ipsum has te habere virtutes, sed esse circumspiciendum diligenter ut in hac custodia provinciae non te unum sed omnis ministros imperi tui sociis et civibus et rei publicae praestare videare.<\/i><\/p><p>In this regard, the practice has certainly already taught you that it is not enough to possess all these excellent qualities, but that it is necessary to take care that in the provincial administration not only you alone, but all your subordinates seem to be responsible to your allies, to the citizens and to the state.<\/p><p>In Cicero's opinion, who bears responsibility in a province towards his confederates, the citizens and the state?<\/p>\n",
+    "behaviour": {
+        "enableRetry": false,
+        "enableSolutionsButton": true,
+        "singlePoint": true,
+        "randomAnswers": true,
+        "showSolutionsRequiresInput": false,
+        "type": "auto",
+        "disableImageZooming": true,
+        "confirmCheckDialog": false,
+        "confirmRetryDialog": false,
+        "autoCheck": false,
+        "passPercentage": 100,
+        "showScorePoints": true,
+        "enableCheckButton": true
+    },
+    "confirmCheck": {
+        "header": "Finish ?",
+        "body": "Are you sure you wish to finish ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+        "header": "Retry ?",
+        "body": "Are you sure you wish to retry ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+        {
+            "from": 0,
+            "to": 0,
+            "feedback": "Wrong"
+        },
+        {
+            "from": 1,
+            "to": 99,
+            "feedback": "Almost!"
+        },
+        {
+            "from": 100,
+            "to": 100,
+            "feedback": "Correct!"
+        }
+    ]
+}

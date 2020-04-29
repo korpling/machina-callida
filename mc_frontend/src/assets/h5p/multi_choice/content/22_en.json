@@ -1,0 +1,100 @@
+{
+    "answers": [
+        {
+          "correct": true,
+          "text": "<div>because the addressee is a law-abiding person.<\/div>\n",
+          "tipsAndFeedback": {
+            "tip": "",
+            "chosenFeedback": "",
+            "notChosenFeedback": ""
+          }
+        },
+        {
+          "correct": false,
+          "text": "<div>because the addressee is a kind person.<\/div>\n",
+          "tipsAndFeedback": {
+            "tip": "",
+            "chosenFeedback": "",
+            "notChosenFeedback": ""
+          }
+        },
+        {
+          "correct": false,
+          "text": "<div>because the addressee is a tyrant.<\/div>\n",
+          "tipsAndFeedback": {
+            "tip": "",
+            "chosenFeedback": "",
+            "notChosenFeedback": ""
+          }
+        },
+        {
+          "correct": false,
+          "text": "<div>because the addressee is an educated person.<\/div>\n",
+          "tipsAndFeedback": {
+            "tip": "",
+            "chosenFeedback": "",
+            "notChosenFeedback": ""
+          }
+        }
+    ],
+    "UI": {
+        "showSolutionButton": "Show solution",
+        "tryAgainButton": "Retry",
+        "checkAnswerButton": "Continue",
+        "tipsLabel": "Show tip",
+        "scoreBarLabel": "You got :num out of :total points",
+        "tipAvailable": "Tip available",
+        "feedbackAvailable": "Feedback available",
+        "readFeedback": "Read feedback",
+        "wrongAnswer": "Wrong answer",
+        "correctAnswer": "Correct answer",
+        "shouldCheck": "Should have been checked",
+        "shouldNotCheck": "Should not have been checked",
+        "noInput": "Please answer before viewing the solution"
+    },
+    "question": "<p><i>non itineribus tuis perterreri homines, non sumptu exhauriri, non adventu commoveri?<\/i><\/p><p>Or that people are not frightened by your journeys through the province, not sucked away by the cost of your reception, not disturbed by your coming?<\/p><p><i>esse, quocumque veneris, et publice et privatim maximam laetitiam, cum urbs custodem non tyrannum, domus hospitem non expilatorem recepisse videatur?<\/i><\/p><p>Or that wherever you go, both in public and in private homes, the highest joy breaks out, because it shows that the city has taken in a guard and not a tyrant, the private house a hospitable and not a robber?<\/p><p>According to Cicero, why does great joy erupt when the addressee arrives?<\/p>\n",
+    "behaviour": {
+        "enableRetry": false,
+        "enableSolutionsButton": true,
+        "singlePoint": true,
+        "randomAnswers": true,
+        "showSolutionsRequiresInput": false,
+        "type": "auto",
+        "disableImageZooming": true,
+        "confirmCheckDialog": false,
+        "confirmRetryDialog": false,
+        "autoCheck": false,
+        "passPercentage": 100,
+        "showScorePoints": true,
+        "enableCheckButton": true
+    },
+    "confirmCheck": {
+        "header": "Finish ?",
+        "body": "Are you sure you wish to finish ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Finish"
+    },
+    "confirmRetry": {
+        "header": "Retry ?",
+        "body": "Are you sure you wish to retry ?",
+        "cancelLabel": "Cancel",
+        "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+        {
+            "from": 0,
+            "to": 0,
+            "feedback": "Wrong"
+        },
+        {
+            "from": 1,
+            "to": 99,
+            "feedback": "Almost!"
+        },
+        {
+            "from": 100,
+            "to": 100,
+            "feedback": "Correct!"
+        }
+    ]
+}

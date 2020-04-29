@@ -1,0 +1,157 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+            <div>
+                <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+                <ion-title>{{ 'EXERCISE_LIST' | translate }}
+                </ion-title>
+            </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <label>
+                    <input type="search" (ngModelChange)="filterExercises($event.toString())" name="currentSearchValue"
+                           class="searchbar" placeholder="{{ 'BROWSE' | translate }}" [(ngModel)]="currentSearchValue"/>
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-label>{{ 'SORT_BY' | translate }}</ion-label>
+                <ion-select [(ngModel)]="currentSortingCategory" (ngModelChange)="sortExercises()"
+                            name="currentSortingCategory">
+                    <ion-select-option *ngFor="let key of helperService.getEnumValues(SortingCategory)" value="{{key}}">
+                        {{ key | translate }}
+                    </ion-select-option>
+                </ion-select>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col class="toggle-menu">
+                <button *ngIf="showVocabularyCorpus; else dropright" (click)="toggleVocCorpus()">
+                    <ion-icon name="caret-down"></ion-icon>
+                </button>
+                <ng-template #dropright>
+                    <button (click)="toggleVocCorpus()">
+                        <ion-icon name="caret-forward"></ion-icon>
+                    </button>
+                </ng-template>
+                <div>
+                    <h4 (click)="toggleVocCorpus()">{{ 'VOCABULARY_CHECK' | translate }}</h4>
+                </div>
+            </ion-col>
+        </ion-row>
+        <ion-row id="vocCorpus" style="display: none">
+            <ion-col>
+                <ion-grid style="max-width: 30em; text-align: left">
+                    <ion-row>
+                        <ion-col>
+                            <label>
+                                <h6>{{ 'VOCABULARY_REFERENCE_CORPUS' | translate }}</h6>
+                                <select [(ngModel)]="vocService.currentReferenceVocabulary"
+                                        name="currentReferenceVocabulary"
+                                        (change)="vocService.updateReferenceRange(); hasVocChanged = true">
+                                    <option *ngFor="let key of ObjectKeys(vocService.refVocMap)"
+                                            [value]=VocabularyCorpus[key]>
+                                        {{ VocabularyCorpusTranslation[key] | translate}}
+                                        ({{vocService.refVocMap[key].totalCount}}
+                                        {{'VOCABULARY_ITEMS' | translate}})
+                                    </option>
+                                </select>
+                            </label>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col>
+                            <label>
+                                <h6>{{ 'VOCABULARY_REFERENCE_RANGE_START' | translate }}
+                                    <select
+                                            *ngIf="!vocService.getCurrentReferenceVocabulary()?.hasFrequencyOrder; else hasFrequencyOrder"
+                                            [(ngModel)]="vocService.frequencyUpperBound" name="frequencyUpperBound"
+                                            (change)="hasVocChanged = true">
+                                        <option
+                                                *ngFor="let subcount of vocService.getCurrentReferenceVocabulary()?.possibleSubcounts"
+                                                [value]=subcount>
+                                            {{subcount}}
+                                        </option>
+                                    </select>
+                                    <br>{{'VOCABULARY_REFERENCE_RANGE_END' | translate}}</h6>
+                                <ng-template #hasFrequencyOrder>
+                                    <input type="number" [(ngModel)]="vocService.frequencyUpperBound"
+                                           name="frequencyUpperBound" (change)="hasVocChanged = true"/>
+                                </ng-template>
+                            </label>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col>
+                            <ion-button (click)="getExerciseList()"
+                                        disabled="{{!hasVocChanged}}">{{ 'APPLY' | translate }}
+                            </ion-button>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+        </ion-row>
+        <ion-row *ngIf="exercises?.length; else loading">
+            <ion-grid style="padding: 0">
+                <ion-row *ngFor="let exercise of exercises" (click)="showExercise(exercise)" class="exercises">
+                    <ion-grid style="padding: 0">
+                        <ion-row style="text-align: left">
+                            <ion-col size="4">
+                                {{exercise.exercise_type_translation}}
+                            </ion-col>
+                            <ion-col size="4">
+                                {{ getDateString(exercise.last_access_time) }}
+                            </ion-col>
+                            <ion-col size="2">
+                                {{Math.round(exercise.text_complexity)}}
+                            </ion-col>
+                            <ion-col size="2">
+                                {{getMatchingDegree(exercise)}}
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            {{exercise.work_author}}
+                        </ion-row>
+                        <ion-row>
+                            {{exercise.work_title}}
+                        </ion-row>
+                    </ion-grid>
+                </ion-row>
+            </ion-grid>
+        </ion-row>
+        <ng-template #loading>
+            <h2 *ngIf="!helperService.openRequests.length">{{ 'NO_EXERCISES_FOUND' | translate }}</h2>
+        </ng-template>
+    </ion-grid>
+</ion-content>
+<ion-footer>
+    <ion-toolbar>
+        <ion-tabs id="tabs">
+            <ion-tab-bar slot="bottom">
+                <ion-tab-button (click)="getExerciseList(true)">
+                    <ion-icon name="refresh"></ion-icon>
+                    <ion-label>{{ 'EXERCISES_REFRESH' | translate }}</ion-label>
+                </ion-tab-button>
+            </ion-tab-bar>
+        </ion-tabs>
+    </ion-toolbar>
+</ion-footer>

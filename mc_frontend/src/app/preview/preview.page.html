@@ -1,0 +1,119 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+            <div>
+                <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+                <ion-title>{{ 'PREVIEW' | translate }}
+                </ion-title>
+            </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="ion-padding">
+    <div *ngIf="corpusService.annisResponse?.solutions; else loading">
+        <ion-grid>
+            <ion-row *ngIf="helperService.isVocabularyCheck">
+                <ion-col>
+                    <label>
+                        <input type="checkbox" [(ngModel)]="exerciseService.excludeOOV" (ngModelChange)="switchOOV()"/>
+                        <span class="checkbox">{{ "EXERCISE_NO_OOV" | translate}}</span>
+                    </label>
+                    <br>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <!-- TODO: enable solution shuffling for H5P ? -->
+                    <div class="h5p-container"></div>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <!-- This is preferable compared to a button click event, because the browser knows from the
+beginning that it is going to be a download (instead of an ordinary link or click). -->
+                <ion-col>
+                    <a href="{{urlBase + FileType[FileType.docx] + solutionIndicesString}}" download>
+                        {{ 'FILE_TYPE_DOCX' | translate }}</a>
+                </ion-col>
+                <ion-col>
+                    <a href="{{urlBase + FileType[FileType.pdf] + solutionIndicesString}}"
+                       download>{{ 'FILE_TYPE_PDF' | translate }}</a>
+                </ion-col>
+                <!--                TODO: ADD MOODLE SUPPORT FOR MARK WORDS EXERCISES -->
+                <ion-col *ngIf="corpusService.exercise.type !== ExerciseType.markWords">
+                    <a href="{{urlBase + FileType[FileType.xml] + solutionIndicesString}}" download>{{ 'FILE_TYPE_XML' |
+                        translate }}</a>
+                </ion-col>
+                <ion-col>
+                    <a href="{{configMC.developerMailTo}}">{{ 'EMAIL_ERROR' | translate }}</a>
+                </ion-col>
+            </ion-row>
+            <br>
+            <ion-row>
+                <ion-col>
+                    <ion-button (click)="navCtrl.pop()">{{ 'BACK' | translate }}
+                    </ion-button>
+                </ion-col>
+                <ion-col>
+                    <ion-button (click)="helperService.goToTextRangePage(navCtrl)">
+                        {{ "CHANGE_TEXT_RANGE" | translate}}
+                    </ion-button>
+                </ion-col>
+                <ion-col style="text-align: left;">
+                    <ion-button id="showShareLinkButton" style="max-width: 6em" (click)="showShareLink = !showShareLink">
+                        <ion-icon slot="start" name="share"></ion-icon>
+                        {{ "SHARE" | translate}}
+                    </ion-button>
+                </ion-col>
+                <ion-col *ngIf="showShareLink">
+                    <div>
+                        <label>
+                            <input type="text" (focus)="selectLink()"
+                                   value="{{helperService.baseUrl + '/' + configMC.frontendExercisePage + '?eid=' + this.corpusService.annisResponse.exercise_id}}"/>
+                        </label>
+                    </div>
+                    <div>
+                        <button class="button-icon-only" (click)="copyLink()">
+                            <ion-icon name="copy"></ion-icon>
+                        </button>
+                    </div>
+                </ion-col>
+            </ion-row>
+            <ion-row *ngIf="corpusService.exercise.type !== ExerciseType.markWords">
+                <ion-col style="text-align: left;">
+                    <h4 (click)="showInstructions = !showInstructions" class="pointer">
+                        <button *ngIf="showInstructions; else dropright">
+                            <ion-icon name="caret-down"></ion-icon>
+                        </button>
+                        <ng-template #dropright>
+                            <button>
+                                <ion-icon name="caret-forward"></ion-icon>
+                            </button>
+                        </ng-template>
+                        <span> {{ 'EXERCISE_DOWNLOAD_NEXT_STEPS' | translate }}</span>
+                    </h4>
+                    <ol *ngIf="showInstructions">
+                        <li>{{ 'INSTRUCTION_LOGIN_MOODLE' | translate }}</li>
+                        <li>{{ 'INSTRUCTION_COGWHEEL_MORE' | translate }}</li>
+                        <li>{{ 'INSTRUCTION_GO_TO_QUESTION_BANK' | translate }}</li>
+                        <li>{{ 'INSTRUCTION_CHOOSE_FORMAT_AND_IMPORT' | translate }}</li>
+                    </ol>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </div>
+    <ng-template #loading>
+        <ion-spinner></ion-spinner>
+    </ng-template>
+</ion-content>

@@ -1,0 +1,140 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+            <div>
+                <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+                <ion-title>{{ 'DOC_EXERCISES' | translate }}
+                </ion-title>
+            </div>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <h2 style="text-align:center;">{{'TEST' | translate}}</h2>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col style="text-align:left; padding-left: 10px;">
+                {{'DOC_EXERCISES_VOC_UNIT_INTRO' | translate}}
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="1">
+                <h4>ID</h4>
+            </ion-col>
+            <ion-col size="3">
+                <h4>{{'DOC_EXERCISES_NAME' | translate}}</h4>
+            </ion-col>
+            <ion-col size="2">
+                <h4>{{'DOC_EXERCISES_TYPE' | translate}}</h4>
+            </ion-col>
+            <ion-col size="2">
+                <h4>{{'DOC_EXERCISES_LEVEL' | translate}}</h4>
+            </ion-col>
+            <ion-col size="4">
+                <h4>{{'DOC_EXERCISES_FUNCTION' | translate}}</h4>
+            </ion-col>
+        </ion-row>
+        <!-- Vocabulary unit, first exercise type to appear-->
+        <ion-row *ngFor="let vud of vocUnitDocs; let i = index">
+            <ion-col size="1">{{i + 1}}</ion-col>
+            <ion-col size="3">
+                {{ vud.name | translate}}
+            </ion-col>
+            <ion-col size="2">
+                {{ vud.type | translate}}
+            </ion-col>
+            <ion-col size="2">
+                {{ vud.level | translate}}
+            </ion-col>
+            <ion-col size="4">
+                {{ vud.function | translate}}
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <br>
+            <br>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <h2 style="text-align:center;">{{'EXERCISE_GENERATE' | translate}}</h2>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="1">
+                <h4>ID</h4>
+            </ion-col>
+            <ion-col size="3">
+                <h4>{{'DOC_EXERCISES_NAME' | translate}}</h4>
+            </ion-col>
+            <ion-col size="2">
+                <h4>{{'DOC_EXERCISES_TYPE' | translate}}</h4>
+            </ion-col>
+            <ion-col size="2">
+                <h4>{{'DOC_EXERCISES_LEVEL' | translate}}</h4>
+            </ion-col>
+            <ion-col size="4">
+                <h4>{{'DOC_EXERCISES_FUNCTION' | translate}}</h4>
+            </ion-col>
+        </ion-row>
+        <!-- Exercise types of the exercise generator -->
+        <ion-row *ngFor="let egd of exerciseGenDocs; let i = index">
+            <ion-col size="1">{{i + 1}}</ion-col>
+            <ion-col size="3">
+                {{ egd.name | translate}}
+            </ion-col>
+            <ion-col size="2">
+                {{ egd.type | translate}}
+            </ion-col>
+            <ion-col size="2">
+                {{ egd.level | translate}}
+            </ion-col>
+            <ion-col size="4">
+                {{ egd.function | translate}}
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col><br></ion-col>
+        </ion-row>
+    </ion-grid>
+
+</ion-content>
+
+<ion-footer>
+    <ion-toolbar>
+        <ion-tabs>
+            <ion-tab-bar slot="bottom">
+                <ion-tab-button (click)="helperService.goToInfoPage(navCtrl)">
+                    <ion-icon name="information-circle"></ion-icon>
+                    <ion-label>{{ 'ABOUT' | translate }}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToDocSoftwarePage(navCtrl)">
+                    <ion-icon name="code"></ion-icon>
+                    <ion-label>{{ 'DOC_SOFTWARE' | translate}}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToDocVocUnitPage(navCtrl)">
+                    <ion-icon name="school"></ion-icon>
+                    <ion-label>{{'DOC_VOC_UNIT' | translate}}</ion-label>
+                </ion-tab-button>
+                <ion-tab-button (click)="helperService.goToImprintPage(navCtrl)">
+                    <ion-icon name="today"></ion-icon>
+                    <ion-label>{{ 'IMPRINT' | translate }}</ion-label>
+                </ion-tab-button>
+            </ion-tab-bar>
+        </ion-tabs>
+    </ion-toolbar>
+</ion-footer>

@@ -1,0 +1,78 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+        </ion-buttons>
+        <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+        <ion-title>{{ 'AUTHOR_SELECT' | translate }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <b style="padding: 0.5em;">{{ 'MOST_RECENT_SETUP' | translate }}:</b>
+
+            </ion-col>
+        </ion-row>
+        <div *ngIf="helperService.applicationState | async as state">
+            <ion-row
+                    *ngIf="state.mostRecentSetup && state.mostRecentSetup.currentCorpus && state.mostRecentSetup.currentUrn; else noEntryFound">
+                <ion-col>
+                    <a (click)="restoreLastSetup()">
+                        {{ [state.mostRecentSetup.currentCorpus.author, state.mostRecentSetup.currentCorpus.title,
+                        state.mostRecentSetup.currentUrn?.split(":").slice(-1)[0]].join(", ") }}
+                    </a>
+                </ion-col>
+            </ion-row>
+            <ng-template #noEntryFound>
+                <ion-row>
+                    <ion-col>{{ "NO_ENTRY_FOUND" | translate }}</ion-col>
+                </ion-row>
+            </ng-template>
+        </div>
+        <ion-row>
+            <ion-col>
+                <label>
+                    <input type="checkbox" [(ngModel)]="showOnlyTreebanks" (change)="toggleTreebankAuthors()"/>
+                    <span class="checkbox">{{ 'AUTHOR_SHOW_ONLY_TREEBANKS' | translate}}</span>
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <label>
+                    <ion-icon name="search" class="search"></ion-icon>
+                    <input type="search" (ngModelChange)="getAuthors($event.toString())"
+                           placeholder="{{ 'AUTHOR_SEARCH' | translate }}" [(ngModel)]="currentSearchValue"/>
+                </label>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col style="display: inline-grid">
+                <h2>{{'AUTHOR' | translate}}</h2>
+                <ion-grid *ngIf="corpusService.availableAuthors.length > 0; else loading" class="author"
+                          style="text-align: left">
+                    <ion-row *ngFor="let author of authorsDisplayed">
+                        <ion-col>
+                            <a href="javascript:" (click)="showCorpora(author)">{{author.name}}</a>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+                <ng-template #loading>
+                    <ion-spinner></ion-spinner>
+                </ng-template>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

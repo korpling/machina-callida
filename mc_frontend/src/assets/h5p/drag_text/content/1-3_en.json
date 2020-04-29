@@ -1,0 +1,34 @@
+{
+    "taskDescription": "<p>Use Drag & Drop to fill in the gaps with the words from the pool.<\/p>\n",
+    "checkAnswer": "Ready",
+    "tryAgain": "Retry",
+    "showSolution": "Show Solution",
+    "behaviour": {
+        "enableRetry": true,
+        "enableSolutionsButton": true,
+        "instantFeedback": false,
+        "enableCheckButton": true
+    },
+    "textField": "Atque haec nunc non, ut facias, sed ut te *facere: present* et *fecisse: past* gaudeas, scribo; praeclarum *est* enim summo cum *imperio* *fuisse* in Asia triennium sic ut nullum te *signum*, nulla pictura, nullum vas, nulla vestis, nullum mancipium, nulla forma cuiusquam, nulla condicio *pecuniae*, quibus rebus abundat *ista* provincia, ab summa integritate continentiaque deduxerit. quid autem reperiri tam eximium aut tam expetendum potest quam istam *virtutem*, moderationem animi, temperantiam non latere in *tenebris* neque esse abditam, sed in luce Asiae, in *oculis* clarissimae provinciae atque in auribus *omnium* gentium ac nationum esse positam? non itineribus *tuis* perterreri *homines*, non sumptu exhauriri, non adventu commoveri? esse quocumque veneris et publice et privatim maximam laetitiam, cum urbs *custodem* non tyrannum, *domus* *hospitem* non expilatorem recepisse videatur? his autem in *rebus* iam te usus *ipse* profecto erudivit nequaquam satis esse *ipsum* has te habere virtutes, sed esse circumspiciendum diligenter ut in hac custodia provinciae non te unum sed omnis ministros imperi tui * sociis: not a roman * et * civibus: a roman * et * rei * publicae *praestare* videare. \n",
+    "overallFeedback": [
+        {
+            "from": 0,
+            "to": 100,
+            "feedback": "Score: @score of @total."
+        }
+    ],
+    "dropZoneIndex": "Drop Zone @index.",
+    "empty": "Drop Zone @index is empty.",
+    "contains": "Drop Zone @index contains draggable @draggable.",
+    "draggableIndex": "Draggable @text. @index of @count draggables.",
+    "tipLabel": "Show tip",
+    "correctText": "Correct!",
+    "incorrectText": "Incorrect!",
+    "resetDropTitle": "Reset drop",
+    "resetDropDescription": "Are you sure you want to reset this drop zone?",
+    "grabbed": "Draggable is grabbed.",
+    "cancelledDragging": "Cancelled dragging.",
+    "correctAnswer": "Correct answer:",
+    "feedbackHeader": "Feedback",
+    "scoreBarLabel": "You got :num out of :total points"
+}

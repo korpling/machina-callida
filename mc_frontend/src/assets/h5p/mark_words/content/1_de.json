@@ -1,0 +1,18 @@
+{
+    "checkAnswerButton": "Weiter",
+    "tryAgainButton": "Retry",
+    "showSolutionButton": "Solution",
+    "behaviour": {
+        "enableRetry": true,
+        "enableSolutionsButton": true
+    },
+    "taskDescription": "<p>Bevor Du so richtig in die Wortschatzarbeit einsteigst, beginnen wir mit einem Überblick über den Originaltext.<\/p><p><b>Der historische Kontext<\/b><br>Ort und Zeit: Rom, 59 v.Chr.<br>M. Tullius Cicero schreibt an seinen jüngeren Bruder Quintus, der gerade vom Senat für ein drittes Jahr als Proprätor der Provinz Asia bestätigt worden ist. Marcus Cicero hat selbst momentan kein Amt inne, doch engagiert er sich im Senat sehr aktiv für die Interessen der Brüder. Um ihr Ansehen noch zu vergrößern, fordert er seinen Bruder auf, die Provinz Asia weiterhin vorbildlich zu verwalten und möglichst viele neue und nützliche Kontakte zu knüpfen.<\/p><p>Aufgabe: <b>Markiere die Prädikate (11).</b></p>\n",
+    "textField": "[…] Atque haec nunc non, ut *facias*, sed ut te facere et fecisse *gaudeas*, *scribo*; *Praeclarum est* enim summo cum imperio fuisse in Asia triennium sic, ut nullum te signum, nulla pictura, nullum vas, […] nulla condicio pecuniae, quibus rebus *abundat* ista provincia, ab summa integritate continentiaque *deduxerit*. Quid autem reperiri tam eximium aut tam expetendum *potest* quam istam virtutem, moderationem animi, temperantiam […] in luce Asiae, in oculis clarissimae provinciae atque in auribus omnium gentium ac nationum esse positam? non itineribus tuis perterreri homines, non sumptu exhauriri, non adventu commoveri? esse, quocumque *veneris*, et publice et privatim maximam laetitiam, cum urbs custodem non tyrannum, domus hospitem non expilatorem recepisse *videatur*? his autem in rebus iam te usus ipse profecto *erudivit* nequaquam satis esse ipsum has te habere virtutes, sed esse circumspiciendum diligenter, ut in hac custodia provinciae non te unum, sed omnes ministros imperi tui sociis et civibus et rei publicae praestare *videaris*. ",
+    "overallFeedback": [
+        {
+            "from": 0,
+            "to": 100,
+            "feedback": "Score: @score of @total."
+        }
+    ]
+}

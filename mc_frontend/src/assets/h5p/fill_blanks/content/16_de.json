@@ -1,0 +1,53 @@
+{
+    "questions": [
+        "<p>Welchen Effekt löst nach Aussage von Marcus Cicero die Ankunft seines Bruders aus? Gib den lateinischen Textbeleg.<br> *maximam laetitiam / laetitiam maximam*<\/p>",
+        "<p>Cicero schreibt seinem Bruder Quintus zwei positive Funktionen zu, die erklären, warum Quintus gern aufgenommen wird. Nenne die lateinischen Wörter in der Reihe des Vorkommens.<br> *custodem / custos* und *hospitem / hospes*<\/p>"
+    ],
+    "showSolutions": "Lösungen zeigen",
+    "tryAgain": "Erneut versuchen",
+    "text": "<p><b><i>Esse, quocumque veneris, et publice et privatim maximam laetitiam, cum urbs custodem non tyrannum, domus hospitem non expilatorem recepisse videatur?<\/i><\/b><\/p><br><p>Oder dass überall, wohin Du auch kommst, sowohl in der Öffentlichkeit als auch in Privathäusern die höchste Freude ausbricht, weil sich zeigt, dass die Stadt einen Beschützer und keinen Tyrannen, das Privathaus einen Gast und keinen Räuber aufgenommen hat?<\/p>\n",
+    "checkAnswer": "Weiter",
+    "notFilledOut": "Bitte alle Lücken füllen",
+    "behaviour": {
+      "enableSolutionsButton": true,
+      "autoCheck": false,
+      "caseSensitive": false,
+      "showSolutionsRequiresInput": false,
+      "separateLines": false,
+      "enableRetry": false,
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "acceptSpellingErrors": false,
+      "enableCheckButton": true
+    },
+    "answerIsCorrect": "&#039;:ans&#039; is correct",
+    "answerIsWrong": "&#039;:ans&#039; is wrong",
+    "answeredCorrectly": "Answered correctly",
+    "answeredIncorrectly": "Answered incorrectly",
+    "solutionLabel": "Correct answer:",
+    "inputLabel": "Blank input @num of @total",
+    "inputHasTipLabel": "Tip available",
+    "tipLabel": "Tip",
+    "confirmCheck": {
+      "header": "Beenden ?",
+      "body": "Willst du wirklich beenden ?",
+      "cancelLabel": "Abbrechen",
+      "confirmLabel": "Beenden"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 100,
+        "feedback": "Du hast @score von @total Lücken korrekt ausgefüllt."
+      }
+    ],
+    "scoreBarLabel": "You got :num out of :total points"
+  }
+  

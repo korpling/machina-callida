@@ -1,0 +1,119 @@
+{
+    "answers": [
+      {
+        "correct": true,
+        "text": "<div>Ciceros Bruder ist Statthalter in der Provinz Asia.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": true,
+        "text": "<div>Die Provinz Asia besitzt viele Dinge im Überfluss.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": true,
+        "text": "<div>Quintus ist bei allen in der Provinz beliebt.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>Asia ist eine unbekannte Provinz.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>Quintus ist bestechlich und unbeherrscht.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>Die Provinzverwaltung liegt in den Händen des Senats von Rom.<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      }
+    ],
+    "UI": {
+      "showSolutionButton": "Lösung zeigen",
+      "tryAgainButton": "Retry",
+      "checkAnswerButton": "Fertig",
+      "tipsLabel": "Show tip",
+      "scoreBarLabel": "You got :num out of :total points",
+      "tipAvailable": "Tip available",
+      "feedbackAvailable": "Feedback available",
+      "readFeedback": "Read feedback",
+      "wrongAnswer": "Wrong answer",
+      "correctAnswer": "Correct answer",
+      "shouldCheck": "Should have been checked",
+      "shouldNotCheck": "Should not have been checked",
+      "noInput": "Please answer before viewing the solution"
+    },
+    "question": "<p>Textverständnis: Wähle inhaltlich zutreffende Aussagen aus. <br> <small>Wenn Du Dir nicht sicher bist, schau noch einmal im Text nach.<\/small><\/p><p>[…] Und dies schreibe ich dir jetzt nicht, um Dich zu solchem guten Handeln anzuregen, sondern damit Du Dich darüber freuen kannst, dass Du bereits so handelst und gehandelt hast. Es ist nämlich etwas ganz Besonderes, drei Jahre lang in der Provinz Asia so unumschränkte Gewalt gehabt zu haben, dass Dich trotzdem keine Statue, kein Bild, keine Vase […] noch ein Geldangebot von Deiner absoluten Unbestechlichkeit und Deiner Selbstbeherrschung abgebracht hat, obwohl Deine Provinz alle diese Dinge im Überfluss bietet. Was aber kann sich als großartiger und erstrebenswerter erweisen, als dass Deine Tüchtigkeit, Deine Gelassenheit und Deine Bescheidenheit […] in der Öffentlichkeit der Provinz Asia, vor den Augen der hochberühmten Provinz und vor den Ohren aller Stämme und Völker ausgebreitet wurden? Oder dass die Menschen von Deinen Reisen durch die Provinz nicht erschreckt, durch die Kosten für Deinen Empfang nicht ausgesaugt noch durch Dein Kommen beunruhigt werden? Oder dass überall, wohin Du auch kommst, sowohl in der Öffentlichkeit als auch in Privathäusern die höchste Freude ausbricht, weil sich zeigt, dass die Stadt einen Beschützer und keinen Tyrannen, das Privathaus einen Gastfreund und keinen Räuber aufgenommen hat? Diesbezüglich hat Dich aber die Praxis sicherlich schon gelehrt, dass es keinesfalls genug ist, selbst alle diese vorzüglichen Eigenschaften zu besitzen, sondern dass man sorgfältig dafür sorgen muss, dass bei der Provinzverwaltung nicht nur Du allein, sondern alle Deine Untergebenen den Bundesgenossen, den Bürgern und dem Staat verantwortlich zu sein scheinen.<\/p>\n",
+    "behaviour": {
+      "enableRetry": false,
+      "enableSolutionsButton": true,
+      "singlePoint": true,
+      "randomAnswers": true,
+      "showSolutionsRequiresInput": false,
+      "type": "auto",
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "autoCheck": false,
+      "passPercentage": 100,
+      "showScorePoints": true,
+      "enableCheckButton": true
+    },
+    "confirmCheck": {
+      "header": "Beenden ?",
+      "body": "Willst du wirklich beenden ?",
+      "cancelLabel": "Abbrechen",
+      "confirmLabel": "Beenden"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 0,
+        "feedback": "Falsch"
+      },
+      {
+        "from": 1,
+        "to": 99,
+        "feedback": "Almost!"
+      },
+      {
+        "from": 100,
+        "to": 100,
+        "feedback": "Korrekt!"
+      }
+    ]
+  }
+  

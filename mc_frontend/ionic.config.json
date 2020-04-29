@@ -1,0 +1,7 @@
+{
+  "name": "mc_frontend",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

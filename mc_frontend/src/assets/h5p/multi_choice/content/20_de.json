@@ -1,0 +1,101 @@
+{
+    "answers": [
+      {
+        "correct": true,
+        "text": "<div>in der Provinz Asia<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>in der Provinz Achaia<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>in der Provinz Aegyptus<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      },
+      {
+        "correct": false,
+        "text": "<div>in der Provinz Athen<\/div>\n",
+        "tipsAndFeedback": {
+          "tip": "",
+          "chosenFeedback": "",
+          "notChosenFeedback": ""
+        }
+      }
+    ],
+    "UI": {
+      "showSolutionButton": "Lösung zeigen",
+      "tryAgainButton": "Retry",
+      "checkAnswerButton": "Weiter",
+      "tipsLabel": "Show tip",
+      "scoreBarLabel": "You got :num out of :total points",
+      "tipAvailable": "Tip available",
+      "feedbackAvailable": "Feedback available",
+      "readFeedback": "Read feedback",
+      "wrongAnswer": "Wrong answer",
+      "correctAnswer": "Correct answer",
+      "shouldCheck": "Should have been checked",
+      "shouldNotCheck": "Should not have been checked",
+      "noInput": "Please answer before viewing the solution"
+    },
+    "question": "<p><i>Praeclarum est enim summo cum imperio fuisse in Asia triennium sic, ut nullum te signum, nulla pictura, nullum vas, nulla vestis, nullum mancipium, nulla forma cuiusquam, nulla condicio pecuniae, quibus rebus abundat ista provincia, ab summa integritate continentiaque deduxerit.<\/i><\/p><p>Es ist nämlich etwas ganz Besonderes, drei Jahre lang in der Provinz Asia so unumschränkte Gewalt gehabt zu haben, dass Dich trotzdem keine Statue, kein Bild, keine Vase, keine Kleidung, kein Sklave, keine wie auch immer geartete Schönheit noch ein Geldangebot von Deiner absoluten Unbestechlichkeit und Deiner Selbstbeherrschung abgebracht hat, obwohl Deine Provinz alle diese Dinge im Überfluss bietet.<\/p><p>Wo befindet sich der von Cicero Angeschriebene?<\/p>\n",
+    "behaviour": {
+      "enableRetry": false,
+      "enableSolutionsButton": true,
+      "singlePoint": true,
+      "randomAnswers": true,
+      "showSolutionsRequiresInput": false,
+      "type": "auto",
+      "disableImageZooming": true,
+      "confirmCheckDialog": false,
+      "confirmRetryDialog": false,
+      "autoCheck": false,
+      "passPercentage": 100,
+      "showScorePoints": true,
+      "enableCheckButton": true
+    },
+    "confirmCheck": {
+      "header": "Beenden ?",
+      "body": "Willst du wirklich beenden ?",
+      "cancelLabel": "Abbrechen",
+      "confirmLabel": "Beenden"
+    },
+    "confirmRetry": {
+      "header": "Retry ?",
+      "body": "Are you sure you wish to retry ?",
+      "cancelLabel": "Cancel",
+      "confirmLabel": "Confirm"
+    },
+    "overallFeedback": [
+      {
+        "from": 0,
+        "to": 0,
+        "feedback": "Falsch"
+      },
+      {
+        "from": 1,
+        "to": 99,
+        "feedback": "Almost!"
+      },
+      {
+        "from": 100,
+        "to": 100,
+        "feedback": "Korrekt!"
+      }
+    ]
+  }
+  
