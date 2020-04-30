@@ -1,0 +1,24 @@
+stages:
+  - build
+  - ci_frontend
+  - coverage_frontend
+build:
+  stage: build
+  script:
+    - docker-compose build
+ci_frontend:
+  stage: ci_frontend
+  script:
+    - ./ci.sh
+  artifacts:
+    paths:
+      - ci_frontend.log
+coverage_frontend:
+  stage: coverage_frontend
+  script:
+    - ./coverage.sh
+    - cat coverage_frontend.log
+  artifacts:
+    paths:
+      - coverage_frontend.log
+  coverage: '/.*/'
