@@ -1,5 +1,5 @@
 """Unit tests for testing the application functionality."""
-# TODO: TEST BLINKER & GUNICORN IMPORTS
+# TODO: TEST BLINKER, GUNICORN, PSYCOPG2-BINARY AND COVERAGE IMPORTS
 import copy
 import logging
 import ntpath
