@@ -10,15 +10,17 @@ ci_frontend:
   stage: ci_frontend
   script:
     - ./ci.sh
+    - cat ci_frontend.log
   artifacts:
     paths:
       - ci_frontend.log
-coverage_frontend:
-  stage: coverage_frontend
-  script:
-    - ./coverage.sh
-    - cat coverage_frontend.log
-  artifacts:
-    paths:
-      - coverage_frontend.log
-  coverage: '/.*/'
+  coverage: '/Statements.*?(\d+(?:\.\d+)?)%/'
+#coverage_frontend:
+#  stage: coverage_frontend
+#  script:
+#    - ./coverage.sh
+#    - cat coverage_frontend.log
+#  artifacts:
+#    paths:
+#      - coverage_frontend.log
+#  coverage: '/.*/'
