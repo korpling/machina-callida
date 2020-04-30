@@ -23,6 +23,7 @@ frozendict==1.2
 future==0.18.2
 gensim==3.8.2
 graphannis==0.27.0
+gunicorn==20.0.4
 html5lib==1.0.1
 idna==2.9
 isodate==0.6.0

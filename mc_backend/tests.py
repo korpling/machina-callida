@@ -1,4 +1,5 @@
 """Unit tests for testing the application functionality."""
+# TODO: TEST BLINKER & GUNICORN IMPORTS
 import copy
 import logging
 import ntpath
@@ -37,7 +38,6 @@ import mcserver
 from csm.app import create_csm_app
 from mcserver.app import create_app, db, start_updater, full_init
 from mcserver.app.api.exerciseAPI import map_exercise_data_to_database
-from mcserver.app.api.fileAPI import save_learning_result
 from mcserver.app.api.vectorNetworkAPI import add_edges, get_concept_network
 from mcserver.app.models import Corpus, UpdateInfo, ResourceType, Exercise, FileType, ExerciseType, ExerciseData, \
     NodeMC, LinkMC, GraphData, Phenomenon, CustomCorpus, AnnisResponse, Solution, DownloadableFile, Language, \
