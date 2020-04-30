@@ -2,6 +2,7 @@
 build
 .cache/
 .coverage*
+!.coveragerc
 coverage.xml
 dist
 htmlcov/
