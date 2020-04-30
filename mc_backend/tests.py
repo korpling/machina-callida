@@ -492,7 +492,7 @@ class McTestCase(unittest.TestCase):
                 cfg: Type[Config] = TestingConfig
                 old_uri: str = cfg.SQLALCHEMY_DATABASE_URI
                 create_app(cfg)
-                self.assertEqual(cfg.SQLALCHEMY_DATABASE_URI, Config.DATABASE_LOCAL_URL)
+                self.assertEqual(cfg.SQLALCHEMY_DATABASE_URI, Config.DATABASE_URL_LOCAL)
                 cfg.SQLALCHEMY_DATABASE_URI = old_uri
         self.app_context.push()
 

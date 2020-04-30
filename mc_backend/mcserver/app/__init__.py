@@ -23,7 +23,7 @@ def create_app(cfg: Type[Config] = Config) -> Flask:
     """
     # use local postgres database for migrations
     if len(sys.argv) > 2 and sys.argv[2] == Config.FLASK_MIGRATE:
-        cfg.SQLALCHEMY_DATABASE_URI = Config.DATABASE_LOCAL_URL
+        cfg.SQLALCHEMY_DATABASE_URI = Config.DATABASE_URL_LOCAL
     app = init_app_common(cfg=cfg)
     from mcserver.app.services import bp as services_bp
     app.register_blueprint(services_bp)

@@ -11,7 +11,7 @@ RUN python -m venv venv
 RUN apt-get update
 RUN apt-get install -y openssh-server nano
 
-COPY mcserver/requirements.txt requirements.txt
+COPY requirements.txt requirements.txt
 RUN venv/bin/pip install --no-cache-dir --default-timeout=120 -r requirements.txt
 
 #prepare ssh

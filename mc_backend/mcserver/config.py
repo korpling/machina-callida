@@ -57,11 +57,10 @@ class Config(object):
     CUSTOM_CORPUS_VIVA_FILE_PATH = os.path.join(ASSETS_DIRECTORY, "viva_lektionstexte1-32.txt")
     CUSTOM_CORPUS_VIVA_URN = "urn:custom:latinLit:viva.lat"
     CUSTOM_CORPUS_PROIEL_URN_TEMPLATE = "urn:custom:latinLit:proiel.{0}.lat"
-    DATABASE_LOCAL_URL = "postgresql://postgres@0.0.0.0:5432/postgres"
     DATABASE_TABLE_ALEMBIC = "alembic_version"
-    DATABASE_URL = os.environ.get("DATABASE_URL",
-                                  ("postgresql://postgres@db:5432/" if IS_DOCKER else
-                                   "postgresql://0.0.0.0:5432/postgres"))
+    DATABASE_URL_LOCAL = "postgresql://postgres@0.0.0.0:5432/postgres"
+    DATABASE_URL_FALLBACK = "postgresql://postgres@db:5432/" if IS_DOCKER else DATABASE_URL_LOCAL
+    DATABASE_URL = os.environ.get("DATABASE_URL", DATABASE_URL_FALLBACK)
     DEBUG = False
     FLASK_MIGRATE = "migrate"
     GRAPHANNIS_DEPENDENCY_LINK = "dep"
@@ -134,9 +133,7 @@ class Config(object):
 class ProductionConfig(Config):
     """Configuration for the production environment"""
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL_PROD",
-                                             "postgresql://postgres@db:5432/" if
-                                             Config.IS_DOCKER else "postgresql://0.0.0.0:5432/postgres")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL_PROD", Config.DATABASE_URL_FALLBACK)
 
 
 class StagingConfig(Config):
@@ -149,8 +146,7 @@ class DevelopmentConfig(Config):
     """Configuration for the development environment"""
     DEVELOPMENT = True
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", "postgresql://postgres@db:5432/" if Config.IS_DOCKER else Config.DATABASE_LOCAL_URL)
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", Config.DATABASE_URL_FALLBACK)
 
 
 class TestingConfig(Config):
