@@ -998,13 +998,19 @@ class CommonTestCase(unittest.TestCase):
 
     def test_init_stop_words_latin(self):
         """Initializes the stop words list for Latin texts and caches it if necessary."""
+
+        def clear_cache():
+            if os.path.exists(Config.STOP_WORDS_LATIN_PATH):
+                os.remove(Config.STOP_WORDS_LATIN_PATH)
+
+        clear_cache()
         stop_word_list: Dict[str, List[str]] = {"a": ["b"]}
         mr: MockResponse = MockResponse(json.dumps(stop_word_list))
         with patch.object(mcserver.app.services.textService.requests, "get", return_value=mr) as mock_get_request:
             TextService.init_stop_words_latin()
             self.assertEqual(len(TextService.stop_words_latin), 1)
             TextService.init_stop_words_latin()
-            os.remove(Config.STOP_WORDS_LATIN_PATH)
+            clear_cache()
             self.assertEqual(mock_get_request.call_count, 1)
 
     def test_load_text_list(self):
