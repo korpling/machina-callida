@@ -9,7 +9,7 @@ build:
 ci_frontend:
   stage: ci
   script:
-    - ./ci_frontend.sh
+    - docker-compose run --rm --entrypoint="npm run test-ci" mc_frontend > ci_frontend.log
   artifacts:
     paths:
       - ci_frontend.log

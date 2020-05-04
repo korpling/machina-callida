@@ -362,8 +362,7 @@ class McTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         TestingConfig.SIMULATE_EMPTY_GRAPH = False
 
-    @patch('mcserver.app.api.staticExercisesAPI.requests.get', side_effect=mocked_requests_get)
-    def test_api_static_exercises_get(self, mock_get: MagicMock):
+    def test_api_static_exercises_get(self):
         """ Retrieves static exercises from the frontend and publishes deep URLs for each one of them. """
         exercises: List[Tuple[str, str, str]] = [
             (Config.H5P_FILL_BLANKS,) + Mocks.h5p_json_fill_blanks_1,

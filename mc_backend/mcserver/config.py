@@ -113,7 +113,7 @@ class Config(object):
     # END endpoints
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///" + os.path.join(basedir, "app.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    STATIC_EXERCISES_REPOSITORY_URL = "https://scm.cms.hu-berlin.de/callidus/mc_frontend/-/archive/master/mc_frontend-master.zip?path=src%2Fassets%2Fh5p"
+    STATIC_EXERCISES_REPOSITORY_URL = "https://scm.cms.hu-berlin.de/callidus/machina-callida/-/archive/master/machina-callida-master.zip?path=mc_frontend%2Fsrc%2Fassets%2Fh5p"
     STOP_WORDS_LATIN_PATH = os.path.join(CACHE_DIRECTORY, "stop_words_latin.json")
     STOP_WORDS_URL = "https://raw.githubusercontent.com/aurelberra/stopwords/master/stopwords_latin.json"
     TEST_FLAG = "-test"
