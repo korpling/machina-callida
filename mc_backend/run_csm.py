@@ -1,5 +1,4 @@
 from flask import Flask
-
 from csm import get_app, get_cfg
 
 app: Flask = get_app()

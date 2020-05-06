@@ -1,10 +1,11 @@
-[33mcda4d52[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;33mtag: 1.9.3[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m added code coverage configuration file
-[33ma2fa2be[m[33m ([m[1;33mtag: 1.9.2[m[33m)[m simplified CI for the backend
-[33m34029c7[m[33m ([m[1;33mtag: 1.9.1[m[33m)[m added missing dependencies (coverage & psycopg2)
-[33me6c8016[m[33m ([m[1;33mtag: 1.9.0[m[33m)[m added missing dependency (gunicorn)
-[33m72aa622[m[33m ([m[1;33mtag: 1.8.9[m[33m)[m removed port forwarding for the database (docker) container
-[33m143e218[m[33m ([m[1;33mtag: 1.8.8[m[33m)[m combined CI for backend and frontend
-[33md7f3841[m[33m ([m[1;33mtag: 1.8.7[m[33m)[m simplified frontend CI
-[33m4d2247e[m[33m ([m[1;33mtag: 1.8.6[m[33m)[m enable CI for frontend
-[33m150d280[m[33m ([m[1;33mtag: 1.8.5[m[33m)[m merge source code for frontend and backend
-[33m5f8b59f[m[33m ([m[1;33mtag: 1.8.4[m[33m)[m Initial commit
+dceec53 (HEAD -> master, tag: 1.9.4, origin/master, origin/HEAD) updated README
+cda4d52 (tag: 1.9.3) added code coverage configuration file
+a2fa2be (tag: 1.9.2) simplified CI for the backend
+34029c7 (tag: 1.9.1) added missing dependencies (coverage & psycopg2)
+e6c8016 (tag: 1.9.0) added missing dependency (gunicorn)
+72aa622 (tag: 1.8.9) removed port forwarding for the database (docker) container
+143e218 (tag: 1.8.8) combined CI for backend and frontend
+d7f3841 (tag: 1.8.7) simplified frontend CI
+4d2247e (tag: 1.8.6) enable CI for frontend
+150d280 (tag: 1.8.5) merge source code for frontend and backend
+5f8b59f (tag: 1.8.4) Initial commit

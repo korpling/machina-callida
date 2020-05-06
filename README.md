@@ -31,4 +31,4 @@ To snapshot a running container, use `docker commit CONTAINER_ID`. It returns a 
 
 ## Documentation
 ### Changelog
-To update the changelog, use: `git log --oneline --decorate --color > CHANGELOG`
+To update the changelog, use: `git log --oneline --decorate > CHANGELOG`
