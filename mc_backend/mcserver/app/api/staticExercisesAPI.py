@@ -11,7 +11,8 @@ from typing import Dict, List, Set, Match, Tuple
 from zipfile import ZipFile
 
 import requests
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, abort
+from flask_restful.reqparse import RequestParser
 from requests import Response
 
 from mcserver.app.models import StaticExercise
@@ -24,7 +25,7 @@ class StaticExercisesAPI(Resource):
 
     def __init__(self):
         """Initialize possible arguments for calls to the StaticExercises REST API."""
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         super(StaticExercisesAPI, self).__init__()
 
     def get(self):

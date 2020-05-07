@@ -1,13 +1,15 @@
 from typing import List, Dict, Set
 import flask
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
+
 from mcserver.app.models import FrequencyAnalysis, Phenomenon
 from mcserver.app.services import NetworkService, CorpusService, AnnotationService
 
 
 class FrequencyAPI(Resource):
     def __init__(self):
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("urn", type=str, required=True, default="", location="form", help="No URN provided")
         super(FrequencyAPI, self).__init__()
 

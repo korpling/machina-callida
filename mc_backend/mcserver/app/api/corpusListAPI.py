@@ -2,12 +2,13 @@
 from datetime import datetime
 
 from flask import jsonify
-from flask_restful import Resource, reqparse, marshal
+from flask_restful import Resource, marshal
+from flask_restful.reqparse import RequestParser
 from sqlalchemy.exc import OperationalError, InvalidRequestError
 
 from mcserver.app import db
 from mcserver.app.models import UpdateInfo, ResourceType, Corpus, corpus_fields
-from mcserver.app.services import CorpusService
+from mcserver.app.services import CorpusService, NetworkService
 
 
 class CorpusListAPI(Resource):
@@ -15,7 +16,7 @@ class CorpusListAPI(Resource):
 
     def __init__(self):
         """Initialize possible arguments for calls to the corpus list REST API."""
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("last_update_time", type=int, required=True,
                                    help="No milliseconds time for last update provided")
         super(CorpusListAPI, self).__init__()

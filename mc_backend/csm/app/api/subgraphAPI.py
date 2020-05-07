@@ -2,7 +2,9 @@ import json
 from typing import Dict, List
 
 import flask
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
+
 from mcserver.app.models import ExerciseData, GraphData, Solution, SolutionElement, AnnisResponse
 
 from mcserver.app.services import CorpusService, AnnotationService, NetworkService
@@ -10,7 +12,7 @@ from mcserver.app.services import CorpusService, AnnotationService, NetworkServi
 
 class SubgraphAPI(Resource):
     def __init__(self):
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("aqls", required=False, location="data", help="No AQLs provided", action="append")
         self.reqparse.add_argument("ctx_left", type=str, required=False, default="", location="data",
                                    help="No left context provided")

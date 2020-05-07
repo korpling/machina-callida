@@ -1,5 +1,4 @@
 """Unit tests for testing the application functionality."""
-# TODO: TEST BLINKER, GUNICORN, PSYCOPG2-BINARY AND COVERAGE IMPORTS
 import copy
 import logging
 import ntpath
@@ -495,6 +494,14 @@ class McTestCase(unittest.TestCase):
                 cfg.SQLALCHEMY_DATABASE_URI = old_uri
         self.app_context.push()
 
+    def test_get_favicon(self):
+        """Sends the favicon to browsers, which is used, e.g., in the tabs as a symbol for our application."""
+        response: Response = self.client.get(Config.SERVER_URI_FAVICON)
+        with open(os.path.join(Config.ASSETS_DIRECTORY, Config.FAVICON_FILE_NAME), "rb") as f:
+            content: bytes = f.read()
+            data_received: bytes = response.get_data()
+            self.assertEqual(content, data_received)
+
     def test_init_corpus_storage_manager(self):
         """ Initializes the corpus storage manager. """
         ui_cts: UpdateInfo = UpdateInfo(resource_type=ResourceType.cts_data, last_modified_time=datetime.utcnow())
@@ -853,6 +860,18 @@ class CommonTestCase(unittest.TestCase):
         xml_string: str = XMLservice.create_xml_string(Exercise(exercise_type=ExerciseType.matching.value), [],
                                                        FileType.pdf, [])
         self.assertEqual(xml_string, Mocks.exercise_xml)
+
+    def test_dependency_imports(self):
+        """Verifies that all necessary dependencies are installed by trying to import them."""
+        are_dependencies_missing = False
+        try:
+            import blinker  # for signalling
+            import gunicorn  # for production server
+            import psycopg2  # for database access via SQLAlchemy
+            import coverage  # for code coverage in unit tests
+        except ModuleNotFoundError:
+            are_dependencies_missing = True
+        self.assertFalse(are_dependencies_missing)
 
     def test_extract_custom_corpus_text(self):
         """ Extracts text from the relevant parts of a (custom) corpus. """

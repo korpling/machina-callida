@@ -1,11 +1,13 @@
 import flask
-from flask_restful import Resource, reqparse
-from mcserver.app.services import NetworkService, CorpusService, AnnotationService
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
+
+from mcserver.app.services import NetworkService, CorpusService
 
 
 class AnnisFindAPI(Resource):
     def __init__(self):
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("aql", type=str, required=True, location="form", help="No AQL provided")
         self.reqparse.add_argument("urn", type=str, required=True, default="", location="form", help="No URN provided")
         super(AnnisFindAPI, self).__init__()

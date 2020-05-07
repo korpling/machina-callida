@@ -4,7 +4,8 @@ from typing import Dict, List
 
 import flask
 from conllu import TokenList
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, abort
+from flask_restful.reqparse import RequestParser
 
 from mcserver.app.models import ExerciseType, Phenomenon, AnnisResponse
 from mcserver.app.services import CorpusService, NetworkService
@@ -16,7 +17,7 @@ class CorpusStorageManagerAPI(Resource):
     It manages the database and everything corpus-related."""
 
     def __init__(self):
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("title", type=str, required=True, location="data", help="No title provided")
         self.reqparse.add_argument("annotations", required=True, location="data",
                                    help="No annotations provided")

@@ -20,7 +20,7 @@ def get_cfg() -> Type[Config]:
 
 def run_app() -> None:
     cfg: Type[Config] = get_cfg()
-    get_app().run(host=cfg.HOST_IP, port=cfg.CORPUS_STORAGE_MANAGER_PORT, use_reloader=False)
+    get_app().run(host=cfg.HOST_IP_CSM, port=cfg.CORPUS_STORAGE_MANAGER_PORT, use_reloader=False)
 
 
 if __name__ == "__main__":

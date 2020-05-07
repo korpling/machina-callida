@@ -7,7 +7,8 @@ from typing import List, Union
 
 import flask
 from flask import send_from_directory
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, abort
+from flask_restful.reqparse import RequestParser
 from werkzeug.wrappers import ETagResponseMixin
 
 from mcserver.app import db
@@ -22,7 +23,7 @@ class FileAPI(Resource):
 
     def __init__(self):
         """Initialize possible arguments for calls to the file REST API."""
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("id", type=str, required=False, location="args",
                                    help="No exercise ID or URN provided")
         self.reqparse.add_argument("type", type=str, required=False, location="args", help="No file type provided")

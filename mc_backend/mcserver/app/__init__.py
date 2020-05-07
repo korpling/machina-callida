@@ -5,7 +5,9 @@ from logging.handlers import RotatingFileHandler
 from threading import Thread
 from time import strftime
 from typing import Type
-from flask import Flask, got_request_exception, request, Response
+
+import flask
+from flask import Flask, got_request_exception, request, Response, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -59,6 +61,12 @@ def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
                         request.full_path, response.status)
         return response
 
+    @app.route(Config.SERVER_URI_FAVICON)
+    def get_favicon():
+        """Sends the favicon to browsers, which is used, e.g., in the tabs as a symbol for our application."""
+        mime_type: str = 'image/vnd.microsoft.icon'
+        return send_from_directory(Config.ASSETS_DIRECTORY, Config.FAVICON_FILE_NAME, mimetype=mime_type)
+
     @app.teardown_appcontext
     def shutdown_session(exception=None):
         """ Shuts down the session when the application exits. (maybe also after every request ???) """
@@ -100,7 +108,7 @@ def log_exception(sender_app: Flask, exception, **extra):
         **extra -- any additional arguments
     """
     # TODO: RETURN ERROR IN JSON FORMAT
-    sender_app.logger.exception("ERROR")
+    sender_app.logger.exception(f"ERROR for {flask.request.url}")
 
 
 def start_updater(app: Flask) -> Thread:

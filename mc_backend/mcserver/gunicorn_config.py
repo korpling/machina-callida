@@ -3,7 +3,7 @@ import multiprocessing
 
 from mcserver import Config
 
-bind = "{0}:{1}".format(Config.HOST_IP, Config.HOST_PORT)
+bind = "{0}:{1}".format(Config.HOST_IP_MCSERVER, Config.HOST_PORT)
 debug = False
 reload = True
 timeout = 3600

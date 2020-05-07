@@ -1,7 +1,8 @@
 import flask
 import requests
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
 import rapidjson as json
+from flask_restful.reqparse import RequestParser
 
 from mcserver import Config
 from mcserver.app.services import NetworkService
@@ -10,7 +11,7 @@ from mcserver.app.services import NetworkService
 class FrequencyAPI(Resource):
     def __init__(self):
         # TODO: FIX THE REQUEST PARSING FOR ALL APIs
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("urn", type=str, required=True, default="", location="form", help="No URN provided")
         super(FrequencyAPI, self).__init__()
 

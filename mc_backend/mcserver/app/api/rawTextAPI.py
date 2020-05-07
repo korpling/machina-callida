@@ -1,4 +1,6 @@
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, abort
+from flask_restful.reqparse import RequestParser
+
 from mcserver.app.models import AnnisResponse, TextComplexityMeasure, GraphData
 from mcserver.app.services import CorpusService, NetworkService, TextComplexityService
 
@@ -8,7 +10,7 @@ class RawTextAPI(Resource):
 
     def __init__(self):
         """Initialize possible arguments for calls to the fill the blank REST API."""
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("urn", type=str, required=True, default="", help="No URN provided")
         super(RawTextAPI, self).__init__()
 

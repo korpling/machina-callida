@@ -1,6 +1,8 @@
 import string
 from typing import Set, List, Dict
-from flask_restful import Resource, reqparse, inputs
+from flask_restful import Resource, inputs
+from flask_restful.reqparse import RequestParser
+
 from mcserver.app.models import VocabularyCorpus, GraphData, Sentence, AnnisResponse, TextComplexityMeasure
 from mcserver.app.services import FileService, CorpusService, AnnotationService, NetworkService, TextService, \
     TextComplexityService
@@ -12,7 +14,7 @@ class VocabularyAPI(Resource):
     It shows whether the vocabulary of a text matches that of another one."""
 
     def __init__(self):
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("query_urn", type=str, required=True, help="No URN for the query corpus provided")
         self.reqparse.add_argument("vocabulary", type=str, required=True, help="No reference vocabulary provided")
         self.reqparse.add_argument("frequency_upper_bound", type=int, required=True,

@@ -4,7 +4,9 @@ from typing import List, Set
 
 import conllu
 from conllu import TokenList
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
+
 from mcserver.app.models import Exercise, Language, VocabularyCorpus, UpdateInfo, ResourceType
 from mcserver.app.services import NetworkService, FileService
 
@@ -14,7 +16,7 @@ class ExerciseListAPI(Resource):
 
     def __init__(self):
         """Initialize possible arguments for calls to the exercise list REST API."""
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("lang", type=str, required=True, help="No language specified")
         self.reqparse.add_argument("last_update_time", type=int, required=False, default=0,
                                    help="No milliseconds time for last update provided")

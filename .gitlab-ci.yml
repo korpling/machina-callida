@@ -23,7 +23,7 @@ ci_backend:
 coverage:
   stage: coverage
   script:
-    - ./coverage.sh
+    - ./coverage_ci.sh
     - cat coverage.log
   artifacts:
     paths:

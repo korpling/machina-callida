@@ -4,11 +4,13 @@ from typing import Dict
 import rapidjson
 
 from flask import Response
+from flask_restful.reqparse import RequestParser
 
 from mcserver.app.models import StaticExercise
 
 
 class NetworkService:
+    base_request_parser: RequestParser = RequestParser(bundle_errors=True)
     exercises: Dict[str, StaticExercise] = {}
     exercises_last_update: datetime = datetime.fromtimestamp(0)
 

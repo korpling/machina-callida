@@ -20,4 +20,4 @@ def get_cfg() -> Type[Config]:
 
 if __name__ == "__main__":
     # reloader has to be disabled because of a bug with Flask and multiprocessing
-    get_app().run(host=get_cfg().HOST_IP, port=get_cfg().HOST_PORT, use_reloader=False)
+    get_app().run(host=get_cfg().HOST_IP_MCSERVER, port=get_cfg().HOST_PORT, use_reloader=False)

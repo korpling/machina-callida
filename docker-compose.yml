@@ -35,18 +35,6 @@ services:
     tty: true
     volumes:
       - $PWD/mc_frontend/www:/home/mc/mc_frontend/www
-  nginx:
-    command: nginx -g "daemon off;"
-    image: nginx:alpine
-    ports:
-      - "8100:80"
-    restart: always
-    volumes:
-      - $PWD/mc_frontend/www:/usr/share/nginx/html
-      - ./mc_frontend/nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - mc_frontend
-      - mcserver
   mcserver:
     build:
       context: ./mc_backend
@@ -63,5 +51,14 @@ services:
       - "5000:5000"
     restart: always
     stdin_open: true
+  nginx:
+    command: nginx -g "daemon off;"
+    image: nginx:alpine
+    ports:
+      - "8100:80"
+    restart: always
+    volumes:
+      - $PWD/mc_frontend/www:/usr/share/nginx/html
+      - ./mc_frontend/nginx.conf:/etc/nginx/nginx.conf
 volumes:
   db-data:

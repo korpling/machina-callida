@@ -2,7 +2,8 @@
 import os
 import re
 from typing import List, Dict, Set, Tuple, Pattern
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
 from gensim import matutils
 from gensim.models import Word2Vec
 from matplotlib import pyplot
@@ -18,7 +19,7 @@ class VectorNetworkAPI(Resource):
 
     def __init__(self):
         """Initialize possible arguments for calls to the corpus list REST API."""
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("search_regex", type=str, required=True,
                                    help="No regular expression provided for the search")
         self.reqparse.add_argument("min_count", type=int, required=False, default=1,

@@ -1,5 +1,7 @@
 from typing import List
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, abort
+from flask_restful.reqparse import RequestParser
+
 from mcserver.app.services import CorpusService, NetworkService, CustomCorpusService
 
 
@@ -8,7 +10,7 @@ class ValidReffAPI(Resource):
 
     def __init__(self):
         """Initialize possible arguments for calls to the valid references REST API."""
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("urn", type=str, required=True, default="", help="No URN provided")
         super(ValidReffAPI, self).__init__()
 

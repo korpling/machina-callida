@@ -1,7 +1,8 @@
 import json
 from typing import List
 
-from flask_restful import Resource, reqparse, abort
+from flask_restful import Resource, abort
+from flask_restful.reqparse import RequestParser
 
 from mcserver.app.models import Language, Exercise, ExerciseType, Solution
 from mcserver.app.services import TextService, NetworkService
@@ -12,7 +13,7 @@ class H5pAPI(Resource):
 
     def __init__(self):
         """Initialize possible arguments for calls to the H5P REST API."""
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("eid", type=str, required=True, default="", help="No exercise ID provided")
         self.reqparse.add_argument("lang", type=str, required=True, default="en", help="No language code provided")
         self.reqparse.add_argument("solution_indices", type=str, required=False, help="No solution IDs provided")

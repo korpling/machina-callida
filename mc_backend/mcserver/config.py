@@ -45,7 +45,6 @@ class Config(object):
     COVERAGE_CONFIGURATION_FILE_NAME = ".coveragerc"
     COVERAGE_ENVIRONMENT_VARIABLE = "COVERAGE_PROCESS_START"
     CSM_DIRECTORY = os.path.join(CURRENT_WORKING_DIRECTORY, "csm")
-    CSM_NETWORK_DOCKER = "csm"
     CSRF_ENABLED = True
     CTS_API_BASE_URL = "https://cts.perseids.org/api/cts/"
     CUSTOM_CORPUS_CAES_GAL_FILE_PATH = os.path.join(TREEBANKS_PROIEL_PATH, "caes-gal.conllu")
@@ -62,6 +61,9 @@ class Config(object):
     DATABASE_URL_FALLBACK = "postgresql://postgres@db:5432/" if IS_DOCKER else DATABASE_URL_LOCAL
     DATABASE_URL = os.environ.get("DATABASE_URL", DATABASE_URL_FALLBACK)
     DEBUG = False
+    DOCKER_SERVICE_NAME_CSM = "csm"
+    DOCKER_SERVICE_NAME_MCSERVER = "mcserver"
+    FAVICON_FILE_NAME = "favicon.ico"
     FLASK_MIGRATE = "migrate"
     GRAPHANNIS_DEPENDENCY_LINK = "dep"
     GRAPHANNIS_LOG_PATH = os.path.join(os.getcwd(), "graphannis.log")
@@ -69,8 +71,8 @@ class Config(object):
     H5P_FILL_BLANKS = "fill_blanks"
     H5P_MULTI_CHOICE = "multi_choice"
     H5P_VOC_LIST = "voc_list"
-    HOST_IP = os.environ.get("HOST_IP", "0.0.0.0" if IS_DOCKER else "127.0.0.1")
-    HOST_IP_CSM = CSM_NETWORK_DOCKER if IS_DOCKER else HOST_IP
+    HOST_IP_MCSERVER = os.environ.get("HOST_IP", DOCKER_SERVICE_NAME_MCSERVER if IS_DOCKER else "127.0.0.1")
+    HOST_IP_CSM = DOCKER_SERVICE_NAME_CSM if IS_DOCKER else HOST_IP_MCSERVER
     HOST_PORT = 5000
     INTERNET_PROTOCOL = "http://"
     INTERVAL_CORPUS_AGE_CHECK = 60 * 60
@@ -80,8 +82,8 @@ class Config(object):
     INTERVAL_STATIC_EXERCISES = 60 * 60 * 24
     IS_PRODUCTION = os.environ.get("FLASK_ENV_VARIABLE", "development") == "production"
     LEARNING_ANALYTICS_DIRECTORY = os.path.join(FILES_DIRECTORY, "learning_analytics")
-    LOG_PATH_CSM = "csm.log"
-    LOG_PATH_MCSERVER = "mcserver.log"
+    LOG_PATH_CSM = f"{DOCKER_SERVICE_NAME_CSM}.log"
+    LOG_PATH_MCSERVER = f"{DOCKER_SERVICE_NAME_MCSERVER}.log"
     MIGRATIONS_DIRECTORY = os.path.join(MC_SERVER_DIRECTORY, "migrations")
     NETWORK_GRAPH_TMP_PATH = os.path.join(TMP_DIRECTORY, "graph.svg")
     PANEGYRICI_LATINI_DIRECTORY = os.path.join(ASSETS_DIRECTORY, "panegyrici_latini")
@@ -100,6 +102,7 @@ class Config(object):
     SERVER_URI_CSM_SUBGRAPH = SERVER_URI_CSM + "subgraph"
     SERVER_URI_EXERCISE = SERVER_URI_BASE + "exercise"
     SERVER_URI_EXERCISE_LIST = SERVER_URI_BASE + "exerciseList"
+    SERVER_URI_FAVICON = "/favicon.ico"
     SERVER_URI_FILE = SERVER_URI_BASE + "file"
     SERVER_URI_FREQUENCY = SERVER_URI_BASE + "frequency"
     SERVER_URI_H5P = SERVER_URI_BASE + "h5p"
@@ -152,9 +155,9 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     """Configuration for testing"""
     CTS_API_GET_PASSAGE_URL = "https://cts.perseids.org/api/cts/?request=GetPassage&urn=urn:cts:latinLit:phi1351.phi002.perseus-lat1:2.2"
-    HOST_IP = "0.0.0.0"
+    HOST_IP_MCSERVER = "0.0.0.0"
     PRESERVE_CONTEXT_ON_EXCEPTION = False
-    SERVER_NAME = Config.HOST_IP + ":{0}".format(Config.HOST_PORT)
+    SERVER_NAME = Config.HOST_IP_MCSERVER + ":{0}".format(Config.HOST_PORT)
     SESSION_COOKIE_DOMAIN = False
     SIMULATE_CORPUS_NOT_FOUND = False
     SIMULATE_EMPTY_GRAPH = False

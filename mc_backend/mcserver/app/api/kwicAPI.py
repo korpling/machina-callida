@@ -10,7 +10,8 @@ from typing import List, Dict
 import requests
 from bs4 import BeautifulSoup, ResultSet, Tag
 from conllu import TokenList
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
+from flask_restful.reqparse import RequestParser
 
 from mcserver.app.models import ExerciseType, ExerciseData, LinkMC, NodeMC
 from mcserver.app.services import AnnotationService, NetworkService
@@ -22,7 +23,7 @@ class KwicAPI(Resource):
 
     def __init__(self):
         """Initializes possible arguments for calls to the KWIC REST API."""
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("urn", type=str, required=True, default="", location="form", help="No URN provided")
         self.reqparse.add_argument("search_values", type=str, required=True, location="form",
                                    help="No search value(s) provided")

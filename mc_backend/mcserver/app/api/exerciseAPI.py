@@ -6,7 +6,8 @@ import rapidjson as json
 from typing import List, Dict
 
 import requests
-from flask_restful import Resource, reqparse, marshal, abort
+from flask_restful import Resource, marshal, abort
+from flask_restful.reqparse import RequestParser
 
 from mcserver.app import db
 from mcserver.app.models import ExerciseType, Solution, ExerciseData, Exercise, exercise_fields, AnnisResponse, \
@@ -21,7 +22,7 @@ class ExerciseAPI(Resource):
     def __init__(self):
         """Initialize possible arguments for calls to the exercise REST API."""
         # TODO: switch to other request parser, e.g. Marshmallow, because the one used by Flask-RESTful does not allow parsing arguments from different locations, e.g. one argument from 'location=args' and another argument from 'location=form'
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
         self.reqparse.add_argument("urn", type=str, required=False, location="form", help="No URN provided")
         self.reqparse.add_argument("type", type=str, required=False, location="form", help="No exercise type provided")
         self.reqparse.add_argument("search_values", type=str, required=False, location="form",
@@ -49,6 +50,8 @@ class ExerciseAPI(Resource):
         ar: AnnisResponse = CorpusService.get_corpus(cts_urn=exercise.urn, is_csm=False)
         if not ar.nodes:
             abort(404)
+        exercise.last_access_time = datetime.utcnow()
+        db.session.commit()
         exercise_type: ExerciseType = ExerciseType(exercise.exercise_type)
         ar.solutions = json.loads(exercise.solutions)
         ar.uri = exercise.uri
