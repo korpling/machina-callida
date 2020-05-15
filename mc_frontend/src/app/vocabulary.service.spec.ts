@@ -34,7 +34,6 @@ describe('VocabularyService', () => {
         const error: HttpErrorResponse = new HttpErrorResponse({status: 500});
         const requestSpy: Spy = spyOn(vocabularyService.helperService, 'makeGetRequest')
             .and.callFake(() => Promise.reject(error));
-        // result: AnnisResponse | Sentence[]
         vocabularyService.getVocabularyCheck('', false).then(() => {
         }, async (response: HttpErrorResponse) => {
             expect(response.status).toBe(500);
@@ -48,7 +47,6 @@ describe('VocabularyService', () => {
     it('should be initialized', () => {
         vocabularyService.ngOnInit();
         expect(Object.keys(vocabularyService.refVocMap).length).toBe(4);
-        // vocabularyService.currentReferenceVocabulary = VocabularyCorpus.bws;
         expect(vocabularyService.getCurrentReferenceVocabulary().totalCount).toBe(1276);
         expect(vocabularyService.getPossibleSubCount()).toBe(500);
     });

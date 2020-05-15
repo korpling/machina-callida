@@ -6,13 +6,11 @@ Create Date: 2018-12-05 09:40:08.357418
 
 """
 from datetime import datetime
-
 from alembic import op
 import sqlalchemy as sa
-
-# revision identifiers, used by Alembic.
 from mcserver.app.models import ResourceType
 
+# revision identifiers, used by Alembic.
 revision = 'c4e24d8aed64'
 down_revision = 'bde9f5b4e88d'
 branch_labels = None

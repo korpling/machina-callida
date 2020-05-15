@@ -1,6 +1,6 @@
 import {CorpusMC} from './corpusMC';
 import {ExerciseMC} from './exerciseMC';
-import {MoodleExerciseType, PartOfSpeechValue, Phenomenon} from './enum';
+import {PartOfSpeechValue, Phenomenon} from './enum';
 import {FrequencyItem} from './frequencyItem';
 import {ApplicationState} from './applicationState';
 import {TextData} from './textData';
@@ -11,16 +11,13 @@ import StatementBase from './xAPI/StatementBase';
 import Result from './xAPI/Result';
 import Score from './xAPI/Score';
 import {TextRange} from './textRange';
-import {Citation} from './citation';
 
 export default class MockMC {
-    static apiResponseCorporaGet: object = {
-        corpora: [new CorpusMC({
-            author: 'author',
-            source_urn: 'urn',
-            title: 'title',
-        })]
-    };
+    static apiResponseCorporaGet: CorpusMC[] = [new CorpusMC({
+        author: 'author',
+        source_urn: 'urn',
+        title: 'title',
+    })];
     static apiResponseFrequencyAnalysisGet: FrequencyItem[] = [new FrequencyItem({
         phenomena: [Phenomenon.partOfSpeech.toString()],
         values: [PartOfSpeechValue.adjective.toString()]

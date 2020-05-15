@@ -1,16 +1,13 @@
 """Models for dealing with text data, both in the database and in the application itself."""
-import json
-from datetime import datetime
 from typing import Dict, List, Union, Any
-
-from flask_restful import fields
-
 from enum import Enum
 
+import typing
 from sqlalchemy.orm.state import InstanceState
 
 from mcserver.app import db
 from mcserver.config import Config
+from mcserver.models_auto import TExercise, Corpus, TCorpus, Exercise, TLearningResult, LearningResult
 
 
 class Case(Enum):
@@ -152,150 +149,116 @@ class VocabularyCorpus(Enum):
     viva = Config.VOCABULARY_VIVA_FILE_NAME
 
 
-class Corpus(db.Model):
-    """Model for corpora/texts. Contains metadata for a specific text or corpus."""
-    __tablename__ = "Corpus"
+class CorpusMC:
+    """Keep this synchronized with the implementation in models_auto!
 
-    cid = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(), nullable=False)
-    source_urn = db.Column(db.String(), unique=True, nullable=False)
-    uri = db.Column(db.String(), unique=True, nullable=False)
-    author = db.Column(db.String(), nullable=False)
-    citation_level_1 = db.Column(db.String(), nullable=False, server_default=CitationLevel.default.value)
-    citation_level_2 = db.Column(db.String(), nullable=False, server_default=CitationLevel.default.value)
-    citation_level_3 = db.Column(db.String(), nullable=False, server_default=CitationLevel.default.value)
+    It is replicated here because the Open-Alchemy package does not correctly assign default values for optional
+    parameters."""
 
-    def __init__(self, title: str = "", source_urn: str = "", author: str = "",
-                 citation_level_1: Union[CitationLevel, str] = CitationLevel.default,
-                 citation_level_2: Union[CitationLevel, str] = CitationLevel.default,
-                 citation_level_3: Union[CitationLevel, str] = CitationLevel.default, uri: str = "",
-                 json_dict: dict = None):
-        if json_dict:
-            self.__dict__ = json_dict
-        else:
-            self.title = title
-            self.source_urn = source_urn
-            # if no URI was given, this value needs to be changed before another Corpus can be added to the database
-            self.uri = uri
-            self.author = author
-            self.citation_level_1 = citation_level_1 if isinstance(citation_level_1, str) else citation_level_1.value
-            self.citation_level_2 = citation_level_2 if isinstance(citation_level_2, str) else citation_level_2.value
-            self.citation_level_3 = citation_level_3 if isinstance(citation_level_3, str) else citation_level_3.value
-
-    def __eq__(self, other):
-        if isinstance(other, Corpus):
-            for key in other.__dict__:
-                if not isinstance(other.__dict__[key], InstanceState) and other.__dict__[key] != self.__dict__[key]:
-                    return False
-            return True
-        else:
-            return False
+    @classmethod
+    def from_dict(cls,
+                  source_urn: str,
+                  author: str = "Anonymus",
+                  cid: typing.Optional[int] = None,
+                  citation_level_1: str = "default",
+                  citation_level_2: str = "default",
+                  citation_level_3: str = "default",
+                  title: str = "Anonymus",
+                  ) -> TCorpus:
+        # ignore CID (corpus ID) because it is going to be generated automatically
+        return Corpus.from_dict(
+            source_urn=source_urn, author=author, citation_level_1=citation_level_1,
+            citation_level_2=citation_level_2, citation_level_3=citation_level_3, title=title)
 
 
-corpus_fields = {
-    "cid": fields.Integer,
-    "title": fields.String,
-    "source_urn": fields.String,
-    "uri": fields.Url("api.corpus", absolute=False),
-    "author": fields.String,
-    "citation_level_1": fields.String,
-    "citation_level_2": fields.String,
-    "citation_level_3": fields.String
-}
+class ExerciseMC:
+    """Keep this synchronized with the implementation in models_auto!
+
+    It is replicated here because the Open-Alchemy package does not correctly assign default values for optional
+    parameters."""
+
+    @classmethod
+    def from_dict(cls,
+                  eid: str,
+                  last_access_time: float,
+                  correct_feedback: str = "",
+                  general_feedback: str = "",
+                  incorrect_feedback: str = "",
+                  instructions: str = "",
+                  partially_correct_feedback: str = "",
+                  search_values: str = "[]",
+                  work_author: str = "",
+                  work_title: str = "",
+                  conll: str = "",
+                  exercise_type: str = "",
+                  exercise_type_translation: str = "",
+                  language: str = "de",
+                  solutions: str = "[]",
+                  text_complexity: float = 0,
+                  urn: str = "",
+                  ) -> TExercise:
+        return Exercise.from_dict(
+            eid=eid, last_access_time=last_access_time, correct_feedback=correct_feedback,
+            general_feedback=general_feedback, incorrect_feedback=incorrect_feedback,
+            instructions=instructions, partially_correct_feedback=partially_correct_feedback,
+            search_values=search_values, work_author=work_author, work_title=work_title,
+            conll=conll, exercise_type=exercise_type, exercise_type_translation=exercise_type_translation,
+            language=language, solutions=solutions, text_complexity=text_complexity, urn=urn)
 
 
-class Exercise(db.Model):
-    """Model for exercises. Holds metadata and content for each exercise in string / JSON format."""
-    __tablename__ = "Exercise"
+class LearningResultMC:
+    """Keep this synchronized with the implementation in models_auto!
 
-    conll = db.Column(db.String(), nullable=False, server_default="")
-    correct_feedback = db.Column(db.String())
-    eid = db.Column(db.String(), primary_key=True)
-    exercise_type = db.Column(db.String(), nullable=False)
-    exercise_type_translation = db.Column(db.String())
-    general_feedback = db.Column(db.String())
-    incorrect_feedback = db.Column(db.String())
-    instructions = db.Column(db.String())
-    language = db.Column(db.String(), server_default=Language.German.value)
-    last_access_time = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    partially_correct_feedback = db.Column(db.String())
-    search_values = db.Column(db.String(), server_default="")
-    # solutions are actually List[Solution], but need to be stored as JSON strings in the database
-    solutions = db.Column(db.String(), nullable=False)
-    text_complexity = db.Column(db.Float(), server_default="0")
-    uri = db.Column(db.String(), unique=True, nullable=False)
-    urn = db.Column(db.String(), nullable=False, server_default="")
-    work_author = db.Column(db.String(), server_default="")
-    work_title = db.Column(db.String(), server_default="")
+    It is replicated here because the Open-Alchemy package does not correctly assign default values for optional
+    parameters."""
 
-    def __repr__(self):
-        return "<Exercise %r>" % self.eid
-
-    def __init__(self, eid: str = "", uri: str = "", exercise_type: str = "", conll: str = "", solutions: str = "",
-                 instructions: str = "", exercise_type_translation: str = "", general_feedback: str = "",
-                 correct_feedback: str = "", partially_correct_feedback: str = "", incorrect_feedback: str = "",
-                 work_author: str = "", last_access_time: datetime = datetime.utcnow(), work_title: str = "",
-                 search_values: str = "", urn: str = "", language: Language = Language.English,
-                 text_complexity: float = 0, json_dict: dict = None):
-        if json_dict:
-            self.__dict__ = json_dict
-        else:
-            self.conll = conll
-            self.correct_feedback = correct_feedback
-            self.eid = eid
-            self.exercise_type = exercise_type
-            self.exercise_type_translation = exercise_type_translation
-            self.general_feedback = general_feedback
-            self.incorrect_feedback = incorrect_feedback
-            self.instructions = instructions
-            self.language = language.value
-            self.last_access_time = last_access_time
-            self.partially_correct_feedback = partially_correct_feedback
-            self.search_values = search_values
-            self.solutions = solutions
-            self.text_complexity = text_complexity
-            self.uri = uri
-            self.urn = urn
-            self.work_author = work_author
-            self.work_title = work_title
-
-    def serialize(self, compress: bool) -> dict:
-        """ Serializes an exercise to JSON format. """
-        ret_val: dict = self.__dict__.copy()
-        ret_val.pop("_sa_instance_state", None)
-        ret_val["conll"] = "" if compress else self.conll
-        # convert Python datetime format to JSON / Javascript, i.e. from seconds to milliseconds
-        ret_val["last_access_time"] = self.last_access_time.timestamp() * 1000
-        ret_val["search_values"] = json.loads(self.search_values)
-        ret_val["solutions"] = "[]" if compress else json.loads(self.solutions)
-        return ret_val
+    @classmethod
+    def from_dict(cls,
+                  completion: bool,
+                  correct_responses_pattern: str,
+                  created_time: float,
+                  object_definition_description: str,
+                  response: str,
+                  score_max: int,
+                  score_min: int,
+                  score_raw: int,
+                  success: bool,
+                  actor_account_name: str = "",
+                  actor_object_type: str = "",
+                  category_id: str = "",
+                  category_object_type: str = "",
+                  choices: str = "[]",
+                  duration: str = "PT0S",
+                  extensions: str = "{}",
+                  interaction_type: str = "",
+                  object_definition_type: str = "",
+                  object_object_type: str = "",
+                  score_scaled: float = 0,
+                  verb_display: str = "",
+                  verb_id: str = "",
+                  ) -> TLearningResult:
+        return LearningResult.from_dict(
+            completion=completion, correct_responses_pattern=correct_responses_pattern, created_time=created_time,
+            object_definition_description=object_definition_description, response=response, score_max=score_max,
+            score_min=score_min, score_raw=score_raw, success=success, actor_account_name=actor_account_name,
+            actor_object_type=actor_object_type, category_id=category_id, category_object_type=category_object_type,
+            choices=choices, duration=duration, extensions=extensions, interaction_type=interaction_type,
+            object_definition_type=object_definition_type, object_object_type=object_object_type,
+            score_scaled=score_scaled, verb_display=verb_display, verb_id=verb_id)
 
 
-exercise_fields = {
-    "conll": fields.String,
-    "eid": fields.String,
-    "exercise_type": fields.String,
-    "uri": fields.Url("api.file", absolute=False),
-    "last_access_time": fields.DateTime(dt_format="iso8601")
-}
+class Account:
+    def __init__(self, json_dict: dict):
+        self.name: str = json_dict["name"]
 
 
-class UpdateInfo(db.Model):
-    """Model for updatable entities. Holds information about creation and update time stamps for each resource type."""
-    __tablename__ = "UpdateInfo"
+class Actor:
+    def __init__(self, json_dict: dict):
+        self.account: Account = Account(json_dict["account"])
+        self.object_type: ObjectType = ObjectType(json_dict["objectType"])
 
-    resource_type = db.Column(db.String(), primary_key=True)
-    created_time = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    last_modified_time = db.Column(db.DateTime, default=datetime.fromtimestamp(1), index=True)
-
-    def __repr__(self):
-        return "<UpdateInfo %r>" % self.resource_type
-
-    def __init__(self, resource_type: ResourceType, created_time: datetime = datetime.utcnow(),
-                 last_modified_time: datetime = datetime.utcnow()):
-        self.resource_type = resource_type.name
-        self.created_time = created_time
-        self.last_modified_time = last_modified_time
+    def serialize(self) -> dict:
+        return dict(account=self.account.__dict__, objectType=self.object_type.value)
 
 
 class Category:
@@ -314,80 +277,6 @@ class Choice:
 
     def serialize(self) -> dict:
         return dict(description={"en-US": self.description.en_us}, id=self.id)
-
-
-class LearningResult(db.Model):
-    """Model for learning results. Holds information about exercise type, content and achieved score."""
-    __tablename__ = "LearningResult"
-
-    actor_account_name = db.Column(db.String())
-    actor_object_type = db.Column(db.String())
-    category_id = db.Column(db.String())
-    category_object_type = db.Column(db.String())
-    choices = db.Column(db.String())
-    completion = db.Column(db.Boolean())
-    correct_responses_pattern = db.Column(db.String())
-    created_time = db.Column(db.DateTime, primary_key=True, index=True)
-    duration = db.Column(db.String())
-    extensions = db.Column(db.String())
-    interaction_type = db.Column(db.String())
-    object_definition_description = db.Column(db.String())
-    object_definition_type = db.Column(db.String())
-    object_object_type = db.Column(db.String())
-    response = db.Column(db.String())
-    score_max = db.Column(db.Integer())
-    score_min = db.Column(db.Integer())
-    score_raw = db.Column(db.Integer())
-    score_scaled = db.Column(db.Float())
-    success = db.Column(db.Boolean())
-    verb_display = db.Column(db.String())
-    verb_id = db.Column(db.String())
-
-    def __init__(self, actor_account_name: str, actor_object_type: ObjectType, category_id: str,
-                 category_object_type: ObjectType,
-                 choices: List[Choice], completion: bool,
-                 correct_responses_pattern: List[str], created_time: datetime, extensions: Dict[str, object],
-                 duration: str, interaction_type: str, object_definition_description: str, object_definition_type: str,
-                 object_object_type: ObjectType, response: str, score_max: int, score_min: int, score_raw: int,
-                 score_scaled: float,
-                 success: bool, verb_id: str,
-                 verb_display: str):
-        self.actor_account_name = actor_account_name
-        self.actor_object_type = actor_object_type.value
-        self.category_id = category_id
-        self.category_object_type = category_object_type.value
-        self.choices = json.dumps([x.serialize() for x in choices])
-        self.completion = completion
-        self.correct_responses_pattern = json.dumps(correct_responses_pattern)
-        self.created_time = created_time
-        self.duration = duration
-        self.extensions = json.dumps(extensions)
-        self.interaction_type = interaction_type
-        self.object_definition_description = object_definition_description
-        self.object_definition_type = object_definition_type
-        self.object_object_type = object_object_type.value
-        self.response = response
-        self.score_max = score_max
-        self.score_min = score_min
-        self.score_raw = score_raw
-        self.score_scaled = score_scaled
-        self.success = success
-        self.verb_display = verb_display
-        self.verb_id = verb_id
-
-
-class Account:
-    def __init__(self, json_dict: dict):
-        self.name: str = json_dict["name"]
-
-
-class Actor:
-    def __init__(self, json_dict: dict):
-        self.account: Account = Account(json_dict["account"])
-        self.object_type: ObjectType = ObjectType(json_dict["objectType"])
-
-    def serialize(self) -> dict:
-        return dict(account=self.account.__dict__, objectType=self.object_type.value)
 
 
 class Description:

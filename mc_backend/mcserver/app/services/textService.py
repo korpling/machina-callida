@@ -10,8 +10,9 @@ import conllu
 import requests
 from conllu import TokenList
 
-from mcserver.app.models import Exercise, Solution
+from mcserver.app.models import Solution
 from mcserver.config import Config
+from mcserver.models_auto import Exercise
 
 
 class TextService:

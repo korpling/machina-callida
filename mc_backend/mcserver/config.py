@@ -33,6 +33,7 @@ class Config(object):
     TREEBANKS_PATH = os.path.join(ASSETS_DIRECTORY, "treebanks")
     TREEBANKS_PROIEL_PATH = os.path.join(TREEBANKS_PATH, "proiel")
 
+    API_SPEC_FILE_PATH = os.path.join(MC_SERVER_DIRECTORY, "mcserver_api.yaml")
     AQL_CASE = "/.*Case=.*/"
     AQL_DEP = "->dep"
     AQL_DEPREL = "deprel"
@@ -57,12 +58,21 @@ class Config(object):
     CUSTOM_CORPUS_VIVA_URN = "urn:custom:latinLit:viva.lat"
     CUSTOM_CORPUS_PROIEL_URN_TEMPLATE = "urn:custom:latinLit:proiel.{0}.lat"
     DATABASE_TABLE_ALEMBIC = "alembic_version"
+    DATABASE_URL_DOCKER = "postgresql://postgres@db:5432/"
     DATABASE_URL_LOCAL = "postgresql://postgres@0.0.0.0:5432/postgres"
-    DATABASE_URL_FALLBACK = "postgresql://postgres@db:5432/" if IS_DOCKER else DATABASE_URL_LOCAL
+    DATABASE_URL_SQLITE = f"sqlite:///{os.path.join(basedir, 'app.db')}"
+    DATABASE_URL_SQLITE_MEMORY = "sqlite:///:memory:"
+    DATABASE_URL_FALLBACK = DATABASE_URL_DOCKER if IS_DOCKER else DATABASE_URL_SQLITE
     DATABASE_URL = os.environ.get("DATABASE_URL", DATABASE_URL_FALLBACK)
     DEBUG = False
     DOCKER_SERVICE_NAME_CSM = "csm"
     DOCKER_SERVICE_NAME_MCSERVER = "mcserver"
+    ERROR_MESSAGE_CORPUS_NOT_FOUND = "A corpus with the specified ID was not found!"
+    ERROR_MESSAGE_EXERCISE_NOT_FOUND = "An exercise with the specified ID was not found!"
+    ERROR_MESSAGE_INTERNAL_SERVER_ERROR = "The server encountered an unexpected condition that prevented it from " \
+                                          "fulfilling the request."
+    ERROR_TITLE_INTERNAL_SERVER_ERROR = "Internal Server Error"
+    ERROR_TITLE_NOT_FOUND = "Not found"
     FAVICON_FILE_NAME = "favicon.ico"
     FLASK_MIGRATE = "migrate"
     GRAPHANNIS_DEPENDENCY_LINK = "dep"
@@ -114,7 +124,7 @@ class Config(object):
     SERVER_URI_VECTOR_NETWORK = SERVER_URI_BASE + "vectorNetwork"
     SERVER_URI_VOCABULARY = SERVER_URI_BASE + "vocabulary"
     # END endpoints
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or "sqlite:///" + os.path.join(basedir, "app.db")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or DATABASE_URL_SQLITE
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STATIC_EXERCISES_REPOSITORY_URL = "https://scm.cms.hu-berlin.de/callidus/machina-callida/-/archive/master/machina-callida-master.zip?path=mc_frontend%2Fsrc%2Fassets%2Fh5p"
     STOP_WORDS_LATIN_PATH = os.path.join(CACHE_DIRECTORY, "stop_words_latin.json")
@@ -149,7 +159,8 @@ class DevelopmentConfig(Config):
     """Configuration for the development environment"""
     DEVELOPMENT = True
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", Config.DATABASE_URL_FALLBACK)
+    SQLALCHEMY_DATABASE_URI = Config.DATABASE_URL_DOCKER if Config.IS_DOCKER else \
+        os.environ.get("DATABASE_URL", Config.DATABASE_URL_FALLBACK)
 
 
 class TestingConfig(Config):
@@ -162,7 +173,7 @@ class TestingConfig(Config):
     SIMULATE_CORPUS_NOT_FOUND = False
     SIMULATE_EMPTY_GRAPH = False
     SIMULATE_HTTP_ERROR = False
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(basedir, 'app.db')}"
+    SQLALCHEMY_DATABASE_URI = Config.DATABASE_URL_SQLITE
     STATIC_EXERCISES_ZIP_FILE_PATH = os.path.join(Config.TMP_DIRECTORY, "static_exercises.zip")
     TESTING = True
 

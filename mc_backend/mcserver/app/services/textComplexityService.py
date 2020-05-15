@@ -48,11 +48,12 @@ class TextComplexityService:
         tc_measure_overall.append(tc.n_types / tc.n_w * 100)
         tc_measure_overall.append(tc.lex_den * 100)
         # all the other measures need to be normalized for text length, e.g. word/sentence/clause count
-        tc_measure_overall.append((tc.n_subclause / (tc.n_clause + tc.n_subclause)) * 100)
-        tc_measure_overall.append((tc.n_abl_abs / (tc.n_clause + tc.n_subclause)) * 100)
-        tc_measure_overall.append((tc.n_gerund / (tc.n_clause + tc.n_subclause)) * 100)
-        tc_measure_overall.append((tc.n_inf / (tc.n_clause + tc.n_subclause)) * 100)
-        tc_measure_overall.append((tc.n_part / (tc.n_clause + tc.n_subclause)) * 100)
+        divisor: int = max(tc.n_clause + tc.n_subclause, 1)
+        tc_measure_overall.append((tc.n_subclause / divisor) * 100)
+        tc_measure_overall.append((tc.n_abl_abs / divisor) * 100)
+        tc_measure_overall.append((tc.n_gerund / divisor) * 100)
+        tc_measure_overall.append((tc.n_inf / divisor) * 100)
+        tc_measure_overall.append((tc.n_part / divisor) * 100)
         return round(sum(tc_measure_overall) / len(tc_measure_overall), 2)
 
     @staticmethod

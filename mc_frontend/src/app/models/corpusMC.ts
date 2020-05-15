@@ -6,7 +6,6 @@ export class CorpusMC {
     public cid: number;
     public source_urn: string;
     public title: string;
-    public uri: string;
     public citation_level_1: string;
     public citation_level_2: string;
     public citation_level_3: string;

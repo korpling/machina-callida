@@ -161,9 +161,9 @@ export class CorpusService {
             const url: string = configMC.backendBaseUrl + configMC.backendApiCorporaPath;
             const params: HttpParams = new HttpParams().set('last_update_time', lastUpdateTimeMS.toString());
             this.helperService.makeGetRequest(this.http, this.toastCtrl, url, params, this.corporaUnavailableString)
-                .then((data: object) => {
+                .then((data: object[]) => {
                     if (data) {
-                        const corpusList: CorpusMC[] = data['corpora'] as CorpusMC[];
+                        const corpusList: CorpusMC[] = data as CorpusMC[];
                         this.storage.set(configMC.localStorageKeyCorpora, JSON.stringify(corpusList)).then();
                         this.storage.get(configMC.localStorageKeyUpdateInfo).then((jsonString: string) => {
                             const updateInfo: UpdateInfo = JSON.parse(jsonString) as UpdateInfo;
@@ -177,12 +177,20 @@ export class CorpusService {
                             return resolve();
                         });
                     }
-                }, async (error: HttpErrorResponse) => {
+                }, async () => {
                     this.loadCorporaFromLocalStorage().then(() => {
                         return reject();
                     });
                 });
         });
+    }
+
+    getCorpusListFromJSONstring(jsonString: string): CorpusMC[] {
+        let jsonObject: object = JSON.parse(jsonString);
+        // backwards compatibility
+        const corpusProp = 'corpora';
+        jsonObject = jsonObject.hasOwnProperty(corpusProp) ? jsonObject[corpusProp] : jsonObject;
+        return jsonObject as CorpusMC[];
     }
 
     getCTStextPassage(urn: string): Promise<AnnisResponse> {
@@ -387,8 +395,7 @@ export class CorpusService {
         return new Promise<void>(resolve => {
             this.storage.get(configMC.localStorageKeyCorpora).then((jsonString: string) => {
                 if (jsonString) {
-                    const corpusList: CorpusMC[] = JSON.parse(jsonString) as CorpusMC[];
-                    this.processCorpora(corpusList);
+                    this.processCorpora(this.getCorpusListFromJSONstring(jsonString));
                 }
                 return resolve();
             });

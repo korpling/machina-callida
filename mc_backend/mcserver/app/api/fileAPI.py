@@ -12,10 +12,10 @@ from flask_restful.reqparse import RequestParser
 from werkzeug.wrappers import ETagResponseMixin
 
 from mcserver.app import db
-from mcserver.app.models import Exercise, FileType, UpdateInfo, ResourceType, DownloadableFile, MimeType, \
-    LearningResult, XapiStatement
+from mcserver.app.models import FileType, ResourceType, DownloadableFile, MimeType, XapiStatement, LearningResultMC
 from mcserver.app.services import FileService, NetworkService
 from mcserver.config import Config
+from mcserver.models_auto import Exercise, UpdateInfo, LearningResult
 
 
 class FileAPI(Resource):
@@ -43,7 +43,7 @@ class FileAPI(Resource):
         clean_tmp_folder()
         args = self.reqparse.parse_args()
         eid: str = args["id"]
-        exercise: Exercise = Exercise.query.filter_by(eid=eid).first()
+        exercise: Exercise = db.session.query(Exercise).filter_by(eid=eid).first()
         file_type: FileType = FileType[args["type"]]
         file_name: str = eid + "." + file_type.value
         mime_type: str = MimeType[file_type.value].value
@@ -52,7 +52,7 @@ class FileAPI(Resource):
             if not os.path.exists(os.path.join(Config.TMP_DIRECTORY, file_name)):
                 abort(404)
             return send_from_directory(Config.TMP_DIRECTORY, file_name, mimetype=mime_type, as_attachment=True)
-        exercise.last_access_time = datetime.utcnow()
+        exercise.last_access_time = datetime.utcnow().timestamp()
         db.session.commit()
         solution_indices: List[int] = json.loads(args["solution_indices"] if args["solution_indices"] else "null")
         if solution_indices is not None:
@@ -84,8 +84,9 @@ class FileAPI(Resource):
 
 def clean_tmp_folder():
     """ Cleans the files directory regularly. """
-    ui_file: UpdateInfo = UpdateInfo.query.filter_by(resource_type=ResourceType.file_api_clean.name).first()
-    if (datetime.utcnow() - ui_file.last_modified_time).total_seconds() > Config.INTERVAL_FILE_DELETE:
+    ui_file: UpdateInfo = db.session.query(UpdateInfo).filter_by(resource_type=ResourceType.file_api_clean.name).first()
+    ui_datetime: datetime = datetime.fromtimestamp(ui_file.last_modified_time)
+    if (datetime.utcnow() - ui_datetime).total_seconds() > Config.INTERVAL_FILE_DELETE:
         for file in [x for x in os.listdir(Config.TMP_DIRECTORY) if x not in ".gitignore"]:
             file_to_delete_type: str = os.path.splitext(file)[1].replace(".", "")
             file_to_delete: DownloadableFile = next((x for x in FileService.downloadable_files if
@@ -94,27 +95,27 @@ def clean_tmp_folder():
             if file_to_delete is not None:
                 FileService.downloadable_files.remove(file_to_delete)
             os.remove(os.path.join(Config.TMP_DIRECTORY, file))
-            ui_file.last_modified_time = datetime.utcnow()
+            ui_file.last_modified_time = datetime.utcnow().timestamp()
             db.session.commit()
 
 
 def save_learning_result(xapi_statement: XapiStatement) -> LearningResult:
     """Creates a new Learning Result from a XAPI Statement and saves it to the database."""
-    learning_result: LearningResult = LearningResult(
+    learning_result: LearningResult = LearningResultMC.from_dict(
         actor_account_name=xapi_statement.actor.account.name,
-        actor_object_type=xapi_statement.actor.object_type,
+        actor_object_type=xapi_statement.actor.object_type.value,
         category_id=xapi_statement.context.context_activities.category[0].id,
-        category_object_type=xapi_statement.context.context_activities.category[0].object_type,
-        choices=xapi_statement.object.definition.choices,
+        category_object_type=xapi_statement.context.context_activities.category[0].object_type.value,
+        choices=json.dumps([x.serialize() for x in xapi_statement.object.definition.choices]),
         completion=xapi_statement.result.completion,
-        correct_responses_pattern=xapi_statement.object.definition.correct_responses_pattern,
-        created_time=datetime.utcnow(),
+        correct_responses_pattern=json.dumps(xapi_statement.object.definition.correct_responses_pattern),
+        created_time=datetime.utcnow().timestamp(),
         duration=xapi_statement.result.duration,
-        extensions=xapi_statement.object.definition.extensions,
+        extensions=json.dumps(xapi_statement.object.definition.extensions),
         interaction_type=xapi_statement.object.definition.interaction_type,
         object_definition_description=xapi_statement.object.definition.description.en_us,
         object_definition_type=xapi_statement.object.definition.type,
-        object_object_type=xapi_statement.object.object_type,
+        object_object_type=xapi_statement.object.object_type.value,
         response=xapi_statement.result.response,
         score_max=xapi_statement.result.score.max,
         score_min=xapi_statement.result.score.min,

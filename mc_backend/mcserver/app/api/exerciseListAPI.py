@@ -7,8 +7,10 @@ from conllu import TokenList
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
 
-from mcserver.app.models import Exercise, Language, VocabularyCorpus, UpdateInfo, ResourceType
+from mcserver.app import db
+from mcserver.app.models import Language, VocabularyCorpus, ResourceType
 from mcserver.app.services import NetworkService, FileService
+from mcserver.models_auto import Exercise, UpdateInfo
 
 
 class ExerciseListAPI(Resource):
@@ -30,9 +32,9 @@ class ExerciseListAPI(Resource):
         args: dict = self.reqparse.parse_args()
         vocabulary_set: Set[str]
         last_update: int = args["last_update_time"]
-        last_update_time: datetime = datetime.fromtimestamp(last_update / 1000.0)
-        ui_exercises: UpdateInfo = UpdateInfo.query.filter_by(resource_type=ResourceType.exercise_list.name).first()
-        if ui_exercises.last_modified_time < last_update_time:
+        ui_exercises: UpdateInfo = db.session.query(UpdateInfo).filter_by(
+            resource_type=ResourceType.exercise_list.name).first()
+        if ui_exercises.last_modified_time < last_update / 1000:
             return NetworkService.make_json_response([])
         try:
             vc: VocabularyCorpus = VocabularyCorpus[args["vocabulary"]]
@@ -44,8 +46,8 @@ class ExerciseListAPI(Resource):
             lang = Language(args["lang"])
         except ValueError:
             lang = Language.English
-        exercises: List[Exercise] = Exercise.query.filter_by(language=lang.value)
-        ret_val: List[dict] = [x.serialize(compress=True) for x in exercises]
+        exercises: List[Exercise] = db.session.query(Exercise).filter_by(language=lang.value)
+        ret_val: List[dict] = [NetworkService.serialize_exercise(x, compress=True) for x in exercises]
         matching_degrees: List[float] = []
         if len(vocabulary_set):
             for exercise in exercises:

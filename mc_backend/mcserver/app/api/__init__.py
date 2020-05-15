@@ -1,15 +1,12 @@
 """The API blueprint. Register it on the main application to enable the REST API for text retrieval."""
 from flask import Blueprint
 from flask_restful import Api
-
 from mcserver import Config
 
 bp = Blueprint("api", __name__)
 api = Api(bp)
 
-from mcserver.app.api.corpusAPI import CorpusAPI
-from mcserver.app.api.corpusListAPI import CorpusListAPI
-from mcserver.app.api.exerciseAPI import ExerciseAPI
+from . import corpusAPI, corpusListAPI, exerciseAPI
 from mcserver.app.api.exerciseListAPI import ExerciseListAPI
 from mcserver.app.api.fileAPI import FileAPI
 from mcserver.app.api.frequencyAPI import FrequencyAPI
@@ -22,9 +19,6 @@ from mcserver.app.api.validReffAPI import ValidReffAPI
 from mcserver.app.api.vectorNetworkAPI import VectorNetworkAPI
 from mcserver.app.api.vocabularyAPI import VocabularyAPI
 
-api.add_resource(CorpusListAPI, Config.SERVER_URI_CORPORA, endpoint="corpora")
-api.add_resource(CorpusAPI, Config.SERVER_URI_CORPORA + "/<int:cid>", endpoint="corpus")
-api.add_resource(ExerciseAPI, Config.SERVER_URI_EXERCISE, endpoint="exercise")
 api.add_resource(ExerciseListAPI, Config.SERVER_URI_EXERCISE_LIST, endpoint="exerciseList")
 api.add_resource(FileAPI, Config.SERVER_URI_FILE, endpoint="file")
 api.add_resource(FrequencyAPI, Config.SERVER_URI_FREQUENCY, endpoint="frequency")

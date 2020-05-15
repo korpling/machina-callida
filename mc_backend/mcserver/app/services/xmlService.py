@@ -6,8 +6,9 @@ from lxml import etree, objectify
 from lxml.etree import _ElementUnicodeResult
 from collections import OrderedDict
 
-from mcserver.app.models import ExerciseType, Exercise, FileType, Solution
+from mcserver.app.models import ExerciseType, FileType, Solution
 from mcserver.app.services import TextService
+from mcserver.models_auto import Exercise
 
 
 class XMLservice:

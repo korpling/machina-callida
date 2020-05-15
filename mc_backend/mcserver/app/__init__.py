@@ -1,21 +1,47 @@
 """The main module for the application. It contains the application factory and provides access to the database."""
 import logging
+import os
 import sys
 from logging.handlers import RotatingFileHandler
 from threading import Thread
 from time import strftime
 from typing import Type
-
+import connexion
 import flask
+from connexion import FlaskApp
 from flask import Flask, got_request_exception, request, Response, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from open_alchemy import init_yaml
 
 from mcserver.config import Config
 
 db: SQLAlchemy = SQLAlchemy()  # session_options={"autocommit": True}
 migrate: Migrate = Migrate(directory=Config.MIGRATIONS_DIRECTORY)
+# do this _BEFORE_ you add any APIs to your application
+init_yaml(Config.API_SPEC_FILE_PATH, base=db.Model,
+          models_filename=os.path.join(Config.MC_SERVER_DIRECTORY, "models_auto.py"))
+
+
+def apply_event_handlers(app: FlaskApp):
+    """Applies event handlers to a given Flask application, such as logging after requests or teardown logic."""
+
+    @app.app.after_request
+    def after_request(response: Response) -> Response:
+        """ Logs metadata for every request. """
+        timestamp = strftime('[%Y-%m-%d %H:%M:%S]')
+        app.app.logger.info('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme,
+                            request.full_path, response.status)
+        return response
+
+    @app.route(Config.SERVER_URI_FAVICON)
+    def get_favicon():
+        """Sends the favicon to browsers, which is used, e.g., in the tabs as a symbol for our application."""
+        mime_type: str = 'image/vnd.microsoft.icon'
+        return send_from_directory(Config.ASSETS_DIRECTORY, Config.FAVICON_FILE_NAME, mimetype=mime_type)
+
+    app.app.teardown_appcontext(shutdown_session)
 
 
 def create_app(cfg: Type[Config] = Config) -> Flask:
@@ -26,7 +52,7 @@ def create_app(cfg: Type[Config] = Config) -> Flask:
     # use local postgres database for migrations
     if len(sys.argv) > 2 and sys.argv[2] == Config.FLASK_MIGRATE:
         cfg.SQLALCHEMY_DATABASE_URI = Config.DATABASE_URL_LOCAL
-    app = init_app_common(cfg=cfg)
+    app: Flask = init_app_common(cfg=cfg)
     from mcserver.app.services import bp as services_bp
     app.register_blueprint(services_bp)
     from mcserver.app.api import bp as api_bp
@@ -51,27 +77,12 @@ def full_init(app: Flask, is_csm: bool) -> None:
 
 def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
     """ Initializes common Flask parts, e.g. CORS, configuration, database, migrations and custom corpora."""
-    app = Flask(__name__)
-
-    @app.after_request
-    def after_request(response: Response) -> Response:
-        """ Logs metadata for every request. """
-        timestamp = strftime('[%Y-%m-%d %H:%M:%S]')
-        app.logger.info('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme,
-                        request.full_path, response.status)
-        return response
-
-    @app.route(Config.SERVER_URI_FAVICON)
-    def get_favicon():
-        """Sends the favicon to browsers, which is used, e.g., in the tabs as a symbol for our application."""
-        mime_type: str = 'image/vnd.microsoft.icon'
-        return send_from_directory(Config.ASSETS_DIRECTORY, Config.FAVICON_FILE_NAME, mimetype=mime_type)
-
-    @app.teardown_appcontext
-    def shutdown_session(exception=None):
-        """ Shuts down the session when the application exits. (maybe also after every request ???) """
-        db.session.remove()
-
+    connexion_app: FlaskApp = connexion.FlaskApp(
+        __name__, port=(cfg.CORPUS_STORAGE_MANAGER_PORT if is_csm else cfg.HOST_PORT),
+        specification_dir=Config.MC_SERVER_DIRECTORY)
+    connexion_app.add_api(Config.API_SPEC_FILE_PATH, arguments={'title': 'Machina Callida Backend REST API'})
+    apply_event_handlers(connexion_app)
+    app: Flask = connexion_app.app
     # allow CORS requests for all API routes
     CORS(app)  # , resources=r"/*"
     app.config.from_object(cfg)
@@ -120,6 +131,12 @@ def start_updater(app: Flask) -> Thread:
     return t
 
 
+def shutdown_session(exception=None):
+    """ Shuts down the session when the application exits. (maybe also after every request ???) """
+    db.session.remove()
+
+
 # import the models so we can access them from other parts of the app using imports from "app.models";
 # this has to be at the bottom of the file
 from mcserver.app import models
+from mcserver.app import api

@@ -1,47 +1,41 @@
 """The corpus API. Add it to your REST API to provide users with metadata about specific texts."""
-from flask_restful import Resource, abort, marshal
-from flask_restful.reqparse import RequestParser
+from typing import Union
 
+import connexion
+from connexion.lifecycle import ConnexionResponse
+from flask import Response
+
+from mcserver import Config
 from mcserver.app import db
-from mcserver.app.models import Corpus, corpus_fields
 from mcserver.app.services import NetworkService
+from mcserver.models_auto import Corpus
 
 
-class CorpusAPI(Resource):
-    """The corpus API resource. It enables some of the CRUD operations for metadata about specific texts."""
+def delete(cid: int) -> Union[Response, ConnexionResponse]:
+    """The DELETE method for the corpus REST API. It deletes metadata for a specific text."""
+    corpus: Corpus = db.session.query(Corpus).filter_by(cid=cid).first()
+    if corpus is None:
+        return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_CORPUS_NOT_FOUND)
+    db.session.delete(corpus)
+    db.session.commit()
+    return NetworkService.make_json_response(True)
 
-    def __init__(self):
-        """Initialize possible arguments for calls to the corpus REST API."""
-        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
-        self.reqparse.add_argument("title", type=str, required=False, help="No title provided")
-        self.reqparse.add_argument("author", type=str, required=False, help="No author provided")
-        self.reqparse.add_argument("source_urn", type=str, required=False, help="No source URN provided")
-        super(CorpusAPI, self).__init__()
 
-    def get(self, cid):
-        """The GET method for the corpus REST API. It provides metadata for a specific text."""
-        corpus: Corpus = Corpus.query.filter_by(cid=cid).first()
-        if corpus is None:
-            abort(404)
-        return {"corpus": marshal(corpus, corpus_fields)}
+def get(cid: int) -> Union[Response, ConnexionResponse]:
+    """The GET method for the corpus REST API. It provides metadata for a specific text."""
+    corpus: Corpus = db.session.query(Corpus).filter_by(cid=cid).first()
+    if corpus is None:
+        return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_CORPUS_NOT_FOUND)
+    return NetworkService.make_json_response(corpus.to_dict())
 
-    def put(self, cid):
-        """The PUT method for the corpus REST API. It provides updates metadata for a specific text."""
-        corpus: Corpus = Corpus.query.filter_by(cid=cid).first()
-        if corpus is None:
-            abort(404)
-        args = self.reqparse.parse_args()
-        for k, v in args.items():
-            if v is not None:
-                setattr(corpus, k, v)
-        db.session.commit()
-        return {"corpus": marshal(corpus, corpus_fields)}
 
-    def delete(self, cid):
-        """The DELETE method for the corpus REST API. It deletes metadata for a specific text."""
-        corpus: Corpus = Corpus.query.filter_by(cid=cid).first()
-        if corpus is None:
-            abort(404)
-        db.session.delete(corpus)
-        db.session.commit()
-        return {"result": True}
+def patch(cid: int, **kwargs) -> Union[Response, ConnexionResponse]:
+    """The PUT method for the corpus REST API. It provides updates metadata for a specific text."""
+    corpus: Corpus = db.session.query(Corpus).filter_by(cid=cid).first()
+    if corpus is None:
+        return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_CORPUS_NOT_FOUND)
+    for k, v in kwargs.items():
+        if v is not None:
+            setattr(corpus, k, v)
+    db.session.commit()
+    return NetworkService.make_json_response(corpus.to_dict())

@@ -7,7 +7,7 @@ from mcserver import Config
 from mcserver.app import init_app_common, init_logging
 
 
-def create_csm_app(cfg: Type[Config] = Config):
+def create_csm_app(cfg: Type[Config] = Config) -> Flask:
     """Creates a new Flask app that represents a Corpus Storage Manager."""
 
     Config.CORPUS_STORAGE_MANAGER = CorpusStorageManager(Config.GRAPH_DATABASE_DIR)

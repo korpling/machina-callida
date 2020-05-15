@@ -103,7 +103,8 @@ export class ExerciseListPage implements OnInit {
                     this.helperService.makeGetRequest(this.http, this.toastCtrl, url, params).then((exercises: ExerciseMC[]) => {
                         updateInfo.exerciseList = new Date().getTime();
                         this.storage.set(configMC.localStorageKeyUpdateInfo, JSON.stringify(updateInfo)).then();
-                        state.exerciseList = this.availableExercises = this.exercises = exercises;
+                        const newExercise: ExerciseMC[] = exercises.length ? exercises : state.exerciseList;
+                        state.exerciseList = this.availableExercises = this.exercises = newExercise;
                         this.helperService.saveApplicationState(state).then();
                         this.processExercises();
                         return resolve();

@@ -9,62 +9,48 @@ from conllu import TokenList
 from flask_restful import abort
 
 from mcserver import Config
-from mcserver.app.models import CustomCorpus, Corpus, CitationLevel, TextPart, Citation
+from mcserver.app.models import CustomCorpus, CitationLevel, TextPart, Citation, CorpusMC
 from mcserver.app.services import AnnotationService, FileService
 
 
 class CustomCorpusService:
     """ Service for handling access to custom corpora. Performs CRUD-like operations on the database. """
     custom_corpora: List[CustomCorpus] = [
-        CustomCorpus(corpus=Corpus(title="Commentarii de bello Gallico",
-                                   source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format("caes-gal"),
-                                   author="C. Iulius Caesar",
-                                   citation_level_1=CitationLevel.book,
-                                   citation_level_2=CitationLevel.chapter,
-                                   citation_level_3=CitationLevel.section),
-                     file_path=Config.CUSTOM_CORPUS_CAES_GAL_FILE_PATH),
-        CustomCorpus(corpus=Corpus(title="Epistulae ad Atticum",
-                                   source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format("cic-att"),
-                                   author="M. Tullius Cicero",
-                                   citation_level_1=CitationLevel.book,
-                                   citation_level_2=CitationLevel.letter,
-                                   citation_level_3=CitationLevel.section),
-                     file_path=Config.CUSTOM_CORPUS_CIC_ATT_FILE_PATH),
-        CustomCorpus(corpus=Corpus(title="De officiis",
-                                   source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format("cic-off"),
-                                   author="M. Tullius Cicero",
-                                   citation_level_1=CitationLevel.book,
-                                   citation_level_2=CitationLevel.section,
-                                   citation_level_3=CitationLevel.default),
-                     file_path=Config.CUSTOM_CORPUS_CIC_OFF_FILE_PATH),
-        CustomCorpus(corpus=Corpus(title="Vulgata (Novum Testamentum)",
-                                   source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format("latin-nt"),
-                                   author="Hieronymus",
-                                   citation_level_1=CitationLevel.chapter,
-                                   citation_level_2=CitationLevel.section,
-                                   citation_level_3=CitationLevel.default),
-                     file_path=Config.CUSTOM_CORPUS_LATIN_NT_FILE_PATH),
-        CustomCorpus(corpus=Corpus(title="Opus Agriculturae",
-                                   source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format("pal-agr"),
-                                   author="Palladius",
-                                   citation_level_1=CitationLevel.book,
-                                   citation_level_2=CitationLevel.chapter,
-                                   citation_level_3=CitationLevel.section),
-                     file_path=Config.CUSTOM_CORPUS_PAL_AGR_FILE_PATH),
-        CustomCorpus(corpus=Corpus(title="Peregrinatio Aetheriae",
-                                   source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format("per-aeth"),
-                                   author="Peregrinatio Aetheriae",
-                                   citation_level_1=CitationLevel.chapter,
-                                   citation_level_2=CitationLevel.section,
-                                   citation_level_3=CitationLevel.default),
-                     file_path=Config.CUSTOM_CORPUS_PER_AET_FILE_PATH),
-        CustomCorpus(corpus=Corpus(title="VIVA",
-                                   source_urn=Config.CUSTOM_CORPUS_VIVA_URN,
-                                   author="VIVA (textbook)",
-                                   citation_level_1=CitationLevel.book,
-                                   citation_level_2=CitationLevel.unit,
-                                   citation_level_3=CitationLevel.default),
-                     file_path=Config.CUSTOM_CORPUS_VIVA_FILE_PATH)]
+        CustomCorpus(corpus=CorpusMC.from_dict(
+            title="Commentarii de bello Gallico", source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format(
+                "caes-gal"), author="C. Iulius Caesar", citation_level_1=CitationLevel.book.value,
+            citation_level_2=CitationLevel.chapter.value, citation_level_3=CitationLevel.section.value),
+            file_path=Config.CUSTOM_CORPUS_CAES_GAL_FILE_PATH),
+        CustomCorpus(corpus=CorpusMC.from_dict(
+            title="Epistulae ad Atticum", source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format(
+                "cic-att"), author="M. Tullius Cicero", citation_level_1=CitationLevel.book.value,
+            citation_level_2=CitationLevel.letter.value, citation_level_3=CitationLevel.section.value),
+            file_path=Config.CUSTOM_CORPUS_CIC_ATT_FILE_PATH),
+        CustomCorpus(corpus=CorpusMC.from_dict(
+            title="De officiis", source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format(
+                "cic-off"), author="M. Tullius Cicero", citation_level_1=CitationLevel.book.value,
+            citation_level_2=CitationLevel.section.value, citation_level_3=CitationLevel.default.value),
+            file_path=Config.CUSTOM_CORPUS_CIC_OFF_FILE_PATH),
+        CustomCorpus(corpus=CorpusMC.from_dict(
+            title="Vulgata (Novum Testamentum)", source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format(
+                "latin-nt"), author="Hieronymus", citation_level_1=CitationLevel.chapter.value,
+            citation_level_2=CitationLevel.section.value, citation_level_3=CitationLevel.default.value),
+            file_path=Config.CUSTOM_CORPUS_LATIN_NT_FILE_PATH),
+        CustomCorpus(corpus=CorpusMC.from_dict(
+            title="Opus Agriculturae", source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format(
+                "pal-agr"), author="Palladius", citation_level_1=CitationLevel.book.value,
+            citation_level_2=CitationLevel.chapter.value, citation_level_3=CitationLevel.section.value),
+            file_path=Config.CUSTOM_CORPUS_PAL_AGR_FILE_PATH),
+        CustomCorpus(corpus=CorpusMC.from_dict(
+            title="Peregrinatio Aetheriae", source_urn=Config.CUSTOM_CORPUS_PROIEL_URN_TEMPLATE.format(
+                "per-aeth"), author="Peregrinatio Aetheriae", citation_level_1=CitationLevel.chapter.value,
+            citation_level_2=CitationLevel.section.value, citation_level_3=CitationLevel.default.value),
+            file_path=Config.CUSTOM_CORPUS_PER_AET_FILE_PATH),
+        CustomCorpus(corpus=CorpusMC.from_dict(
+            title="VIVA", source_urn=Config.CUSTOM_CORPUS_VIVA_URN, author="VIVA (textbook)",
+            citation_level_1=CitationLevel.book.value, citation_level_2=CitationLevel.unit.value,
+            citation_level_3=CitationLevel.default.value), file_path=Config.CUSTOM_CORPUS_VIVA_FILE_PATH)
+    ]
     makra_map: Dict[str, str] = {"ā": "a", "Ā": "A", "ē": "e", "Ē": "E", "ō": "o", "Ō": "O", "ī": "i", "Ī": "i",
                                  "ū": "u"}
     punctuation_extended_rare: str = "≫≪–›‹»«…"

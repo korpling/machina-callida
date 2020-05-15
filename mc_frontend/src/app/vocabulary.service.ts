@@ -25,6 +25,7 @@ export class VocabularyService implements OnInit {
     constructor(public http: HttpClient,
                 public toastCtrl: ToastController,
                 public helperService: HelperService) {
+        this.ngOnInit();
     }
 
     getCurrentReferenceVocabulary(): Vocabulary {

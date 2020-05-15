@@ -4,8 +4,10 @@ from typing import List
 from flask_restful import Resource, abort
 from flask_restful.reqparse import RequestParser
 
-from mcserver.app.models import Language, Exercise, ExerciseType, Solution
+from mcserver.app import db
+from mcserver.app.models import Language, ExerciseType, Solution
 from mcserver.app.services import TextService, NetworkService
+from mcserver.models_auto import Exercise
 
 
 class H5pAPI(Resource):
@@ -70,7 +72,7 @@ class H5pAPI(Resource):
             lang = Language(args["lang"])
         except ValueError:
             lang = Language.English
-        exercise: Exercise = Exercise.query.filter_by(eid=eid).first()
+        exercise: Exercise = db.session.query(Exercise).filter_by(eid=eid).first()
         if exercise is None:
             abort(404)
         text_field_content: str = ""

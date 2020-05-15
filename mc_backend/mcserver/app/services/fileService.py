@@ -13,9 +13,10 @@ from docx.text.run import Run
 from xhtml2pdf import pisa
 
 from mcserver import Config
-from mcserver.app.models import DownloadableFile, FileType, Solution, Exercise, ExerciseType, SolutionElement, \
+from mcserver.app.models import DownloadableFile, FileType, Solution, ExerciseType, SolutionElement, \
     VocabularyCorpus
 from mcserver.app.services import TextService, XMLservice
+from mcserver.models_auto import Exercise
 
 
 class FileService:

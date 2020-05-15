@@ -4,9 +4,10 @@ It is a server-side backend for retrieving Latin texts and
 generating language exercises for them."""
 import sys
 from typing import Type
+
 from flask import Flask
-from mcserver.app import create_app
 from mcserver.config import Config, ProductionConfig, TestingConfig, DevelopmentConfig
+from mcserver.app import create_app
 
 
 def get_app() -> Flask:

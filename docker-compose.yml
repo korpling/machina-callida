@@ -13,7 +13,6 @@ services:
       - IS_THIS_A_DOCKER_CONTAINER=Yes
       - PYTHONPATH=/home/mc
     ports:
-      - "8122:22"
       - "6555:6555"
     restart: always
     stdin_open: true
@@ -21,6 +20,8 @@ services:
     image: postgres
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
+#    ports:
+#    - "5432:5432"
     restart: always
     volumes:
       - db-data:/var/lib/postgresql/data
@@ -47,7 +48,6 @@ services:
       - IS_THIS_A_DOCKER_CONTAINER=Yes
       - PYTHONPATH=/home/mc
     ports:
-      - "8022:22"
       - "5000:5000"
     restart: always
     stdin_open: true

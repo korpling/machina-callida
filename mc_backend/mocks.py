@@ -1,18 +1,50 @@
 import json
+import logging
 from collections import OrderedDict
 from datetime import datetime
 from typing import List, Tuple, Dict
+from unittest.mock import patch
 
 from conllu import TokenList
+from flask import Flask
+from flask.ctx import AppContext
+from flask.testing import FlaskClient
 from gensim.models import Word2Vec
 from gensim.models.keyedvectors import Vocab
 from networkx import Graph
 from numpy.core.multiarray import ndarray
+from sqlalchemy.exc import OperationalError
 
-from mcserver import Config
-from mcserver.app.models import Phenomenon, PartOfSpeech, Corpus, CitationLevel, Exercise, SolutionElement, \
-    ExerciseData, GraphData, LinkMC, NodeMC, Language, Dependency, Case, AnnisResponse, Solution, TextPart, Citation
-from mcserver.app.services import AnnotationService, CustomCorpusService
+from mcserver import Config, TestingConfig
+from mcserver.app import db, shutdown_session
+from mcserver.app.models import Phenomenon, PartOfSpeech, CitationLevel, SolutionElement, ExerciseData, GraphData, \
+    LinkMC, NodeMC, Language, Dependency, Case, AnnisResponse, Solution, TextPart, Citation, ExerciseMC, CorpusMC
+from mcserver.app.services import AnnotationService, CustomCorpusService, TextService
+from mcserver.models_auto import Corpus, Exercise, UpdateInfo
+
+
+class MockFilterBy:
+    def __init__(self, do_raise: bool = False, ui: UpdateInfo = None):
+        self.do_raise: bool = do_raise
+        self.ui: UpdateInfo = ui
+
+    def first(self):
+        if self.do_raise:
+            raise OperationalError("error", [], "")
+        else:
+            return self.ui
+
+
+class MockQuery:
+    def __init__(self, do_raise: bool = False, ui: UpdateInfo = None):
+        self.do_raise: bool = do_raise
+        self.ui: UpdateInfo = ui
+
+    def all(self):
+        return db.session.query(Corpus).all()
+
+    def filter_by(self, **kwargs):
+        return MockFilterBy(self.do_raise, self.ui)
 
 
 class MockWV:
@@ -42,6 +74,30 @@ class MockResponse:
         pass
 
 
+class TestHelper:
+    def __init__(self, app: Flask):
+        self.app: Flask = app
+        self.app_context: AppContext = self.app.app_context()
+        self.client: FlaskClient = self.app.test_client()
+
+    @staticmethod
+    def update_flask_app(class_name: str, app_factory: callable) -> None:
+        """Sets up and tears down the testing environment for each Test Case."""
+        if len(Mocks.app_dict) and list(Mocks.app_dict.keys())[0] != class_name:
+            if Config.CORPUS_STORAGE_MANAGER:
+                Config.CORPUS_STORAGE_MANAGER.__exit__(None, None, None)
+            list(Mocks.app_dict.values())[0].app_context.pop()
+            shutdown_session()
+            db.drop_all()
+            Mocks.app_dict = {}
+        if not len(Mocks.app_dict):
+            with patch.object(TextService, "init_stop_words_latin"):
+                Mocks.app_dict[class_name] = TestHelper(app_factory(TestingConfig))
+            Mocks.app_dict[class_name].app.logger.setLevel(logging.CRITICAL)
+            Mocks.app_dict[class_name].app.testing = True
+        db.session.commit()
+
+
 class Mocks:
     """This class contains mock objects for unit testing purposes."""
     annotations: List[TokenList] = [TokenList(
@@ -63,8 +119,6 @@ class Mocks:
                 {"id": 6, "form": ".", "lemma": ".", "upostag": "PUNCT", "xpostag": "Punc", "feats": None, "head": 1,
                  "deprel": "punct", "deps": None, "misc": None}],
         metadata=OrderedDict([("sent_id", "1"), ("urn", "urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1")]))]
-    aqls: List[str] = ["=".join([Phenomenon.partOfSpeech.value, '"{0}"'.format(
-        AnnotationService.phenomenon_map[Phenomenon.partOfSpeech][PartOfSpeech.verb.name][0])])]
     annis_response_dict: dict = {"graph_data_raw": {"directed": True, "multigraph": True, "graph": {}, "nodes": [
         {"annis::node_name": "urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok1",
          "annis::node_type": "node", "annis::type": "node", "annis::tok": "Pars", "udep::lemma": "pars",
@@ -610,22 +664,25 @@ class Mocks:
                                                    "value": {"sentence_id": 0, "token_id": 0, "content": None,
                                                              "salt_id": "salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok1"}}],
                                  "conll": "# newdoc id = /var/folders/30/yqnv6lz56r14dqhpw18knn2r0000gp/T/tmp7qn86au9\n# sent_id = 1\n# text = Caesar fortis est.\n1\tCaesar\tCaeso\tVERB\tC1|grn1|casA|gen1|stAN\tCase=Nom|Degree=Pos|Gender=Masc|Number=Sing\t2\tcsubj\t_\t_\n2\tfortis\tfortis\tADJ\tC1|grn1|casA|gen1|stAN\tCase=Nom|Degree=Pos|Gender=Masc|Number=Sing\t0\troot\troot\t_\n3\test\tsum\tAUX\tN3|modA|tem1|gen6|stAV\tMood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act\t2\tcop\t_\tSpaceAfter=No\n4\t.\t.\tPUNCT\tPunc\t_\t2\tpunct\t_\t_\n\n# sent_id = 2\n# text = Galli moriuntur.\n1\tGalli\tGallus\tPRON\tF1|grn1|casJ|gen1|stPD\tCase=Nom|Degree=Pos|Gender=Masc|Number=Plur|PronType=Dem\t2\tnsubj:pass\t_\t_\n2\tmoriuntur\tmorior\tVERB\tL3|modJ|tem1|gen9|stAV\tMood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Pass\t0\troot\troot\tSpaceAfter=No\n3\t.\t.\tPUNCT\tPunc\t_\t2\tpunct\t_\tSpacesAfter=\\n\n\n"}
+    app_dict: Dict[str, TestHelper] = {}
+    aqls: List[str] = ["=".join([Phenomenon.partOfSpeech.value, '"{0}"'.format(
+        AnnotationService.phenomenon_map[Phenomenon.partOfSpeech][PartOfSpeech.verb.name][0])])]
     graph_data: GraphData = AnnotationService.map_graph_data(annis_response_dict["graph_data_raw"])
     annis_response: AnnisResponse = AnnisResponse(graph_data=graph_data)
     corpora: List[Corpus] = [
-        Corpus(title="title1", source_urn="urn1", author="author1", uri=Config.SERVER_URI_CORPORA + '/1',
-               citation_level_1=CitationLevel.default),
-        Corpus(title="title2", source_urn="urn2", author="author2", uri=Config.SERVER_URI_CORPORA + '/2',
-               citation_level_1=CitationLevel.default)]
+        CorpusMC.from_dict(title="title1", source_urn="urn1", author="author1",
+                           citation_level_1=CitationLevel.default.value),
+        CorpusMC.from_dict(title="title2", source_urn="urn2", author="author2",
+                           citation_level_1=CitationLevel.default.value)]
     cts_capabilities_xml: str = '<GetCapabilities xmlns="http://chs.harvard.edu/xmlns/cts"><request><requestName>GetInventory</requestName><requestFilters>urn=urn:cts:latinLit</requestFilters></request><reply><ti:TextInventory xmlns:ti=\'http://chs.harvard.edu/xmlns/cts\'><ti:textgroup urn=\'urn:cts:latinLit:phi0660\' xmlns:ti=\'http://chs.harvard.edu/xmlns/cts\'><ti:groupname xml:lang=\'eng\'>Tibullus</ti:groupname><ti:groupname xml:lang=\'lat\'>Corpus Tibullianum</ti:groupname><ti:work xml:lang="lat" urn=\'urn:cts:latinLit:phi0660.phi001\' groupUrn=\'urn:cts:latinLit:phi0660\' xmlns:ti=\'http://chs.harvard.edu/xmlns/cts\'><ti:title xml:lang=\'lat\'>Elegiae</ti:title><ti:edition urn=\'urn:cts:latinLit:phi0660.phi001.perseus-lat2\' workUrn=\'urn:cts:latinLit:phi0660.phi001\' xmlns:ti=\'http://chs.harvard.edu/xmlns/cts\'><ti:label xml:lang=\'eng\'>Elegiae, Aliorumque carminum libri tres</ti:label><ti:description xml:lang=\'eng\'>Tibullus, creator; Postgate, J. P. (John Percival), 1853- 1926, editor </ti:description><ti:online><ti:citationMapping><ti:citation label="book" xpath="/tei:div[@n=\'?\']" scope="/tei:TEI/tei:text/tei:body/tei:div"><ti:citation label="poem" xpath="/tei:div[@n=\'?\']" scope="/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'?\']"><ti:citation label="line" xpath="//tei:l[@n=\'?\']" scope="/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'?\']/tei:div[@n=\'?\']"></ti:citation></ti:citation></ti:citation></ti:citationMapping></ti:online></ti:edition></ti:work><ti:work xml:lang="lat" urn=\'urn:cts:latinLit:phi0660.phi003\' groupUrn=\'urn:cts:latinLit:phi0660\' xmlns:ti=\'http://chs.harvard.edu/xmlns/cts\'> </ti:work></ti:textgroup></ti:TextInventory></reply></GetCapabilities>'
     cts_passage_xml: str = '<GetPassage xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns="http://chs.harvard.edu/xmlns/cts"><request><requestName>GetPassage</requestName><requestUrn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.2</requestUrn></request><reply><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.2</urn><passage><TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div type="edition" xml:lang="lat" n="urn:cts:latinLit:phi0448.phi001.perseus-lat2"><div n="1" type="textpart" subtype="book"><div type="textpart" subtype="chapter" n="1"><div type="textpart" subtype="section" n="1"><p>Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.</p></div><div type="textpart" subtype="section" n="2"><p>Hi omnes lingua, institutis, legibus inter se differunt. Gallos ab Aquitanis Garumna flumen, a Belgis Matrona et Sequana dividit.</p></div></div></div></div></body></text></TEI></passage></reply></GetPassage>'
     cts_passage_xml_1_level: str = '<GetPassage xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns="http://chs.harvard.edu/xmlns/cts"><request><requestName>GetPassage</requestName><requestUrn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1-1.2</requestUrn></request><reply><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1-1.2</urn><passage><TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div type="edition" xml:lang="lat" n="urn:cts:latinLit:phi0448.phi001.perseus-lat2"><div n="1" type="textpart" subtype="book"><p>Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.</p></div><div n="2" type="textpart" subtype="book"><p>Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.</p></div><div n="3" type="textpart" subtype="book"><p>Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.</p></div></div></body></text></TEI></passage></reply></GetPassage>'
     cts_passage_xml_2_levels: str = '<GetPassage xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns="http://chs.harvard.edu/xmlns/cts"><request><requestName>GetPassage</requestName><requestUrn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1-1.2</requestUrn></request><reply><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1-1.2</urn><passage><TEI xmlns="http://www.tei-c.org/ns/1.0"><text><body><div type="edition" xml:lang="lat" n="urn:cts:latinLit:phi0448.phi001.perseus-lat2"><div n="1" type="textpart" subtype="book"><div type="textpart" subtype="section" n="1"><p>Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.</p></div></div></div></body></text></TEI></passage></reply></GetPassage>'
     cts_reff_xml: str = '<GetValidReff xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns="http://chs.harvard.edu/xmlns/cts"><request><requestName>GetValidReff</requestName><requestUrn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1</requestUrn><requestLevel>3</requestLevel></request><reply><reff><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1</urn><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.2</urn><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.3</urn><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.4</urn><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.5</urn><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.6</urn><urn>urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.7</urn></reff></reply></GetValidReff>'
-    exercise: Exercise = Exercise(
-        eid="test", uri="/test", last_access_time=datetime.utcnow(), exercise_type='ddwtos',
+    exercise: Exercise = ExerciseMC.from_dict(
+        eid="test", last_access_time=datetime.utcnow().timestamp(), exercise_type='ddwtos',
         search_values=f'["{Phenomenon.case.name}={Case.accusative.name}", "{Phenomenon.dependency.name}={Dependency.object.name}", "{Phenomenon.lemma.name}=bellum", "{Phenomenon.dependency.name}={Dependency.root.name}"]',
-        language=Language.English,
+        language=Language.English.value,
         conll="# newdoc id = /var/folders/30/yqnv6lz56r14dqhpw18knn2r0000gp/T/tmp7qn86au9\n# newpar\n# sent_id = 1\n# text = Caesar fortis est.\n1\tCaesar\tCaeso\tVERB\tC1|grn1|casA|gen1|stAN\tCase=Nom|Degree=Pos|Gender=Masc|Number=Sing\t2\tcsubj\t_\t_\n2\tfortis\tfortis\tADJ\tC1|grn1|casA|gen1|stAN\tCase=Nom|Degree=Pos|Gender=Masc|Number=Sing\t0\troot\t_\t_\n3\test\tsum\tAUX\tN3|modA|tem1|gen6|stAV\tMood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act\t2\tcop\t_\tSpaceAfter=No\n4\t.\t.\tPUNCT\tPunc\t_\t2\tpunct\t_\t_\n\n# sent_id = 2\n# text = Galli moriuntur.\n1\tGalli\tGallus\tPRON\tF1|grn1|casJ|gen1|stPD\tCase=Nom|Degree=Pos|Gender=Masc|Number=Plur|PronType=Dem\t2\tnsubj:pass\t_\t_\n2\tmoriuntur\tmorior\tVERB\tL3|modJ|tem1|gen9|stAV\tMood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Pass\t0\troot\t_\tSpaceAfter=No\n3\t.\t.\tPUNCT\tPunc\t_\t2\tpunct\t_\tSpacesAfter=\\n\n\n",
         solutions=json.dumps([
             Solution(target=SolutionElement(
@@ -699,7 +756,7 @@ class Mocks:
                                'Romanus', 'Solomon', 'amor']
     raw_text: str = "Caesar fortis est. Galli moriuntur."
     static_exercises_udpipe_string: str = "1\tscribere\tscribere\n1\tcommovere\tcommovere\n1\tC\tC\n1\tgaudere\tgaudere\n1\tsignum\tsignum\n1\tvas\tvas\n1\tclarus\tclarus\n1\tcondicio\tcondicio\n1\tcom\tcum\n1\tprae\tprae\n1\tmovere\tmovere\n1\tducere\tducere\n1\tde\tde\n1\tcum\tcum\n1\tistam\tiste\n1\tnationum\tnatio\n1\tclarissimae\tclarus\n1\tmoderationem\tmoderatio\n1\tanimi\tanimus\n1\tomnium\tomnis\n1\tgentium\tgens\n1\tac\tac\n1\tvirtutem\tvirtus\n1\tprovinciae\tprovincia\n1\tCaesar\tCaesar\n1\test\tesse\n1\tsatis\tsatis\n1\tgovernment\tgovernment\n1\tsocius\tsocius\n1\tprovincia\tprovincia\n1\tpublicus\tpublicus\n1\tcivis\tcivis\n1\tatque\tatque"
-    subgraph_json: str = '{"directed":true,"exercise_id":"","exercise_type":"","frequency_analysis":[],"graph":{},"links":[],"multigraph":true,"nodes":[{"annis_node_name":"urn:custom:latinLit:proiel.pal-agr.lat:2.23.1/doc1#sent160481tok10","annis_node_type":"node","annis_tok":"quarum","annis_type":"node","id":"salt:/urn:custom:latinLit:proiel.pal-agr.lat:2.23.1/doc1#sent160481tok10","udep_lemma":"qui","udep_upostag":"PRON","udep_xpostag":"Pr","udep_feats":"Case=Gen|Gender=Fem|Number=Plur|PronType=Rel","solution":"","is_oov":null}],"solutions":[],"text_complexity":{},"uri":""}'
+    subgraph_json: str = '{"directed":true,"exercise_id":"","exercise_type":"","frequency_analysis":[],"graph":{},"links":[],"multigraph":true,"nodes":[{"annis_node_name":"urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1/doc1#sent1tok3","annis_node_type":"node","annis_tok":"Galli","annis_type":"node","id":"salt:/urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1/doc1#sent1tok3","udep_lemma":"Gallo","udep_upostag":"VERB","udep_xpostag":"L3|modQ|tem1|stAC","udep_feats":"Tense=Pres|VerbForm=Inf|Voice=Pass","solution":"","is_oov":null}],"solutions":[],"text_complexity":{},"uri":""}'
     test_args: List[str] = ["tests.py", "-test"]
     text_complexity_json_string: str = '{"n_w":52,"pos":11,"n_sent":3,"avg_w_per_sent":17.33,"avg_w_len":5.79,"n_punct":3,"n_types":48,"lex_den":0.73,"n_clause":1,"n_subclause":0,"n_abl_abs":0,"n_gerund":1,"n_inf":1,"n_part":1,"all":54.53}'
     text_list: List[Tuple[str, str]] = [("urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1", raw_text.split(".")[0]),

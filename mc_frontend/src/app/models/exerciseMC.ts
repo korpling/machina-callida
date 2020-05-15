@@ -16,7 +16,6 @@ export class ExerciseMC {
     public search_values: string[];
     public solutions: Solution[];
     public text_complexity: number;
-    public uri: string;
     public work_author: string;
     public work_title: string;
 
