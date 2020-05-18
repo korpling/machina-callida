@@ -63,15 +63,13 @@ def create_app(cfg: Type[Config] = Config) -> Flask:
 
 def full_init(app: Flask, is_csm: bool) -> None:
     """ Fully initializes the application, including logging."""
-    from mcserver.app.services.corpusService import CorpusService
-    from mcserver.app.services import CustomCorpusService
     if is_csm:
-        from mcserver.app.services.databaseService import DatabaseService
-        DatabaseService.init_db_alembic()
+        from mcserver.app.services import DatabaseService
         DatabaseService.init_db_update_info()
         DatabaseService.update_exercises(is_csm=is_csm)
         DatabaseService.init_db_corpus()
         if not app.config["TESTING"]:
+            from mcserver.app.services.corpusService import CorpusService
             CorpusService.init_graphannis_logging()
             start_updater(app)
 
@@ -91,6 +89,9 @@ def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     db.create_all()
+    if is_csm:
+        from mcserver.app.services.databaseService import DatabaseService
+        DatabaseService.init_db_alembic()
     from mcserver.app.services.textService import TextService
     TextService.init_proper_nouns_list()
     TextService.init_stop_words_latin()
