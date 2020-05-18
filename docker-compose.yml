@@ -35,7 +35,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-      - $PWD/mc_frontend/www:/home/mc/mc_frontend/www
+      - ./mc_frontend/www:/home/mc/mc_frontend/www
   mcserver:
     build:
       context: ./mc_backend
@@ -58,7 +58,7 @@ services:
       - "8100:80"
     restart: always
     volumes:
-      - $PWD/mc_frontend/www:/usr/share/nginx/html
+      - ./mc_frontend/www:/usr/share/nginx/html
       - ./mc_frontend/nginx.conf:/etc/nginx/nginx.conf
 volumes:
   db-data:

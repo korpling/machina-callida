@@ -67,6 +67,7 @@ def full_init(app: Flask, is_csm: bool) -> None:
     from mcserver.app.services import CustomCorpusService
     if is_csm:
         from mcserver.app.services.databaseService import DatabaseService
+        DatabaseService.init_db_alembic()
         DatabaseService.init_db_update_info()
         DatabaseService.update_exercises(is_csm=is_csm)
         DatabaseService.init_db_corpus()
@@ -90,8 +91,6 @@ def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     db.create_all()
-    from mcserver.app.services.databaseService import DatabaseService
-    DatabaseService.init_db_alembic()
     from mcserver.app.services.textService import TextService
     TextService.init_proper_nouns_list()
     TextService.init_stop_words_latin()
