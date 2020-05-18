@@ -16,6 +16,7 @@ def get(last_update_time: int) -> Union[Response, ConnexionResponse]:
     ui_cts: UpdateInfo
     try:
         ui_cts = db.session.query(UpdateInfo).filter_by(resource_type=ResourceType.cts_data.name).first()
+        db.session.commit()
     except (InvalidRequestError, OperationalError):
         db.session.rollback()
         return NetworkService.make_json_response(None)

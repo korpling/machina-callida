@@ -20,6 +20,7 @@ class DatabaseService:
     def check_corpus_list_age(app: Flask) -> None:
         """ Checks whether the corpus list needs to be updated. If yes, it performs the update. """
         ui_cts: UpdateInfo = db.session.query(UpdateInfo).filter_by(resource_type=ResourceType.cts_data.name).first()
+        db.session.commit()
         if ui_cts is None:
             return
         else:
