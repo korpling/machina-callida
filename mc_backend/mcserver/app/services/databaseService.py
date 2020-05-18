@@ -42,7 +42,7 @@ class DatabaseService:
     @staticmethod
     def init_db_corpus() -> None:
         """Initializes the corpus list if it is not already there and up to date."""
-        if db.engine.dialect.has_table(db.engine, "Corpus"):
+        if db.engine.dialect.has_table(db.engine, Config.DATABASE_TABLE_CORPUS):
             CorpusService.existing_corpora = db.session.query(Corpus).all()
             db.session.commit()
             urn_dict: Dict[str, int] = {v.source_urn: i for i, v in enumerate(CorpusService.existing_corpora)}
@@ -66,7 +66,7 @@ class DatabaseService:
     @staticmethod
     def init_db_update_info() -> None:
         """Initializes update entries for all resources that have not yet been created."""
-        if db.engine.dialect.has_table(db.engine, "UpdateInfo"):
+        if db.engine.dialect.has_table(db.engine, Config.DATABASE_TABLE_UPDATEINFO):
             for rt in ResourceType:
                 ui_cts: UpdateInfo = db.session.query(UpdateInfo).filter_by(resource_type=rt.name).first()
                 if ui_cts is None:
@@ -93,7 +93,7 @@ class DatabaseService:
     @staticmethod
     def update_exercises(is_csm: bool) -> None:
         """Deletes old exercises."""
-        if db.engine.dialect.has_table(db.engine, "Exercise"):
+        if db.engine.dialect.has_table(db.engine, Config.DATABASE_TABLE_EXERCISE):
             exercises: List[Exercise] = db.session.query(Exercise).all()
             now: datetime = datetime.utcnow()
             for exercise in exercises:

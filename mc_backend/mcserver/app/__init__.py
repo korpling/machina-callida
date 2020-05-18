@@ -5,7 +5,7 @@ import sys
 from logging.handlers import RotatingFileHandler
 from threading import Thread
 from time import strftime
-from typing import Type
+from typing import Type, List
 import connexion
 import flask
 from connexion import FlaskApp
@@ -91,7 +91,10 @@ def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
     if is_csm:
         from mcserver.app.services.databaseService import DatabaseService
         DatabaseService.init_db_alembic()
-    db.create_all()
+    tables: List[str] = [Config.DATABASE_TABLE_ALEMBIC, Config.DATABASE_TABLE_CORPUS, Config.DATABASE_TABLE_EXERCISE,
+                         Config.DATABASE_TABLE_UPDATEINFO]
+    if any(not db.engine.dialect.has_table(db.engine, x) for x in tables):
+        db.create_all()
     from mcserver.app.services.textService import TextService
     TextService.init_proper_nouns_list()
     TextService.init_stop_words_latin()
