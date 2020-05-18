@@ -1,11 +1,8 @@
 """Models for dealing with text data, both in the database and in the application itself."""
 from typing import Dict, List, Union, Any
 from enum import Enum
-
 import typing
 from sqlalchemy.orm.state import InstanceState
-
-from mcserver.app import db
 from mcserver.config import Config
 from mcserver.models_auto import TExercise, Corpus, TCorpus, Exercise, TLearningResult, LearningResult
 

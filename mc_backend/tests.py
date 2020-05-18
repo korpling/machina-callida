@@ -543,7 +543,8 @@ class McTestCase(unittest.TestCase):
             conll=exercise_expected.conll, correct_feedback=exercise_expected.correct_feedback,
             partially_correct_feedback=exercise_expected.partially_correct_feedback, urn=Mocks.urn_custom,
             incorrect_feedback=exercise_expected.incorrect_feedback, search_values=exercise_expected.search_values,
-            general_feedback=exercise_expected.general_feedback, work_author="", work_title="")
+            general_feedback=exercise_expected.general_feedback, work_author=exercise_expected.work_author,
+            work_title=exercise_expected.work_title, language=exercise_expected.language)
         expected_values: List[str] = [
             exercise_expected.conll, exercise_expected.general_feedback, exercise_expected.incorrect_feedback,
             exercise_expected.search_values, exercise_expected.partially_correct_feedback,

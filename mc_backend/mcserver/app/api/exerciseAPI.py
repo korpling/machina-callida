@@ -57,27 +57,24 @@ def get_graph_data(title: str, conll_string_or_urn: str, aqls: List[str], exerci
 
 
 def make_new_exercise(conll: str, correct_feedback: str, exercise_type: str, general_feedback: str,
-                      graph_data_raw: dict, incorrect_feedback: str, instructions: str, partially_correct_feedback: str,
-                      search_values: str, solutions: List[Solution], type_translation: str, urn: str,
-                      work_author: str, work_title: str) -> AnnisResponse:
+                      graph_data_raw: dict, incorrect_feedback: str, instructions: str, language: str,
+                      partially_correct_feedback: str, search_values: str, solutions: List[Solution],
+                      type_translation: str, urn: str, work_author: str, work_title: str) -> AnnisResponse:
     """ Creates a new exercise and makes it JSON serializable. """
     # generate a GUID so we can offer the exercise XML as a file download
     xml_guid = str(uuid.uuid4())
     # assemble the mapped exercise data
-    ed: ExerciseData = AnnotationService.map_graph_data_to_exercise(graph_data_raw=graph_data_raw, solutions=solutions,
-                                                                    xml_guid=xml_guid)
+    ed: ExerciseData = AnnotationService.map_graph_data_to_exercise(
+        graph_data_raw=graph_data_raw, solutions=solutions, xml_guid=xml_guid)
     # for markWords exercises, add the maximum number of correct solutions to the description
     instructions += (f"({len(solutions)})" if exercise_type == ExerciseType.markWords.value else "")
     # map the exercise data to our database data model
-    new_exercise: Exercise = map_exercise_data_to_database(solutions=solutions, exercise_data=ed,
-                                                           exercise_type=exercise_type, instructions=instructions,
-                                                           xml_guid=xml_guid, correct_feedback=correct_feedback,
-                                                           partially_correct_feedback=partially_correct_feedback,
-                                                           incorrect_feedback=incorrect_feedback,
-                                                           general_feedback=general_feedback,
-                                                           exercise_type_translation=type_translation, conll=conll,
-                                                           work_author=work_author, work_title=work_title,
-                                                           search_values=search_values, urn=urn)
+    new_exercise: Exercise = map_exercise_data_to_database(
+        solutions=solutions, exercise_data=ed, exercise_type=exercise_type, instructions=instructions,
+        xml_guid=xml_guid, correct_feedback=correct_feedback, partially_correct_feedback=partially_correct_feedback,
+        incorrect_feedback=incorrect_feedback, general_feedback=general_feedback,
+        exercise_type_translation=type_translation, conll=conll, work_author=work_author, work_title=work_title,
+        search_values=search_values, urn=urn, language=language)
     # create a response
     return AnnisResponse(
         solutions=json.loads(new_exercise.solutions), uri=f"{Config.SERVER_URI_FILE}/{new_exercise.eid}",
@@ -87,7 +84,8 @@ def make_new_exercise(conll: str, correct_feedback: str, exercise_type: str, gen
 def map_exercise_data_to_database(exercise_data: ExerciseData, exercise_type: str, instructions: str, xml_guid: str,
                                   correct_feedback: str, partially_correct_feedback: str, incorrect_feedback: str,
                                   general_feedback: str, exercise_type_translation: str, search_values: str,
-                                  solutions: List[Solution], conll: str, work_author: str, work_title: str, urn: str):
+                                  solutions: List[Solution], conll: str, work_author: str, work_title: str, urn: str,
+                                  language: str):
     """Maps the exercise data so we can save it to the database."""
     # sort the nodes according to the ordering links
     AnnotationService.sort_nodes(graph_data=exercise_data.graph)
@@ -100,7 +98,7 @@ def map_exercise_data_to_database(exercise_data: ExerciseData, exercise_type: st
     new_exercise: Exercise = ExerciseMC.from_dict(
         conll=conll, correct_feedback=correct_feedback, eid=xml_guid, exercise_type=exercise_type,
         exercise_type_translation=exercise_type_translation, general_feedback=general_feedback,
-        incorrect_feedback=incorrect_feedback, instructions=instructions,
+        incorrect_feedback=incorrect_feedback, instructions=instructions, language=language,
         last_access_time=datetime.utcnow().timestamp(), partially_correct_feedback=partially_correct_feedback,
         search_values=search_values, solutions=quiz_solutions, text_complexity=tc.all, work_author=work_author,
         work_title=work_title, urn=urn)
@@ -136,7 +134,7 @@ def post(exercise_data: dict) -> Union[Response, ConnexionResponse]:
         conll=response["conll"], correct_feedback=exercise_data.get("correct_feedback", ""),
         exercise_type=exercise_data["type"], general_feedback=exercise_data.get("general_feedback", ""),
         graph_data_raw=response["graph_data_raw"], incorrect_feedback=exercise_data.get("incorrect_feedback", ""),
-        instructions=exercise_data["instructions"],
+        instructions=exercise_data["instructions"], language=exercise_data.get("language", "de"),
         partially_correct_feedback=exercise_data.get("partially_correct_feedback", ""),
         search_values=exercise_data["search_values"], solutions=solutions,
         type_translation=exercise_data.get("type_translation", ""), urn=urn,

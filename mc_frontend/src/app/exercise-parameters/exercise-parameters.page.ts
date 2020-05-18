@@ -108,15 +108,16 @@ export class ExerciseParametersPage implements OnInit {
                 this.corpusService.currentTextRange.pipe(take(1)).subscribe((tr: TextRange) => {
                     // TODO: change the corpus title to something meaningful, e.g. concatenate user ID and wanted exercise title
                     const workTitle: string = cc.title + ', ' + tr.start.filter(x => x).join('.') + '-' + tr.end.filter(x => x).join('.');
-                    formData.append('work_title', workTitle);
+                    formData.append('correct_feedback', this.corpusService.exercise.feedback.correct);
+                    formData.append('instructions', instructions);
+                    formData.append('general_feedback', this.corpusService.exercise.feedback.general);
+                    formData.append('incorrect_feedback', this.corpusService.exercise.feedback.incorrect);
+                    formData.append('language', this.translateService.currentLang);
+                    formData.append('partially_correct_feedback', this.corpusService.exercise.feedback.partiallyCorrect);
                     formData.append('type', MoodleExerciseType[this.corpusService.exercise.type]);
                     formData.append('type_translation', this.corpusService.exercise.typeTranslation);
-                    formData.append('instructions', instructions);
-                    formData.append('correct_feedback', this.corpusService.exercise.feedback.correct);
-                    formData.append('partially_correct_feedback', this.corpusService.exercise.feedback.partiallyCorrect);
-                    formData.append('incorrect_feedback', this.corpusService.exercise.feedback.incorrect);
-                    formData.append('general_feedback', this.corpusService.exercise.feedback.general);
                     formData.append('work_author', cc.author);
+                    formData.append('work_title', workTitle);
                     this.getH5Pexercise(formData).then(() => {
                         return resolve();
                     });
