@@ -11,7 +11,7 @@ from mcserver.app.models import CitationLevel, ResourceType, TextComplexityMeasu
     AnnisResponse, GraphData, TextComplexity
 from mcserver.app.services import CorpusService, CustomCorpusService, TextComplexityService
 from mcserver.config import Config
-from mcserver.models_auto import Corpus, Exercise, TExercise, UpdateInfo
+from mcserver.models_auto import Corpus, Exercise, UpdateInfo
 
 
 class DatabaseService:

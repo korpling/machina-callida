@@ -16,8 +16,6 @@ DATABASE_URL_PROD=postgresql://postgres@db:5432/
 DATABASE_URL=postgresql://postgres@db:5432/
 # Change this to "production" for public use
 FLASK_ENV_VARIABLE=development
-# for Windows, use 127.0.0.1 instead
-HOST_IP=0.0.0.0
 RUST_BACKTRACE=1
 OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 ```

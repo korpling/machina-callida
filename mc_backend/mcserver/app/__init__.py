@@ -88,10 +88,10 @@ def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
     app.app_context().push()
     db.init_app(app)
     migrate.init_app(app, db)
-    db.create_all()
     if is_csm:
         from mcserver.app.services.databaseService import DatabaseService
         DatabaseService.init_db_alembic()
+    db.create_all()
     from mcserver.app.services.textService import TextService
     TextService.init_proper_nouns_list()
     TextService.init_stop_words_latin()
