@@ -34,6 +34,7 @@ class ExerciseListAPI(Resource):
         last_update: int = args["last_update_time"]
         ui_exercises: UpdateInfo = db.session.query(UpdateInfo).filter_by(
             resource_type=ResourceType.exercise_list.name).first()
+        db.session.commit()
         if ui_exercises.last_modified_time < last_update / 1000:
             return NetworkService.make_json_response([])
         try:
@@ -47,6 +48,7 @@ class ExerciseListAPI(Resource):
         except ValueError:
             lang = Language.English
         exercises: List[Exercise] = db.session.query(Exercise).filter_by(language=lang.value)
+        db.session.commit()
         ret_val: List[dict] = [NetworkService.serialize_exercise(x, compress=True) for x in exercises]
         matching_degrees: List[float] = []
         if len(vocabulary_set):

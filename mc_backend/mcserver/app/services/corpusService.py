@@ -338,6 +338,7 @@ class CorpusService:
     def update_corpora():
         """Checks the remote repositories for new corpora to be included in our database."""
         CorpusService.existing_corpora = db.session.query(Corpus).all()
+        db.session.commit()
         resolver: HttpCtsRetriever = HttpCtsRetriever(Config.CTS_API_BASE_URL)
         # check the appropriate literature for the desired author
         resp: str = resolver.getCapabilities(urn="urn:cts:latinLit")  # "urn:cts:greekLit" for Greek
@@ -373,6 +374,7 @@ class CorpusService:
                 db.session.delete(corpus_to_delete)
                 db.session.commit()
         CorpusService.existing_corpora = db.session.query(Corpus).all()
+        db.session.commit()
 
     @staticmethod
     def update_corpus(title_value: str, urn: str, author: str,

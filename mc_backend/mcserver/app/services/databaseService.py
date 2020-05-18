@@ -43,6 +43,7 @@ class DatabaseService:
         """Initializes the corpus list if it is not already there and up to date."""
         if db.engine.dialect.has_table(db.engine, "Corpus"):
             CorpusService.existing_corpora = db.session.query(Corpus).all()
+            db.session.commit()
             urn_dict: Dict[str, int] = {v.source_urn: i for i, v in enumerate(CorpusService.existing_corpora)}
             for cc in CustomCorpusService.custom_corpora:
                 if cc.corpus.source_urn in urn_dict:
@@ -59,6 +60,7 @@ class DatabaseService:
                                              group_name_value=cc.corpus.author,
                                              citation_levels=citation_levels)
             CorpusService.existing_corpora = db.session.query(Corpus).all()
+            db.session.commit()
 
     @staticmethod
     def init_db_update_info() -> None:

@@ -73,6 +73,7 @@ class H5pAPI(Resource):
         except ValueError:
             lang = Language.English
         exercise: Exercise = db.session.query(Exercise).filter_by(eid=eid).first()
+        db.session.commit()
         if exercise is None:
             abort(404)
         text_field_content: str = ""

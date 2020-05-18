@@ -27,6 +27,7 @@ def adjust_solutions(exercise_data: ExerciseData, exercise_type: str, solutions:
 
 def get(eid: str) -> Union[Response, ConnexionResponse]:
     exercise: TExercise = db.session.query(Exercise).filter_by(eid=eid).first()
+    db.session.commit()
     if exercise is None:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_EXERCISE_NOT_FOUND)
     ar: AnnisResponse = CorpusService.get_corpus(cts_urn=exercise.urn, is_csm=False)

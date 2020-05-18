@@ -21,5 +21,6 @@ def get(last_update_time: int) -> Union[Response, ConnexionResponse]:
         return NetworkService.make_json_response(None)
     if ui_cts.last_modified_time >= last_update_time / 1000:
         corpora: List[Corpus] = db.session.query(Corpus).all()
+        db.session.commit()
         return NetworkService.make_json_response([x.to_dict() for x in corpora])
     return NetworkService.make_json_response(None)

@@ -44,6 +44,7 @@ class FileAPI(Resource):
         args = self.reqparse.parse_args()
         eid: str = args["id"]
         exercise: Exercise = db.session.query(Exercise).filter_by(eid=eid).first()
+        db.session.commit()
         file_type: FileType = FileType[args["type"]]
         file_name: str = eid + "." + file_type.value
         mime_type: str = MimeType[file_type.value].value
