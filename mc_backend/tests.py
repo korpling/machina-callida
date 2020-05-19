@@ -758,7 +758,7 @@ class CsmTestCase(unittest.TestCase):
         Mocks.app_dict[self.class_name].app.config["TESTING"] = False
         with patch.object(CorpusService, "init_graphannis_logging"):
             with patch.object(mcserver.app, "start_updater") as updater_mock:
-                full_init(Mocks.app_dict[self.class_name].app, True)
+                full_init(Mocks.app_dict[self.class_name].app)
                 self.assertEqual(updater_mock.call_count, 1)
         Mocks.app_dict[self.class_name].app.config["TESTING"] = True
         db.session.query(UpdateInfo).delete()

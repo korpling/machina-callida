@@ -61,17 +61,16 @@ def create_app(cfg: Type[Config] = Config) -> Flask:
     return app
 
 
-def full_init(app: Flask, is_csm: bool) -> None:
+def full_init(app: Flask, cfg: Type[Config] = Config) -> None:
     """ Fully initializes the application, including logging."""
-    if is_csm:
-        from mcserver.app.services import DatabaseService
-        DatabaseService.init_db_update_info()
-        DatabaseService.update_exercises(is_csm=is_csm)
-        DatabaseService.init_db_corpus()
-        if not app.config["TESTING"]:
-            from mcserver.app.services.corpusService import CorpusService
-            CorpusService.init_graphannis_logging()
-            start_updater(app)
+    from mcserver.app.services import DatabaseService
+    DatabaseService.init_db_update_info()
+    DatabaseService.update_exercises(is_csm=True)
+    DatabaseService.init_db_corpus()
+    if not cfg.TESTING:
+        from mcserver.app.services.corpusService import CorpusService
+        CorpusService.init_graphannis_logging()
+        start_updater(app)
 
 
 def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
@@ -91,14 +90,13 @@ def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
     if is_csm:
         from mcserver.app.services.databaseService import DatabaseService
         DatabaseService.init_db_alembic()
-    tables: List[str] = [Config.DATABASE_TABLE_ALEMBIC, Config.DATABASE_TABLE_CORPUS, Config.DATABASE_TABLE_EXERCISE,
-                         Config.DATABASE_TABLE_UPDATEINFO]
-    if any(not db.engine.dialect.has_table(db.engine, x) for x in tables):
+    if is_csm or cfg.TESTING:
         db.create_all()
     from mcserver.app.services.textService import TextService
     TextService.init_proper_nouns_list()
     TextService.init_stop_words_latin()
-    full_init(app, is_csm)
+    if is_csm:
+        full_init(app, cfg)
     return app
 
 

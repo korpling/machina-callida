@@ -1,6 +1,4 @@
 """The corpus list API. Add it to your REST API to provide users with a list of metadata for available texts."""
-from datetime import datetime
-
 from connexion.lifecycle import ConnexionResponse
 from flask import Response
 from sqlalchemy.exc import OperationalError, InvalidRequestError
