@@ -36,9 +36,9 @@ class CorpusStorageManagerAPI(Resource):
         args: Dict = flask.request.args
         cts_urn: str = args["urn"]
         ar: AnnisResponse = CorpusService.get_corpus(cts_urn=cts_urn, is_csm=True)
-        if not ar.nodes:
+        if not ar.graph_data.nodes:
             abort(404)
-        return NetworkService.make_json_response(ar.__dict__)
+        return NetworkService.make_json_response(ar.to_dict())
 
     def post(self):
         """Given the relevant corpus data, gives back search results as graph data."""

@@ -8,7 +8,7 @@ from connexion.lifecycle import ConnexionResponse
 from flask import Response
 from mcserver.app import db
 from mcserver.app.models import ExerciseType, Solution, ExerciseData, AnnisResponse, Phenomenon, TextComplexity, \
-    TextComplexityMeasure, ResourceType, ExerciseMC
+    TextComplexityMeasure, ResourceType, ExerciseMC, GraphData
 from mcserver.app.services import AnnotationService, CorpusService, NetworkService, TextComplexityService
 from mcserver.config import Config
 from mcserver.models_auto import Exercise, TExercise, UpdateInfo
@@ -31,7 +31,7 @@ def get(eid: str) -> Union[Response, ConnexionResponse]:
     if exercise is None:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_EXERCISE_NOT_FOUND)
     ar: AnnisResponse = CorpusService.get_corpus(cts_urn=exercise.urn, is_csm=False)
-    if not ar.nodes:
+    if not ar.graph_data.nodes:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_CORPUS_NOT_FOUND)
     exercise.last_access_time = datetime.utcnow().timestamp()
     db.session.commit()
@@ -40,7 +40,7 @@ def get(eid: str) -> Union[Response, ConnexionResponse]:
     ar.uri = NetworkService.get_exercise_uri(exercise)
     ar.exercise_id = exercise.eid
     ar.exercise_type = exercise_type.value
-    return NetworkService.make_json_response(ar.__dict__)
+    return NetworkService.make_json_response(ar.to_dict())
 
 
 def get_graph_data(title: str, conll_string_or_urn: str, aqls: List[str], exercise_type: ExerciseType,
@@ -79,7 +79,7 @@ def make_new_exercise(conll: str, correct_feedback: str, exercise_type: str, gen
     # create a response
     return AnnisResponse(
         solutions=json.loads(new_exercise.solutions), uri=f"{Config.SERVER_URI_FILE}/{new_exercise.eid}",
-        exercise_id=xml_guid)
+        exercise_id=xml_guid, graph_data=GraphData(links=[], nodes=[]))
 
 
 def map_exercise_data_to_database(exercise_data: ExerciseData, exercise_type: str, instructions: str, xml_guid: str,
@@ -93,7 +93,7 @@ def map_exercise_data_to_database(exercise_data: ExerciseData, exercise_type: st
     # add content to solutions
     solutions: List[Solution] = adjust_solutions(exercise_data=exercise_data, solutions=solutions,
                                                  exercise_type=exercise_type)
-    quiz_solutions: str = json.dumps([x.serialize() for x in solutions])
+    quiz_solutions: str = json.dumps([x.to_dict() for x in solutions])
     tc: TextComplexity = TextComplexityService.text_complexity(TextComplexityMeasure.all.name, urn, False,
                                                                exercise_data.graph)
     new_exercise: Exercise = ExerciseMC.from_dict(
@@ -130,7 +130,7 @@ def post(exercise_data: dict) -> Union[Response, ConnexionResponse]:
         return connexion.problem(500, Config.ERROR_TITLE_INTERNAL_SERVER_ERROR,
                                  Config.ERROR_MESSAGE_INTERNAL_SERVER_ERROR)
     solutions_dict_list: List[Dict] = response["solutions"]
-    solutions: List[Solution] = [Solution(json_dict=x) for x in solutions_dict_list]
+    solutions: List[Solution] = [Solution.from_dict(x) for x in solutions_dict_list]
     ar: AnnisResponse = make_new_exercise(
         conll=response["conll"], correct_feedback=exercise_data.get("correct_feedback", ""),
         exercise_type=exercise_data["type"], general_feedback=exercise_data.get("general_feedback", ""),
@@ -140,4 +140,4 @@ def post(exercise_data: dict) -> Union[Response, ConnexionResponse]:
         search_values=exercise_data["search_values"], solutions=solutions,
         type_translation=exercise_data.get("type_translation", ""), urn=urn,
         work_author=exercise_data.get("work_author", ""), work_title=exercise_data.get("work_title", ""))
-    return NetworkService.make_json_response(ar.__dict__)
+    return NetworkService.make_json_response(ar.to_dict())

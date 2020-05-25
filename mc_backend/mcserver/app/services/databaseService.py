@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict
 
 from flask import Flask
 from flask_migrate import stamp, upgrade
@@ -7,8 +7,8 @@ import rapidjson as json
 from sqlalchemy.exc import OperationalError
 
 from mcserver.app import db
-from mcserver.app.models import CitationLevel, ResourceType, TextComplexityMeasure, \
-    AnnisResponse, GraphData, TextComplexity
+from mcserver.app.models import CitationLevel, ResourceType, TextComplexityMeasure, AnnisResponse, GraphData, \
+    TextComplexity
 from mcserver.app.services import CorpusService, CustomCorpusService, TextComplexityService
 from mcserver.config import Config
 from mcserver.models_auto import Corpus, Exercise, UpdateInfo
@@ -19,14 +19,15 @@ class DatabaseService:
     @staticmethod
     def check_corpus_list_age(app: Flask) -> None:
         """ Checks whether the corpus list needs to be updated. If yes, it performs the update. """
+        app.logger.info("Corpus update started.")
         ui_cts: UpdateInfo = db.session.query(UpdateInfo).filter_by(resource_type=ResourceType.cts_data.name).first()
         db.session.commit()
         if ui_cts is None:
+            app.logger.info("UpdateInfo not available!")
             return
         else:
             ui_datetime: datetime = datetime.fromtimestamp(ui_cts.last_modified_time)
             if (datetime.utcnow() - ui_datetime).total_seconds() > Config.INTERVAL_CORPUS_UPDATE:
-                app.logger.info("Corpus update started.")
                 CorpusService.update_corpora()
                 ui_cts.last_modified_time = datetime.utcnow().timestamp()
                 db.session.commit()
@@ -34,7 +35,7 @@ class DatabaseService:
 
     @staticmethod
     def init_db_alembic() -> None:
-        """ In Docker, the alembic version is not initially written to the database, so we need to set it manually. """
+        """In Docker, the alembic version is not initially written to the database, so we need to set it manually."""
         if not db.engine.dialect.has_table(db.engine, Config.DATABASE_TABLE_ALEMBIC):
             stamp(directory=Config.MIGRATIONS_DIRECTORY)
         upgrade(directory=Config.MIGRATIONS_DIRECTORY)
@@ -107,8 +108,7 @@ class DatabaseService:
                 # manually add text complexity measures for old exercises
                 elif not exercise.text_complexity:
                     ar: AnnisResponse = CorpusService.get_corpus(exercise.urn, is_csm=is_csm)
-                    gd = GraphData(json_dict=ar.__dict__)
                     tc: TextComplexity = TextComplexityService.text_complexity(TextComplexityMeasure.all.name,
-                                                                               exercise.urn, is_csm, gd)
+                                                                               exercise.urn, is_csm, ar.graph_data)
                     exercise.text_complexity = tc.all
                     db.session.commit()

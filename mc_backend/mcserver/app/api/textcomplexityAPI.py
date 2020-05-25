@@ -19,6 +19,5 @@ class TextComplexityAPI(Resource):
         urn: str = args["urn"]
         measure: str = args["measure"]
         ar: AnnisResponse = CorpusService.get_corpus(urn, is_csm=False)
-        gd: GraphData = GraphData(json_dict=ar.__dict__)
-        tc: TextComplexity = TextComplexityService.text_complexity(measure, urn, False, gd)
-        return NetworkService.make_json_response(tc.__dict__)
+        tc: TextComplexity = TextComplexityService.text_complexity(measure, urn, False, ar.graph_data)
+        return NetworkService.make_json_response(tc.to_dict())

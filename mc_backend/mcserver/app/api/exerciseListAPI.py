@@ -1,5 +1,4 @@
 """The corpus list API. Add it to your REST API to provide users with a list of metadata for available texts."""
-from datetime import datetime
 from typing import List, Set
 
 import conllu

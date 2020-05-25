@@ -1,0 +1,949 @@
+openapi: 3.0.0
+info:
+  title: Machina Callida Backend REST API
+  version: "1.0"
+servers:
+- url: http://localhost:5000/mc/api/v1.0
+paths:
+  /corpora:
+    get:
+      operationId: mcserver_app_api_corpus_list_api_get
+      parameters:
+      - description: Time (in milliseconds) of the last update.
+        explode: true
+        in: query
+        name: last_update_time
+        required: true
+        schema:
+          example: 123456789
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Corpus'
+          description: Corpus list
+      summary: Returns a list of corpora.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /corpora/{cid}:
+    delete:
+      operationId: mcserver_app_api_corpus_api_delete
+      parameters:
+      - description: Corpus identifier.
+        explode: false
+        in: path
+        name: cid
+        required: true
+        schema:
+          example: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                example: true
+                type: boolean
+          description: Indication of success
+      summary: Deletes a single corpus by ID.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+    get:
+      operationId: mcserver_app_api_corpus_api_get
+      parameters:
+      - description: Corpus identifier.
+        explode: false
+        in: path
+        name: cid
+        required: true
+        schema:
+          example: 1
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Corpus'
+          description: Corpus object
+      summary: Returns a single corpus by ID.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+    patch:
+      operationId: mcserver_app_api_corpus_api_patch
+      parameters:
+      - description: Corpus identifier.
+        explode: false
+        in: path
+        name: cid
+        required: true
+        schema:
+          example: 1
+          type: integer
+        style: simple
+      - description: Author of the texts in the corpus.
+        explode: true
+        in: query
+        name: author
+        required: false
+        schema:
+          example: Aulus Gellius
+          type: string
+        style: form
+      - description: CTS base URN for referencing the corpus.
+        explode: true
+        in: query
+        name: source_urn
+        required: false
+        schema:
+          example: urn:cts:latinLit:phi1254.phi001.perseus-lat2
+          type: string
+        style: form
+      - description: Corpus title.
+        explode: true
+        in: query
+        name: title
+        required: false
+        schema:
+          example: Noctes Atticae
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Corpus'
+          description: Corpus object
+      summary: Updates a single corpus by ID.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /exercise:
+    get:
+      operationId: mcserver_app_api_exercise_api_get
+      parameters:
+      - description: Unique identifier (UUID) for the exercise.
+        explode: true
+        in: query
+        name: eid
+        required: true
+        schema:
+          example: 12345678-1234-5678-1234-567812345678
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnisResponse'
+          description: Exercise data object, including a graph model for linguistic
+            annotations.
+      summary: Returns exercise data by ID.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+    post:
+      operationId: mcserver_app_api_exercise_api_post
+      requestBody:
+        $ref: '#/components/requestBodies/ExerciseForm'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnisResponse'
+          description: Exercise data object
+      summary: Creates a new exercise.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+components:
+  requestBodies:
+    ExerciseForm:
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ExerciseBase'
+            - description: Additional exercise data.
+              properties:
+                type:
+                  description: Type of exercise, concerning interaction and layout.
+                  example: markWords
+                  type: string
+                type_translation:
+                  description: Localized expression of the exercise type.
+                  example: Cloze
+                  type: string
+                urn:
+                  description: CTS URN for the text passage from which the exercise
+                    was created.
+                  example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+                  type: string
+              required:
+              - type
+              type: object
+            type: object
+            x-body-name: exercise_data
+      required: true
+  schemas:
+    AnnisResponse:
+      description: A response with graph data from ANNIS, possibly with additional
+        data for exercises.
+      example:
+        frequency_analysis:
+        - values: []
+          count: 1
+          phenomena: []
+        - values: []
+          count: 1
+          phenomena: []
+        text_complexity:
+          all: 42.31
+          n_abl_abs: 1
+          n_clause: 1
+          n_part: 1
+          n_subclause: 1
+          n_punct: 1
+          n_w: 1
+          n_inf: 1
+          n_sent: 1
+          n_types: 1
+          avg_w_per_sent: 5.4
+          lex_den: 0.43
+          avg_w_len: 5.4
+          n_gerund: 1
+          pos: 1
+        exercise_id: 12345678-1234-5678-1234-567812345678
+        solutions:
+        - value:
+            token_id: 9
+            sentence_id: 52548
+            content: unam
+            salt_id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok9
+          target:
+            token_id: 9
+            sentence_id: 52548
+            content: unam
+            salt_id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok9
+        - value:
+            token_id: 9
+            sentence_id: 52548
+            content: unam
+            salt_id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok9
+          target:
+            token_id: 9
+            sentence_id: 52548
+            content: unam
+            salt_id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok9
+        graph_data:
+          directed: true
+          nodes:
+          - annis_node_name: urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+            udep_xpostag: Ne
+            solution: solution
+            annis_tok: Galliae
+            annis_type: node
+            annis_node_type: node
+            udep_lemma: Gallia
+            udep_feats: Case=Nom|Gender=Fem|Number=Sing
+            id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+            udep_upostag: PROPN
+            is_oov: true
+          - annis_node_name: urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+            udep_xpostag: Ne
+            solution: solution
+            annis_tok: Galliae
+            annis_type: node
+            annis_node_type: node
+            udep_lemma: Gallia
+            udep_feats: Case=Nom|Gender=Fem|Number=Sing
+            id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+            udep_upostag: PROPN
+            is_oov: true
+          links:
+          - annis_component_name: dep
+            annis_component_type: Pointing
+            source: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+            udep_deprel: det
+            target: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok3
+          - annis_component_name: dep
+            annis_component_type: Pointing
+            source: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+            udep_deprel: det
+            target: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok3
+          graph: {}
+          multigraph: true
+        uri: /mc/api/v1.0/file/fd97630c-1f5a-4102-af56-20eb0babdfee
+        exercise_type: ddwtos
+      properties:
+        exercise_id:
+          description: Unique identifier (UUID) for the exercise.
+          example: 12345678-1234-5678-1234-567812345678
+          type: string
+        exercise_type:
+          description: Type of exercise, concerning interaction and layout.
+          example: ddwtos
+          type: string
+        frequency_analysis:
+          description: List of items with frequency data for linguistic phenomena.
+          items:
+            $ref: '#/components/schemas/AnnisResponse_frequency_analysis'
+          type: array
+        graph_data:
+          $ref: '#/components/schemas/GraphData'
+        solutions:
+          description: Correct solutions for this exercise.
+          items:
+            $ref: '#/components/schemas/Solution'
+          type: array
+        text_complexity:
+          $ref: '#/components/schemas/TextComplexity'
+        uri:
+          description: URI for accessing the exercise in this API.
+          example: /mc/api/v1.0/file/fd97630c-1f5a-4102-af56-20eb0babdfee
+          type: string
+      type: object
+    Corpus:
+      description: Collection of texts.
+      example:
+        citation_level_3: Section
+        author: Aulus Gellius
+        source_urn: urn:cts:latinLit:phi1254.phi001.perseus-lat2
+        title: Noctes Atticae
+        citation_level_1: Book
+        cid: 1
+        citation_level_2: Chapter
+      properties:
+        author:
+          default: Anonymus
+          description: Author of the texts in the corpus.
+          example: Aulus Gellius
+          nullable: false
+          type: string
+        cid:
+          description: Unique identifier for the corpus.
+          example: 1
+          type: integer
+          x-primary-key: true
+          x-autoincrement: true
+        citation_level_1:
+          default: default
+          description: First level for citing the corpus.
+          example: Book
+          type: string
+        citation_level_2:
+          default: default
+          description: Second level for citing the corpus.
+          example: Chapter
+          type: string
+        citation_level_3:
+          default: default
+          description: Third level for citing the corpus.
+          example: Section
+          type: string
+        source_urn:
+          description: CTS base URN for referencing the corpus.
+          example: urn:cts:latinLit:phi1254.phi001.perseus-lat2
+          type: string
+          x-unique: true
+        title:
+          default: Anonymus
+          description: Corpus title.
+          example: Noctes Atticae
+          nullable: false
+          type: string
+      required:
+      - source_urn
+      type: object
+      x-tablename: Corpus
+    Exercise:
+      allOf:
+      - $ref: '#/components/schemas/ExerciseBase'
+      - $ref: '#/components/schemas/Exercise_allOf'
+    ExerciseBase:
+      description: Base data for creating and evaluating interactive exercises.
+      properties:
+        correct_feedback:
+          default: ""
+          description: Feedback for successful completion of the exercise.
+          example: Well done!
+          type: string
+        general_feedback:
+          default: ""
+          description: Feedback for finishing the exercise.
+          example: You have finished the exercise.
+          type: string
+        incorrect_feedback:
+          default: ""
+          description: Feedback for failing to complete the exercise successfully.
+          example: Unfortunately, that answer is wrong.
+          type: string
+        instructions:
+          default: ""
+          description: Hints for how to complete the exercise.
+          example: Fill in the gaps!
+          type: string
+        partially_correct_feedback:
+          default: ""
+          description: Feedback for successfully completing certain parts of the exercise.
+          example: Some parts of this answer are correct.
+          type: string
+        search_values:
+          default: '[]'
+          description: Search queries that were used to build the exercise.
+          example: '[''upostag=noun'', ''dependency=object'']'
+          type: string
+        work_author:
+          default: ""
+          description: Name of the person who wrote the base text for the exercise.
+          example: C. Iulius Caesar
+          type: string
+        work_title:
+          default: ""
+          description: Title of the base text for the exercise.
+          example: Noctes Atticae
+          type: string
+      type: object
+    GraphData:
+      description: Nodes, edges and metadata for a graph.
+      example:
+        directed: true
+        nodes:
+        - annis_node_name: urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+          udep_xpostag: Ne
+          solution: solution
+          annis_tok: Galliae
+          annis_type: node
+          annis_node_type: node
+          udep_lemma: Gallia
+          udep_feats: Case=Nom|Gender=Fem|Number=Sing
+          id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+          udep_upostag: PROPN
+          is_oov: true
+        - annis_node_name: urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+          udep_xpostag: Ne
+          solution: solution
+          annis_tok: Galliae
+          annis_type: node
+          annis_node_type: node
+          udep_lemma: Gallia
+          udep_feats: Case=Nom|Gender=Fem|Number=Sing
+          id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+          udep_upostag: PROPN
+          is_oov: true
+        links:
+        - annis_component_name: dep
+          annis_component_type: Pointing
+          source: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+          udep_deprel: det
+          target: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok3
+        - annis_component_name: dep
+          annis_component_type: Pointing
+          source: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+          udep_deprel: det
+          target: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok3
+        graph: {}
+        multigraph: true
+      properties:
+        directed:
+          description: Whether edges in the returned graph are directed.
+          example: true
+          type: boolean
+        graph:
+          description: Additional graph data.
+          example: {}
+          type: object
+        links:
+          description: List of edges for the graph.
+          items:
+            $ref: '#/components/schemas/Link'
+          type: array
+        multigraph:
+          description: Whether the graph consists of multiple subgraphs.
+          example: true
+          type: boolean
+        nodes:
+          description: List of nodes for the graph.
+          items:
+            $ref: '#/components/schemas/Node'
+          type: array
+      required:
+      - links
+      - nodes
+      type: object
+    LearningResult:
+      description: Learner data for completed exercises.
+      properties:
+        actor_account_name:
+          default: ""
+          description: H5P user ID, usually unique per device.
+          example: ebea3f3e-7410-4215-b34d-c1417f7c7c18
+          type: string
+        actor_object_type:
+          default: ""
+          description: Describes the kind of object that was recognized as actor.
+          example: Agent
+          type: string
+        category_id:
+          default: ""
+          description: Link to the exercise type specification.
+          example: http://h5p.org/libraries/H5P.MarkTheWords-1.9
+          type: string
+        category_object_type:
+          default: ""
+          description: Describes the kind of object that was recognized as exercise.
+          example: Activity
+          type: string
+        choices:
+          default: '[]'
+          description: JSON string containing a list of possible choices, each with
+            ID and description.
+          example: |-
+            [{'id':'2','description':{'en-US':'Quintus ist bei allen in der Provinz beliebt.
+            '}},{'id':'3','description':{'en-US':'Asia ist eine unbekannte Provinz.
+            '}}]
+          type: string
+        completion:
+          description: Whether the exercise was fully processed or not.
+          example: true
+          type: boolean
+        correct_responses_pattern:
+          description: JSON string containing a list of possible solutions to the
+            exercise, given as patterns of answers.
+          example: '[''0[,]1[,]2'']'
+          type: string
+        created_time:
+          description: When the learner data was received (POSIX timestamp).
+          example: 1234567.789
+          format: float
+          type: number
+          x-index: true
+          x-primary-key: true
+        duration:
+          default: PT0S
+          description: How many seconds it took a learner to complete the exercise.
+          example: PT9.19S
+          type: string
+        extensions:
+          default: '{}'
+          description: JSON string containing a mapping of keys and values (usually
+            the local content ID, i.e. a versioning mechanism).
+          example: '{''http://h5p.org/x-api/h5p-local-content-id'':1}'
+          type: string
+        interaction_type:
+          default: ""
+          description: Exercise type.
+          example: choice
+          type: string
+        object_definition_description:
+          description: Exercise content, possibly including instructions.
+          example: |
+            Bestimme die Form von custodem im Satz: Urbs custodem non tyrannum, domus hospitem non expilatorem recepit.
+          type: string
+        object_definition_type:
+          default: ""
+          description: Type of object definition that is presented to the user.
+          example: http://adlnet.gov/expapi/activities/cmi.interaction
+          type: string
+        object_object_type:
+          default: ""
+          description: Type of object that is presented to the user.
+          example: Activity
+          type: string
+        response:
+          description: Answer provided by the user, possibly as a pattern.
+          example: His in rebus[,]sociis[,]civibus[,]rei publicae
+          type: string
+        score_max:
+          description: Maximum possible score to be achieved in this exercise.
+          example: 1
+          type: integer
+        score_min:
+          description: Minimum score to be achieved in this exercise.
+          example: 0
+          type: integer
+        score_raw:
+          description: Score that was actually achieved by the user in this exercise.
+          example: 1
+          type: integer
+        score_scaled:
+          default: 0
+          description: Relative score (between 0 and 1) that was actually achieved
+            by the user in this exercise.
+          example: 0.8889
+          format: float
+          type: number
+        success:
+          description: Whether the exercise was successfully completed or not.
+          example: true
+          type: boolean
+        verb_display:
+          default: ""
+          description: Type of action that was performed by the user.
+          example: answered
+          type: string
+        verb_id:
+          default: ""
+          description: Link to the type of action that was performed by the user.
+          example: http://adlnet.gov/expapi/verbs/answered
+          type: string
+      required:
+      - completion
+      - correct_responses_pattern
+      - created_time
+      - object_definition_description
+      - response
+      - score_max
+      - score_min
+      - score_raw
+      - success
+      type: object
+      x-tablename: LearningResult
+    Link:
+      example:
+        annis_component_name: dep
+        annis_component_type: Pointing
+        source: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+        udep_deprel: det
+        target: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok3
+      properties:
+        annis_component_name:
+          description: Component name as given by ANNIS.
+          example: dep
+          type: string
+        annis_component_type:
+          description: Component type as given by ANNIS.
+          example: Pointing
+          type: string
+        source:
+          description: ID of the source node for the edge.
+          example: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+          type: string
+        target:
+          description: ID of the target node for the edge.
+          example: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok3
+          type: string
+        udep_deprel:
+          description: Dependency relation described by the edge.
+          example: det
+          type: string
+      required:
+      - annis_component_name
+      - annis_component_type
+      - source
+      - target
+      type: object
+    Node:
+      example:
+        annis_node_name: urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+        udep_xpostag: Ne
+        solution: solution
+        annis_tok: Galliae
+        annis_type: node
+        annis_node_type: node
+        udep_lemma: Gallia
+        udep_feats: Case=Nom|Gender=Fem|Number=Sing
+        id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+        udep_upostag: PROPN
+        is_oov: true
+      properties:
+        annis_node_name:
+          description: Node name as given by ANNIS.
+          example: urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+          type: string
+        annis_node_type:
+          description: Node type as given by ANNIS.
+          example: node
+          type: string
+        annis_tok:
+          description: Raw word form as given by ANNIS.
+          example: Galliae
+          type: string
+        annis_type:
+          description: Node type as given by ANNIS (?).
+          example: node
+          type: string
+        id:
+          description: Unique identifier for the node in the SALT model.
+          example: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+          type: string
+        is_oov:
+          description: Whether the raw word form is missing in a given vocabulary.
+          example: true
+          type: boolean
+        udep_lemma:
+          description: Lemmatized word form.
+          example: Gallia
+          type: string
+        udep_upostag:
+          description: Universal part of speech tag for the word form.
+          example: PROPN
+          type: string
+        udep_xpostag:
+          description: Language-specific part of speech tag for the word form.
+          example: Ne
+          type: string
+        udep_feats:
+          description: Additional morphological information.
+          example: Case=Nom|Gender=Fem|Number=Sing
+          type: string
+        solution:
+          description: Solution value for this node in an exercise.
+          type: string
+      required:
+      - annis_node_name
+      - annis_node_type
+      - annis_tok
+      - annis_type
+      - id
+      - udep_lemma
+      - udep_upostag
+      type: object
+    Solution:
+      description: Correct solution for an exercise.
+      example:
+        value:
+          token_id: 9
+          sentence_id: 52548
+          content: unam
+          salt_id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok9
+        target:
+          token_id: 9
+          sentence_id: 52548
+          content: unam
+          salt_id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok9
+      properties:
+        target:
+          $ref: '#/components/schemas/SolutionElement'
+        value:
+          $ref: '#/components/schemas/SolutionElement'
+      type: object
+    SolutionElement:
+      description: Target or value of a correct solution for an exercise.
+      example:
+        token_id: 9
+        sentence_id: 52548
+        content: unam
+        salt_id: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok9
+      properties:
+        content:
+          description: Content of the solution element.
+          example: unam
+          type: string
+        salt_id:
+          description: Unique identifier for the node in the SALT model.
+          example: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok9
+          type: string
+        sentence_id:
+          description: Unique identifier for the sentence in a corpus.
+          example: 52548
+          type: integer
+        token_id:
+          description: Unique identifier for the token in a sentence.
+          example: 9
+          type: integer
+      required:
+      - content
+      - sentence_id
+      - token_id
+      type: object
+    TextComplexity:
+      description: Mapping of various elements of text complexity to their corresponding
+        values.
+      example:
+        all: 42.31
+        n_abl_abs: 1
+        n_clause: 1
+        n_part: 1
+        n_subclause: 1
+        n_punct: 1
+        n_w: 1
+        n_inf: 1
+        n_sent: 1
+        n_types: 1
+        avg_w_per_sent: 5.4
+        lex_den: 0.43
+        avg_w_len: 5.4
+        n_gerund: 1
+        pos: 1
+      properties:
+        all:
+          description: Overall text complexity of the given corpus.
+          example: 42.31
+          format: float
+          type: number
+        avg_w_len:
+          description: Average length of a word in the given corpus.
+          example: 5.4
+          format: float
+          type: number
+        avg_w_per_sent:
+          description: Average number of words per sentence.
+          example: 5.4
+          format: float
+          type: number
+        lex_den:
+          description: Lexical density of the given corpus.
+          example: 0.43
+          format: float
+          maximum: 1
+          minimum: 0
+          type: number
+        n_abl_abs:
+          description: Number of ablativi absoluti in the given corpus.
+          example: 1
+          type: integer
+        n_clause:
+          description: Number of clauses in the given corpus.
+          example: 1
+          type: integer
+        n_gerund:
+          description: Number of gerunds in the given corpus.
+          example: 1
+          type: integer
+        n_inf:
+          description: Number of infinitives in the given corpus.
+          example: 1
+          type: integer
+        n_part:
+          description: Number of participles in the given corpus.
+          example: 1
+          type: integer
+        n_punct:
+          description: Number of punctuation signs in the given corpus.
+          example: 1
+          type: integer
+        n_sent:
+          description: Number of sentences in the given corpus.
+          example: 1
+          type: integer
+        n_subclause:
+          description: Number of subclauses in the given corpus.
+          example: 1
+          type: integer
+        n_types:
+          description: Number of distinct word forms in the given corpus.
+          example: 1
+          type: integer
+        n_w:
+          description: Number of words in the given corpus.
+          example: 1
+          type: integer
+        pos:
+          description: Number of distinct part of speech tags in the given corpus.
+          example: 1
+          type: integer
+      type: object
+    UpdateInfo:
+      description: Timestamps for updates of various resources.
+      properties:
+        created_time:
+          description: When the resource was created (as POSIX timestamp).
+          example: 1234567.789
+          format: float
+          type: number
+          x-index: true
+        last_modified_time:
+          description: When the resource was last modified (as POSIX timestamp).
+          example: 1234567.789
+          format: float
+          type: number
+          x-index: true
+        resource_type:
+          description: Name of the resource for which update timestamps are indexed.
+          enum:
+          - cts_data
+          - exercise_list
+          - file_api_clean
+          example: cts_data
+          type: string
+          x-primary-key: true
+      required:
+      - created_time
+      - last_modified_time
+      - resource_type
+      type: object
+      x-tablename: UpdateInfo
+    AnnisResponse_frequency_analysis:
+      example:
+        values: []
+        count: 1
+        phenomena: []
+      properties:
+        count:
+          description: How often the given combination of values occurred.
+          example: 1
+          type: integer
+        phenomena:
+          description: Labels for the phenomena described in this frequency entry.
+          example: []
+          items:
+            type: string
+          type: array
+        values:
+          description: Values for the phenomena described in this frequency entry.
+          example: []
+          items:
+            type: string
+          type: array
+    Exercise_allOf:
+      description: Data for creating and evaluating interactive exercises.
+      properties:
+        conll:
+          default: ""
+          description: CONLL-formatted linguistic annotations represented as a single
+            string.
+          example: \# newdoc id = ...\n# sent_id = 1\n# text = Caesar fortis est.\n1\tCaesar\tCaeso\tVERB
+            ...
+          nullable: false
+          type: string
+        eid:
+          description: Unique identifier (UUID) for the exercise.
+          example: 12345678-1234-5678-1234-567812345678
+          type: string
+          x-primary-key: true
+        exercise_type:
+          default: ""
+          description: Type of exercise, concerning interaction and layout.
+          example: markWords
+          nullable: false
+          type: string
+        exercise_type_translation:
+          default: ""
+          description: Localized expression of the exercise type.
+          example: Cloze
+          type: string
+        language:
+          default: de
+          description: ISO 639-1 Language Code for the localization of exercise content.
+          example: en
+          type: string
+        last_access_time:
+          description: When the exercise was last accessed (as POSIX timestamp).
+          example: 1234567.789
+          format: float
+          type: number
+          x-index: true
+        solutions:
+          default: '[]'
+          description: Correct solutions for the exercise.
+          example: '[{''target'': {''sentence_id'': 1, ''token_id'': 7, ''salt_id'':
+            ''salt:/urn:...'', ''content'': ''eo''}, ''value'': {''sentence_id'':
+            0, ''token_id'': 0, ''content'': None, ''salt_id'': ''salt:/urn:...''}}]'
+          nullable: false
+          type: string
+        text_complexity:
+          default: 0
+          description: Overall text complexity as measured by the software's internal
+            language analysis.
+          example: 54.53
+          format: float
+          type: number
+        urn:
+          default: ""
+          description: CTS URN for the text passage from which the exercise was created.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          nullable: false
+          type: string
+      required:
+      - eid
+      - last_access_time

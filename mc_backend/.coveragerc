@@ -7,6 +7,7 @@ omit =
     */site-packages/*
     */migrations/*
     # cannot run tests for files that are generated and updated automatically
+    */openapi/*
     */models_auto.py
 parallel = True
 

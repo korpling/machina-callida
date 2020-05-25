@@ -33,17 +33,17 @@ class VocabularyAPI(Resource):
         for char in string.punctuation:
             vocabulary_set.add(char)
         ar: AnnisResponse = CorpusService.get_corpus(cts_urn=urn, is_csm=False)
-        graph_data: GraphData = GraphData(json_dict=ar.__dict__)
         if show_oov:
             # this is not a request for sentence ranges, so we can take a shortcut
-            for node in graph_data.nodes:
+            for node in ar.graph_data.nodes:
                 if not is_match(target_lemma=node.udep_lemma, vocabulary_set=vocabulary_set):
                     node.is_oov = True
-            ar: AnnisResponse = AnnisResponse(solutions=[], uri="", exercise_id="", graph_data=graph_data)
-            gd: GraphData = GraphData(json_dict=ar.__dict__)
-            ar.text_complexity = TextComplexityService.text_complexity(TextComplexityMeasure.all.name, urn, False, gd)
-            return NetworkService.make_json_response(ar.__dict__)
-        sentences: List[Sentence] = check_vocabulary(graph_data, vocabulary_set)
+            ar: AnnisResponse = AnnisResponse(
+                solutions=[], uri="", exercise_id="", graph_data=ar.graph_data)
+            ar.text_complexity = TextComplexityService.text_complexity(TextComplexityMeasure.all.name, urn, False,
+                                                                       ar.graph_data).to_dict()
+            return NetworkService.make_json_response(ar.to_dict())
+        sentences: List[Sentence] = check_vocabulary(ar.graph_data, vocabulary_set)
         return NetworkService.make_json_response([x.__dict__ for x in sentences])
 
 

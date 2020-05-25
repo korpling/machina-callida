@@ -252,7 +252,7 @@ class AnnotationService:
         """ Maps a node dictionary to the native NodeMC class. """
         return NodeMC(annis_node_name=node["annis::node_name"], annis_node_type=node["annis::node_type"],
                       annis_tok=node.get("annis::tok", None), annis_type=node.get("annis::type", None),
-                      node_id=str(node.get("id", "")), udep_lemma=node.get("udep::lemma", None),
+                      id=str(node.get("id", "")), udep_lemma=node.get("udep::lemma", None),
                       udep_upostag=node.get("udep::upostag", None), udep_xpostag=node.get("udep::xpostag", None),
                       udep_feats=node.get("udep::feats", None))
 

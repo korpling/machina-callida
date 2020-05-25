@@ -43,6 +43,10 @@ To autogenerate a new migration script:
 
 ----------------------------------------------------------------
 
+# Models
+To generate class structures for this project automatically: 
+1. Install OpenAPI Generator (using, e.g., `brew install openapi-generator`).
+2. Run: `openapi-generator generate -i ./mcserver/mcserver_api.yaml -g python-flask -o ./openapi/ && python openapi_generator.py`.
 # Testing
 To check the coverage of the current tests, run
 `coverage run --rcfile=.coveragerc tests.py && coverage combine && coverage report -m`.

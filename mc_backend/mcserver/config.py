@@ -33,7 +33,9 @@ class Config(object):
     TREEBANKS_PATH = os.path.join(ASSETS_DIRECTORY, "treebanks")
     TREEBANKS_PROIEL_PATH = os.path.join(TREEBANKS_PATH, "proiel")
 
-    API_SPEC_FILE_PATH = os.path.join(MC_SERVER_DIRECTORY, "mcserver_api.yaml")
+    API_SPEC_JSON_FILE_NAME = "openapi.json"
+    API_SPEC_JSON_FILE_PATH = os.path.join(MC_SERVER_DIRECTORY, API_SPEC_JSON_FILE_NAME)
+    API_SPEC_YAML_FILE_PATH = os.path.join(MC_SERVER_DIRECTORY, "mcserver_api.yaml")
     AQL_CASE = "/.*Case=.*/"
     AQL_DEP = "->dep"
     AQL_DEPREL = "deprel"
@@ -130,7 +132,8 @@ class Config(object):
     SERVER_URI_VOCABULARY = SERVER_URI_BASE + "vocabulary"
     # END endpoints
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or DATABASE_URL_SQLITE
-    SQLALCHEMY_ECHO = True
+    # BEWARE: if True, logs every single database statement executed by this application to STDOUT
+    SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STATIC_EXERCISES_REPOSITORY_URL = "https://scm.cms.hu-berlin.de/callidus/machina-callida/-/archive/master/machina-callida-master.zip?path=mc_frontend%2Fsrc%2Fassets%2Fh5p"
     STOP_WORDS_LATIN_PATH = os.path.join(CACHE_DIRECTORY, "stop_words_latin.json")
@@ -176,8 +179,6 @@ class TestingConfig(Config):
     PRESERVE_CONTEXT_ON_EXCEPTION = False
     SERVER_NAME = Config.HOST_IP_MCSERVER + ":{0}".format(Config.HOST_PORT)
     SESSION_COOKIE_DOMAIN = False
-    SIMULATE_CORPUS_NOT_FOUND = False
-    SIMULATE_EMPTY_GRAPH = False
     SIMULATE_HTTP_ERROR = False
     SQLALCHEMY_DATABASE_URI = Config.DATABASE_URL_SQLITE
     STATIC_EXERCISES_ZIP_FILE_PATH = os.path.join(Config.TMP_DIRECTORY, "static_exercises.zip")

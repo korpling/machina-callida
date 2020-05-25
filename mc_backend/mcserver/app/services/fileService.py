@@ -11,10 +11,8 @@ from docx import Document
 from docx.text.paragraph import Paragraph
 from docx.text.run import Run
 from xhtml2pdf import pisa
-
 from mcserver import Config
-from mcserver.app.models import DownloadableFile, FileType, Solution, ExerciseType, SolutionElement, \
-    VocabularyCorpus
+from mcserver.app.models import DownloadableFile, FileType, Solution, ExerciseType, VocabularyCorpus, SolutionElement
 from mcserver.app.services import TextService, XMLservice
 from mcserver.models_auto import Exercise
 
@@ -118,7 +116,7 @@ class FileService:
         """Creates a temporary file for the exercise data, so the users can download it."""
         existing_file: DownloadableFile = FileService.create_tmp_file(file_type, exercise.eid)
         conll: List[TokenList] = conllu.parse(exercise.conll)
-        solutions: List[Solution] = [Solution(json_dict=x) for x in json.loads(exercise.solutions)]
+        solutions: List[Solution] = [Solution.from_dict(x) for x in json.loads(exercise.solutions)]
         if solution_indices is not None:
             solutions = [solutions[x] for x in solution_indices]
         # write the relevant content to the file

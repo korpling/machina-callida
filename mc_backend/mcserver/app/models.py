@@ -2,9 +2,25 @@
 from typing import Dict, List, Union, Any
 from enum import Enum
 import typing
-from sqlalchemy.orm.state import InstanceState
 from mcserver.config import Config
 from mcserver.models_auto import TExercise, Corpus, TCorpus, Exercise, TLearningResult, LearningResult
+from openapi.openapi_server.models import SolutionElement, Solution, Link, Node, TextComplexity, AnnisResponse, \
+    GraphData
+
+AnnisResponse = AnnisResponse
+GraphData = GraphData
+LinkMC = Link
+NodeMC = Node
+SolutionElement = SolutionElement
+TextComplexity = TextComplexity
+
+
+def make_solution_element_from_salt_id(salt_id: str) -> SolutionElement:
+    """Extracts necessary information from a SALT ID string to create a solution element."""
+    salt_parts: List[str] = salt_id.split("#")[-1].split("tok")
+    sentence_id = int(salt_parts[0].replace("sent", ""))
+    token_id = int(salt_parts[1].replace("tok", ""))
+    return SolutionElement(content="", salt_id=salt_id, sentence_id=sentence_id, token_id=token_id)
 
 
 class Case(Enum):
@@ -369,142 +385,6 @@ class XapiStatement:
                     context=self.context.serialize(), result=self.result.serialize())
 
 
-class LinkMC:
-    annis_component_name: str
-    annis_component_type: str
-    source: str
-    target: str
-    udep_deprel: str
-
-    def __init__(self, annis_component_name: str = "", annis_component_type: str = "", source: str = "",
-                 target: str = "", udep_deprel: str = None, json_dict: dict = None):
-        if json_dict:
-            self.__dict__ = json_dict
-        else:
-            self.annis_component_name = annis_component_name
-            self.annis_component_type = annis_component_type
-            self.source = source
-            self.target = target
-            if udep_deprel is not None:
-                self.udep_deprel = udep_deprel
-
-    def __eq__(self, other):
-        if isinstance(other, LinkMC):
-            for key in other.__dict__:
-                if not isinstance(other.__dict__[key], InstanceState) and other.__dict__[key] != self.__dict__[key]:
-                    return False
-            return True
-        else:
-            return False
-
-
-class NodeMC:
-    annis_node_name: str
-    annis_node_type: str
-    annis_tok: str
-    annis_type: str
-    id: str
-    is_oov: bool
-    udep_lemma: str
-    udep_upostag: str
-    udep_xpostag: str
-    udep_feats: str
-    solution: str
-
-    def __init__(self, annis_node_name: str = "", annis_node_type: str = "", annis_tok: str = "", annis_type: str = "",
-                 node_id: str = "", udep_upostag: str = "", udep_xpostag: str = "", udep_feats: str = "",
-                 solution: str = "", udep_lemma: str = None, is_oov: bool = None, json_dict: dict = None):
-        if json_dict:
-            self.__dict__ = json_dict
-        else:
-            self.annis_node_name = annis_node_name
-            self.annis_node_type = annis_node_type
-            self.annis_tok = annis_tok
-            self.annis_type = annis_type
-            self.id = node_id
-            if udep_lemma is not None:
-                self.udep_lemma = udep_lemma
-            self.udep_upostag = udep_upostag
-            self.udep_xpostag = udep_xpostag
-            self.udep_feats = udep_feats
-            self.solution = solution
-            self.is_oov = is_oov
-
-    def __eq__(self, other):
-        if isinstance(other, NodeMC):
-            return self.annis_node_name == other.annis_node_name and self.annis_node_type == other.annis_node_type and self.annis_tok == other.annis_tok and self.annis_type == other.annis_type and self.id == other.id and self.udep_lemma == other.udep_lemma and self.udep_upostag == other.udep_upostag and self.udep_xpostag == other.udep_xpostag and self.solution == other.solution
-        else:
-            return False
-
-
-class GraphData:
-    directed: bool
-    graph: Dict
-    links: List[LinkMC]
-    multigraph: bool
-    nodes: List[NodeMC]
-
-    def __init__(self, directed: bool = None, graph: Dict = None, links: List[LinkMC] = None, multigraph: bool = None,
-                 nodes: List[NodeMC] = None, json_dict: dict = None):
-        if json_dict is None:
-            self.directed = directed
-            self.graph = graph
-            self.links = links
-            self.multigraph = multigraph
-            self.nodes: List[NodeMC] = nodes
-        else:
-            self.directed = json_dict["directed"]
-            self.graph = json_dict["graph"]
-            self.multigraph = json_dict["multigraph"]
-            self.links = [LinkMC(json_dict=x) for x in json_dict["links"]]
-            self.nodes = [NodeMC(json_dict=x) for x in json_dict["nodes"]]
-
-    def serialize(self) -> dict:
-        ret_val: dict = self.__dict__.copy()
-        ret_val["links"] = [x.__dict__ for x in self.links]
-        ret_val["nodes"] = [x.__dict__ for x in self.nodes]
-        return ret_val
-
-
-class SolutionElement:
-    sentence_id: int
-    token_id: int
-    content: str
-    salt_id: str
-
-    def __init__(self, sentence_id: int = 0, token_id: int = 0, content: str = None, json_dict: Dict = None,
-                 salt_id: str = None):
-        if json_dict:
-            self.__dict__ = json_dict
-        elif salt_id:
-            salt_parts: List[str] = salt_id.split("#")[-1].split("tok")
-            self.sentence_id = int(salt_parts[0].replace("sent", ""))
-            self.token_id = int(salt_parts[1].replace("tok", ""))
-            self.salt_id = salt_id
-            self.content = content
-        else:
-            self.sentence_id = sentence_id
-            self.token_id = token_id
-            self.content = content
-
-
-class Solution:
-    target: SolutionElement
-    value: SolutionElement
-
-    def __init__(self, target: SolutionElement = SolutionElement(), value: SolutionElement = SolutionElement(),
-                 json_dict: dict = None):
-        if json_dict:
-            self.target = SolutionElement(json_dict=json_dict["target"])
-            self.value = SolutionElement(json_dict=json_dict["value"])
-        else:
-            self.target = target
-            self.value = value
-
-    def serialize(self) -> dict:
-        return dict(target=self.target.__dict__, value=self.value.__dict__)
-
-
 class ExerciseData:
     """Model for exercise data. Holds textual annotations as a graph"""
     graph: GraphData
@@ -514,19 +394,19 @@ class ExerciseData:
     def __init__(self, graph: GraphData = None, uri: str = None, solutions: List[Solution] = None,
                  json_dict: dict = None):
         if json_dict is not None:
-            self.graph = GraphData(json_dict=json_dict["graph"])
+            self.graph = GraphData.from_dict(json_dict["graph"])
             self.uri = json_dict["uri"]
-            self.solutions = [Solution(json_dict=solution_dict) for solution_dict in json_dict["solutions"]]
+            self.solutions = [Solution.from_dict(solution_dict) for solution_dict in json_dict["solutions"]]
         else:
             self.graph = graph
             self.solutions = [] if solutions is None else solutions
             self.uri = uri
 
     def serialize(self) -> dict:
-        ret_val: dict = {"solutions": [x.serialize() for x in self.solutions],
+        ret_val: dict = {"solutions": [x.to_dict() for x in self.solutions],
                          "graph": dict(multigraph=self.graph.multigraph, directed=self.graph.directed,
-                                       graph=self.graph.graph, nodes=[x.__dict__ for x in self.graph.nodes],
-                                       links=[x.__dict__ for x in self.graph.links]), "uri": self.uri}
+                                       graph=self.graph.graph, nodes=[x.to_dict() for x in self.graph.nodes],
+                                       links=[x.to_dict() for x in self.graph.links]), "uri": self.uri}
         return ret_val
 
 
@@ -618,53 +498,3 @@ class FrequencyAnalysis(List[FrequencyItem]):
 
     def serialize(self) -> List[dict]:
         return [x.serialize() for x in self]
-
-
-class AnnisResponse:
-
-    def __init__(self, solutions: List[Solution] = None, uri: str = "", exercise_id: str = "",
-                 graph_data: GraphData = None, frequency_analysis: FrequencyAnalysis = None,
-                 text_complexity: dict = None, exercise_type: ExerciseType = None,
-                 json_dict: dict = None):
-        if json_dict is None:
-            self.directed: bool = graph_data.directed if graph_data else False
-            self.exercise_id: str = exercise_id
-            self.exercise_type: str = exercise_type.value if exercise_type else ""
-            self.frequency_analysis: List[dict] = [] if frequency_analysis is None else frequency_analysis.serialize()
-            self.graph: dict = graph_data.graph if graph_data else {}
-            self.links: List[dict] = [x.__dict__ for x in graph_data.links] if graph_data else []
-            self.multigraph: bool = graph_data.multigraph if graph_data else False
-            self.nodes: List[dict] = [x.__dict__ for x in graph_data.nodes] if graph_data else []
-            self.solutions: List[Solution] = solutions
-            self.text_complexity: dict = text_complexity if text_complexity else {}
-            self.uri: str = uri
-        else:
-            self.__dict__ = json_dict
-
-
-class TextComplexity(dict):
-    def __init__(self, n_w: int = 0, pos: int = 0, n_sent: int = 0, avg_w_per_sent: float = 0, avg_w_len: float = 0,
-                 n_punct: int = 0, n_types: int = 0, lex_den: float = 0, n_clause: int = 0, n_subclause: int = 0,
-                 n_abl_abs: int = 0, n_gerund: int = 0, n_inf: int = 0, n_part: int = 0, all: float = 0,
-                 json_dict: dict = None):
-        super(TextComplexity).__init__()
-        if json_dict is None:
-            self.n_w: int = n_w
-            self.pos: int = pos
-            self.n_sent: int = n_sent
-            self.avg_w_per_sent: float = avg_w_per_sent
-            self.avg_w_len: float = avg_w_len
-            self.n_punct: int = n_punct
-            self.n_types: int = n_types
-            self.lex_den: float = lex_den
-            self.n_clause: int = n_clause
-            self.n_subclause: int = n_subclause
-            self.n_abl_abs: int = n_abl_abs
-            self.n_gerund: int = n_gerund
-            self.n_inf: int = n_inf
-            self.n_part: int = n_part
-            self.all: float = all
-        else:
-            self.update(json_dict)
-            for key in json_dict:
-                self.__setattr__(key, json_dict[key])

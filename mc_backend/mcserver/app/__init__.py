@@ -5,23 +5,24 @@ import sys
 from logging.handlers import RotatingFileHandler
 from threading import Thread
 from time import strftime
-from typing import Type, List
+from typing import Type
 import connexion
 import flask
+import open_alchemy
 from connexion import FlaskApp
 from flask import Flask, got_request_exception, request, Response, send_from_directory
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from open_alchemy import init_yaml
-
 from mcserver.config import Config
 
 db: SQLAlchemy = SQLAlchemy()  # session_options={"autocommit": True}
 migrate: Migrate = Migrate(directory=Config.MIGRATIONS_DIRECTORY)
-# do this _BEFORE_ you add any APIs to your application
-init_yaml(Config.API_SPEC_FILE_PATH, base=db.Model,
-          models_filename=os.path.join(Config.MC_SERVER_DIRECTORY, "models_auto.py"))
+if not hasattr(open_alchemy.models, Config.DATABASE_TABLE_CORPUS):
+    # do this _BEFORE_ you add any APIs to your application
+    init_yaml(Config.API_SPEC_YAML_FILE_PATH, base=db.Model,
+              models_filename=os.path.join(Config.MC_SERVER_DIRECTORY, "models_auto.py"))
 
 
 def apply_event_handlers(app: FlaskApp):
@@ -78,7 +79,7 @@ def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
     connexion_app: FlaskApp = connexion.FlaskApp(
         __name__, port=(cfg.CORPUS_STORAGE_MANAGER_PORT if is_csm else cfg.HOST_PORT),
         specification_dir=Config.MC_SERVER_DIRECTORY)
-    connexion_app.add_api(Config.API_SPEC_FILE_PATH, arguments={'title': 'Machina Callida Backend REST API'})
+    connexion_app.add_api(Config.API_SPEC_YAML_FILE_PATH, arguments={'title': 'Machina Callida Backend REST API'})
     apply_event_handlers(connexion_app)
     app: Flask = connexion_app.app
     # allow CORS requests for all API routes
@@ -87,11 +88,11 @@ def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
     app.app_context().push()
     db.init_app(app)
     migrate.init_app(app, db)
+    if is_csm or cfg.TESTING:
+        db.create_all()
     if is_csm:
         from mcserver.app.services.databaseService import DatabaseService
         DatabaseService.init_db_alembic()
-    if is_csm or cfg.TESTING:
-        db.create_all()
     from mcserver.app.services.textService import TextService
     TextService.init_proper_nouns_list()
     TextService.init_stop_words_latin()
@@ -119,7 +120,6 @@ def log_exception(sender_app: Flask, exception, **extra):
         exception -- the exception to be logged
         **extra -- any additional arguments
     """
-    # TODO: RETURN ERROR IN JSON FORMAT
     sender_app.logger.exception(f"ERROR for {flask.request.url}")
 
 

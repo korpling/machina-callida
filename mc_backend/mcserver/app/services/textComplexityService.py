@@ -184,5 +184,5 @@ class TextComplexityService:
                        f"{Config.CORPUS_STORAGE_MANAGER_PORT}{Config.SERVER_URI_TEXT_COMPLEXITY}"
             ar: AnnisResponse = AnnisResponse(graph_data=gd)
             response: requests.Response = requests.post(url, data=json.dumps(
-                dict(urn=urn, measure=TextComplexityMeasure.all.name, annis_response=ar.__dict__)))
-            return TextComplexity(json_dict=json.loads(response.text))
+                dict(urn=urn, measure=TextComplexityMeasure.all.name, annis_response=ar.to_dict())))
+            return TextComplexity.from_dict(json.loads(response.text))

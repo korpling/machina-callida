@@ -18,8 +18,8 @@ class RawTextAPI(Resource):
         args = self.reqparse.parse_args()
         urn: str = args["urn"]
         ar: AnnisResponse = CorpusService.get_corpus(cts_urn=urn, is_csm=False)
-        if not ar.nodes:
+        if not ar.graph_data.nodes:
             abort(404)
-        gd: GraphData = GraphData(json_dict=ar.__dict__)
-        ar.text_complexity = TextComplexityService.text_complexity(TextComplexityMeasure.all.name, urn, False, gd)
-        return NetworkService.make_json_response(ar.__dict__)
+        ar.text_complexity = TextComplexityService.text_complexity(TextComplexityMeasure.all.name, urn, False,
+                                                                   ar.graph_data).to_dict()
+        return NetworkService.make_json_response(ar.to_dict())

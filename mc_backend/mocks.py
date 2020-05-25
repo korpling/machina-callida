@@ -1,5 +1,7 @@
 import json
 import logging
+import os
+import shutil
 from collections import OrderedDict
 from datetime import datetime
 from typing import List, Tuple, Dict
@@ -17,8 +19,9 @@ from sqlalchemy.exc import OperationalError
 
 from mcserver import Config, TestingConfig
 from mcserver.app import db, shutdown_session
-from mcserver.app.models import Phenomenon, PartOfSpeech, CitationLevel, SolutionElement, ExerciseData, GraphData, \
-    LinkMC, NodeMC, Language, Dependency, Case, AnnisResponse, Solution, TextPart, Citation, ExerciseMC, CorpusMC
+from mcserver.app.models import Phenomenon, PartOfSpeech, CitationLevel, ExerciseData, GraphData, \
+    LinkMC, NodeMC, Language, Dependency, Case, AnnisResponse, Solution, TextPart, Citation, ExerciseMC, CorpusMC, \
+    SolutionElement
 from mcserver.app.services import AnnotationService, CustomCorpusService, TextService
 from mcserver.models_auto import Corpus, Exercise, UpdateInfo
 
@@ -86,6 +89,8 @@ class TestHelper:
         if len(Mocks.app_dict) and list(Mocks.app_dict.keys())[0] != class_name:
             if Config.CORPUS_STORAGE_MANAGER:
                 Config.CORPUS_STORAGE_MANAGER.__exit__(None, None, None)
+            if os.path.exists(Config.GRAPH_DATABASE_DIR):
+                shutil.rmtree(Config.GRAPH_DATABASE_DIR)
             list(Mocks.app_dict.values())[0].app_context.pop()
             shutdown_session()
             db.drop_all()
@@ -649,19 +654,19 @@ class Mocks:
                                  "solutions": [{"target": {"sentence_id": 159692, "token_id": 7,
                                                            "salt_id": "salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok7",
                                                            "content": "praecepturus"},
-                                                "value": {"sentence_id": 0, "token_id": 0, "content": None,
+                                                "value": {"sentence_id": 0, "token_id": 0, "content": "",
                                                           "salt_id": "salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok1"}},
                                                {
                                                    "target": {"sentence_id": 159692, "token_id": 9,
                                                               "salt_id": "salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok9",
                                                               "content": "aestimare"},
-                                                   "value": {"sentence_id": 0, "token_id": 0, "content": None,
+                                                   "value": {"sentence_id": 0, "token_id": 0, "content": "",
                                                              "salt_id": "salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok1"}},
                                                {
                                                    "target": {"sentence_id": 159693, "token_id": 5,
                                                               "salt_id": "salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159693tok5",
                                                               "content": "debet"},
-                                                   "value": {"sentence_id": 0, "token_id": 0, "content": None,
+                                                   "value": {"sentence_id": 0, "token_id": 0, "content": "",
                                                              "salt_id": "salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok1"}}],
                                  "conll": "# newdoc id = /var/folders/30/yqnv6lz56r14dqhpw18knn2r0000gp/T/tmp7qn86au9\n# sent_id = 1\n# text = Caesar fortis est.\n1\tCaesar\tCaeso\tVERB\tC1|grn1|casA|gen1|stAN\tCase=Nom|Degree=Pos|Gender=Masc|Number=Sing\t2\tcsubj\t_\t_\n2\tfortis\tfortis\tADJ\tC1|grn1|casA|gen1|stAN\tCase=Nom|Degree=Pos|Gender=Masc|Number=Sing\t0\troot\troot\t_\n3\test\tsum\tAUX\tN3|modA|tem1|gen6|stAV\tMood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act\t2\tcop\t_\tSpaceAfter=No\n4\t.\t.\tPUNCT\tPunc\t_\t2\tpunct\t_\t_\n\n# sent_id = 2\n# text = Galli moriuntur.\n1\tGalli\tGallus\tPRON\tF1|grn1|casJ|gen1|stPD\tCase=Nom|Degree=Pos|Gender=Masc|Number=Plur|PronType=Dem\t2\tnsubj:pass\t_\t_\n2\tmoriuntur\tmorior\tVERB\tL3|modJ|tem1|gen9|stAV\tMood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Pass\t0\troot\troot\tSpaceAfter=No\n3\t.\t.\tPUNCT\tPunc\t_\t2\tpunct\t_\tSpacesAfter=\\n\n\n"}
     app_dict: Dict[str, TestHelper] = {}
@@ -690,7 +695,7 @@ class Mocks:
                 salt_id="salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent1tok1"),
                 value=SolutionElement(
                     sentence_id=1, token_id=2, content="Caesar",
-                    salt_id="salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent1tok2")).serialize()
+                    salt_id="salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent1tok2")).to_dict()
         ]).replace(" ", ""),
         urn=f"{CustomCorpusService.custom_corpora[4].corpus.source_urn}:2.23.1-2.23.1")
     exercise_data: ExerciseData = ExerciseData(
@@ -699,10 +704,10 @@ class Mocks:
                    source="doc1#sent1tok1", target="doc1#sent1tok2", udep_deprel="uddr")],
                         multigraph=False, nodes=[
                 NodeMC(annis_node_name="ann", annis_node_type="ant", annis_tok="atk", annis_type="atp",
-                       node_id="doc1#sent1tok1", udep_upostag="udupt", udep_xpostag="udxpt", udep_feats="udf",
+                       id="doc1#sent1tok1", udep_upostag="udupt", udep_xpostag="udxpt", udep_feats="udf",
                        udep_lemma="udl"),
                 NodeMC(annis_node_name="ann", annis_node_type="ant", annis_tok="atk", annis_type="atp",
-                       node_id="doc1#sent1tok2", udep_upostag="udupt", udep_xpostag="udxpt", udep_feats="udf",
+                       id="doc1#sent1tok2", udep_upostag="udupt", udep_xpostag="udxpt", udep_feats="udf",
                        udep_lemma="udl")]), uri="/test", solutions=[])
     exercise_pdf: bytes = b'%PDF-1.4\n%\x93\x8c\x8b\x9e ReportLab Generated PDF document http://www.reportlab.com\n1 0 obj\n<<\n/F1 2 0 R\n>>\nendobj\n2 0 obj\n<<\n/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font\n>>\nendobj\n3 0 obj\n<<\n/BitsPerComponent 1 /ColorSpace /DeviceGray /Filter [ /ASCII85Decode ] /Height 23 /Length 223 /Subtype /Image \n  /Type /XObject /Width 24\n>>\nstream\n\n            003B00 002700 002480 0E4940 114920 14B220 3CB650\n            75FE88 17FF8C 175F14 1C07E2 3803C4 703182 F8EDFC\n            B2BBC2 BB6F84 31BFC2 18EA3C 0E3E00 07FC00 03F800\n            1E1800 1FF800>\n            endstream\nendobj\n4 0 obj\n<<\n/Contents 8 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 7 0 R /Resources <<\n/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ] /XObject <<\n/FormXob.c7485dcc8d256a6f197ed7802687f252 3 0 R\n>>\n>> /Rotate 0 /Trans <<\n\n>> \n  /Type /Page\n>>\nendobj\n5 0 obj\n<<\n/PageMode /UseNone /Pages 7 0 R /Type /Catalog\n>>\nendobj\n6 0 obj\n<<\n/Author () /CreationDate'
     exercise_xml: str = '<quiz>   <question type="matching">       <name>           <text></text>       </name>       <questiontext format="html">           <text><![CDATA[<br><p></p><p></p><br><br>]]></text>       </questiontext>       <generalfeedback format="html">           <text></text>       </generalfeedback>       <defaultgrade>1.0000000</defaultgrade>       <penalty>0.1000000</penalty>       <hidden>0</hidden>       <shuffleanswers>1</shuffleanswers>       <correctfeedback format="html">           <text></text>       </correctfeedback>       <partiallycorrectfeedback format="html">           <text></text>       </partiallycorrectfeedback>       <incorrectfeedback format="html">           <text></text>       </incorrectfeedback>       <shownumcorrect/>              <tags></tags>   </question></quiz>'
@@ -756,9 +761,9 @@ class Mocks:
                                'Romanus', 'Solomon', 'amor']
     raw_text: str = "Caesar fortis est. Galli moriuntur."
     static_exercises_udpipe_string: str = "1\tscribere\tscribere\n1\tcommovere\tcommovere\n1\tC\tC\n1\tgaudere\tgaudere\n1\tsignum\tsignum\n1\tvas\tvas\n1\tclarus\tclarus\n1\tcondicio\tcondicio\n1\tcom\tcum\n1\tprae\tprae\n1\tmovere\tmovere\n1\tducere\tducere\n1\tde\tde\n1\tcum\tcum\n1\tistam\tiste\n1\tnationum\tnatio\n1\tclarissimae\tclarus\n1\tmoderationem\tmoderatio\n1\tanimi\tanimus\n1\tomnium\tomnis\n1\tgentium\tgens\n1\tac\tac\n1\tvirtutem\tvirtus\n1\tprovinciae\tprovincia\n1\tCaesar\tCaesar\n1\test\tesse\n1\tsatis\tsatis\n1\tgovernment\tgovernment\n1\tsocius\tsocius\n1\tprovincia\tprovincia\n1\tpublicus\tpublicus\n1\tcivis\tcivis\n1\tatque\tatque"
-    subgraph_json: str = '{"directed":true,"exercise_id":"","exercise_type":"","frequency_analysis":[],"graph":{},"links":[],"multigraph":true,"nodes":[{"annis_node_name":"urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1/doc1#sent1tok3","annis_node_type":"node","annis_tok":"Galli","annis_type":"node","id":"salt:/urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1/doc1#sent1tok3","udep_lemma":"Gallo","udep_upostag":"VERB","udep_xpostag":"L3|modQ|tem1|stAC","udep_feats":"Tense=Pres|VerbForm=Inf|Voice=Pass","solution":"","is_oov":null}],"solutions":[],"text_complexity":{},"uri":""}'
+    subgraph_json: str = '{"exercise_id":"","exercise_type":null,"frequency_analysis":null,"graph_data":{"directed":true,"graph":{},"links":[],"multigraph":true,"nodes":[{"annis_node_name":"urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1/doc1#sent1tok3","annis_node_type":"node","annis_tok":"Galli","annis_type":"node","id":"salt:/urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1/doc1#sent1tok3","is_oov":null,"udep_lemma":"Gallo","udep_upostag":"VERB","udep_xpostag":"L3|modQ|tem1|stAC","udep_feats":"Tense=Pres|VerbForm=Inf|Voice=Pass","solution":null}]},"solutions":[],"text_complexity":null,"uri":""}'
     test_args: List[str] = ["tests.py", "-test"]
-    text_complexity_json_string: str = '{"n_w":52,"pos":11,"n_sent":3,"avg_w_per_sent":17.33,"avg_w_len":5.79,"n_punct":3,"n_types":48,"lex_den":0.73,"n_clause":1,"n_subclause":0,"n_abl_abs":0,"n_gerund":1,"n_inf":1,"n_part":1,"all":54.53}'
+    text_complexity_json_string: str = '{"all":54.53,"avg_w_len":5.79,"avg_w_per_sent":17.33,"lex_den":0.73,"n_abl_abs":0,"n_clause":1,"n_gerund":1,"n_inf":1,"n_part":1,"n_punct":3,"n_sent":3,"n_subclause":0,"n_types":48,"n_w":52,"pos":11}'
     text_list: List[Tuple[str, str]] = [("urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1", raw_text.split(".")[0]),
                                         ("urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.2", raw_text.split(".")[1])]
     text_parts: List[TextPart] = [

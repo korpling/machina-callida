@@ -50,7 +50,7 @@ class FrequencyService:
         values_to_fi_dict: Dict[str, FrequencyItem] = {}
         for link in dep_links:
             base_node: NodeMC = graph_data.nodes[id_to_node_dict[link.source]]
-            if "udep_deprel" not in link.__dict__:
+            if not link.udep_deprel:
                 continue
             dep: Dependency = dep_to_enum_dict[link.udep_deprel]
             FrequencyService.add_frequency_item(base_node, dep, values_to_fi_dict, 1)

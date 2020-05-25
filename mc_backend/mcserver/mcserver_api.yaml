@@ -94,8 +94,11 @@ paths:
       operationId: mcserver.app.api.exerciseAPI.get
       responses:
         200:
-          description: Exercise data object
-      #          TODO: SPECIFY RESPONSE SCHEMA
+          description: Exercise data object, including a graph model for linguistic annotations.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnisResponse'
       parameters:
         - name: eid
           in: query
@@ -110,7 +113,10 @@ paths:
       responses:
         200:
           description: Exercise data object
-      #          TODO: SPECIFY RESPONSE SCHEMA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnisResponse'
       requestBody:
         $ref: '#/components/requestBodies/ExerciseForm'
 components:
@@ -145,6 +151,53 @@ components:
                 required:
                   - type
   schemas:
+    AnnisResponse:
+      description: A response with graph data from ANNIS, possibly with additional data for exercises.
+      type: object
+      properties:
+        exercise_id:
+          type: string
+          description: Unique identifier (UUID) for the exercise.
+          example: 12345678-1234-5678-1234-567812345678
+        exercise_type:
+          type: string
+          description: Type of exercise, concerning interaction and layout.
+          example: ddwtos
+        frequency_analysis:
+          type: array
+          description: List of items with frequency data for linguistic phenomena.
+          items:
+            type: object
+            properties:
+              count:
+                type: integer
+                description: How often the given combination of values occurred.
+                example: 1
+              phenomena:
+                type: array
+                description: Labels for the phenomena described in this frequency entry.
+                example: []
+                items:
+                  type: string
+              values:
+                type: array
+                description: Values for the phenomena described in this frequency entry.
+                example: []
+                items:
+                  type: string
+        graph_data:
+          $ref: "#/components/schemas/GraphData"
+        solutions:
+          type: array
+          description: Correct solutions for this exercise.
+          items:
+            $ref: '#/components/schemas/Solution'
+        text_complexity:
+          $ref: '#/components/schemas/TextComplexity'
+        uri:
+          type: string
+          description: URI for accessing the exercise in this API.
+          example: /mc/api/v1.0/file/fd97630c-1f5a-4102-af56-20eb0babdfee
     Corpus:  # Object definition
       description: Collection of texts.
       type: object   # Data type
@@ -251,6 +304,79 @@ components:
           required:
             - eid
             - last_access_time
+    ExerciseBase:
+      description: Base data for creating and evaluating interactive exercises.
+      type: object
+      properties:
+        correct_feedback:
+          type: string
+          description: Feedback for successful completion of the exercise.
+          example: Well done!
+          default: ""
+        general_feedback:
+          type: string
+          description: Feedback for finishing the exercise.
+          example: You have finished the exercise.
+          default: ""
+        incorrect_feedback:
+          type: string
+          description: Feedback for failing to complete the exercise successfully.
+          example: Unfortunately, that answer is wrong.
+          default: ""
+        instructions:
+          type: string
+          description: Hints for how to complete the exercise.
+          example: Fill in the gaps!
+          default: ""
+        partially_correct_feedback:
+          type: string
+          description: Feedback for successfully completing certain parts of the exercise.
+          example: Some parts of this answer are correct.
+          default: ""
+        search_values:
+          type: string
+          description: Search queries that were used to build the exercise.
+          example: "['upostag=noun', 'dependency=object']"
+          default: "[]"
+        work_author:
+          type: string
+          description: Name of the person who wrote the base text for the exercise.
+          example: C. Iulius Caesar
+          default: ""
+        work_title:
+          type: string
+          description: Title of the base text for the exercise.
+          example: Noctes Atticae
+          default: ""
+    GraphData:
+      type: object
+      description: Nodes, edges and metadata for a graph.
+      properties:
+        directed:
+          type: boolean
+          description: Whether edges in the returned graph are directed.
+          example: true
+        graph:
+          type: object
+          description: Additional graph data.
+          example: {}
+        links:
+          type: array
+          description: List of edges for the graph.
+          items:
+            $ref: '#/components/schemas/Link'
+        multigraph:
+          type: boolean
+          description: Whether the graph consists of multiple subgraphs.
+          example: true
+        nodes:
+          type: array
+          description: List of nodes for the graph.
+          items:
+            $ref: '#/components/schemas/Node'
+      required:
+        - links
+        - nodes
     LearningResult:
       description: Learner data for completed exercises.
       type: object
@@ -371,6 +497,191 @@ components:
         - score_min
         - score_raw
         - success
+    Link:
+      type: object
+      properties:
+        annis_component_name:
+          type: string
+          description: Component name as given by ANNIS.
+          example: dep
+        annis_component_type:
+          type: string
+          description: Component type as given by ANNIS.
+          example: Pointing
+        source:
+          type: string
+          description: ID of the source node for the edge.
+          example: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
+        target:
+          type: string
+          description: ID of the target node for the edge.
+          example: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok3
+        udep_deprel:
+          type: string
+          description: Dependency relation described by the edge.
+          example: "det"
+      required:
+        - annis_component_name
+        - annis_component_type
+        - source
+        - target
+    Node:
+      type: object
+      properties:
+        annis_node_name:
+          type: string
+          description: Node name as given by ANNIS.
+          example: "urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1"
+        annis_node_type:
+          type: string
+          description: Node type as given by ANNIS.
+          example: "node"
+        annis_tok:
+          type: string
+          description: Raw word form as given by ANNIS.
+          example: "Galliae"
+        annis_type:
+          type: string
+          description: Node type as given by ANNIS (?).
+          example: "node"
+        id:
+          type: string
+          description: Unique identifier for the node in the SALT model.
+          example: "salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1"
+        is_oov:
+          type: boolean
+          description: Whether the raw word form is missing in a given vocabulary.
+          example: true
+        udep_lemma:
+          type: string
+          description: Lemmatized word form.
+          example: "Gallia"
+        udep_upostag:
+          type: string
+          description: Universal part of speech tag for the word form.
+          example: "PROPN"
+        udep_xpostag:
+          type: string
+          description: Language-specific part of speech tag for the word form.
+          example: "Ne"
+        udep_feats:
+          type: string
+          description: Additional morphological information.
+          example: "Case=Nom|Gender=Fem|Number=Sing"
+        solution:
+          type: string
+          description: Solution value for this node in an exercise.
+          example: ""
+      required:
+        - annis_node_name
+        - annis_node_type
+        - annis_tok
+        - annis_type
+        - id
+        - udep_lemma
+        - udep_upostag
+    Solution:
+      type: object
+      description: Correct solution for an exercise.
+      properties:
+        target:
+          $ref: '#/components/schemas/SolutionElement'
+        value:
+          $ref: '#/components/schemas/SolutionElement'
+    SolutionElement:
+      type: object
+      description: Target or value of a correct solution for an exercise.
+      properties:
+        content:
+          type: string
+          description: Content of the solution element.
+          example: unam
+        salt_id:
+          type: string
+          description: Unique identifier for the node in the SALT model.
+          example: salt:/urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok9
+        sentence_id:
+          type: integer
+          description: Unique identifier for the sentence in a corpus.
+          example: 52548
+        token_id:
+          type: integer
+          description: Unique identifier for the token in a sentence.
+          example: 9
+      required:
+        - content
+        - sentence_id
+        - token_id
+    TextComplexity:
+      type: object
+      description: Mapping of various elements of text complexity to their corresponding values.
+      properties:
+        all:
+          type: number
+          format: float
+          description: Overall text complexity of the given corpus.
+          example: 42.31
+        avg_w_len:
+          type: number
+          format: float
+          description: Average length of a word in the given corpus.
+          example: 5.4
+        avg_w_per_sent:
+          type: number
+          format: float
+          description: Average number of words per sentence.
+          example: 5.4
+        lex_den:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Lexical density of the given corpus.
+          example: 0.43
+        n_abl_abs:
+          type: integer
+          description: Number of ablativi absoluti in the given corpus.
+          example: 1
+        n_clause:
+          type: integer
+          description: Number of clauses in the given corpus.
+          example: 1
+        n_gerund:
+          type: integer
+          description: Number of gerunds in the given corpus.
+          example: 1
+        n_inf:
+          type: integer
+          description: Number of infinitives in the given corpus.
+          example: 1
+        n_part:
+          type: integer
+          description: Number of participles in the given corpus.
+          example: 1
+        n_punct:
+          type: integer
+          description: Number of punctuation signs in the given corpus.
+          example: 1
+        n_sent:
+          type: integer
+          description: Number of sentences in the given corpus.
+          example: 1
+        n_subclause:
+          type: integer
+          description: Number of subclauses in the given corpus.
+          example: 1
+        n_types:
+          type: integer
+          description: Number of distinct word forms in the given corpus.
+          example: 1
+        n_w:
+          type: integer
+          description: Number of words in the given corpus.
+          example: 1
+        pos:
+          type: integer
+          description: Number of distinct part of speech tags in the given corpus.
+          example: 1
     UpdateInfo:
       description: Timestamps for updates of various resources.
       type: object
@@ -398,47 +709,3 @@ components:
         - created_time
         - last_modified_time
         - resource_type
-    ExerciseBase:
-      description: Base data for creating and evaluating interactive exercises.
-      type: object
-      properties:
-        correct_feedback:
-          type: string
-          description: Feedback for successful completion of the exercise.
-          example: Well done!
-          default: ""
-        general_feedback:
-          type: string
-          description: Feedback for finishing the exercise.
-          example: You have finished the exercise.
-          default: ""
-        incorrect_feedback:
-          type: string
-          description: Feedback for failing to complete the exercise successfully.
-          example: Unfortunately, that answer is wrong.
-          default: ""
-        instructions:
-          type: string
-          description: Hints for how to complete the exercise.
-          example: Fill in the gaps!
-          default: ""
-        partially_correct_feedback:
-          type: string
-          description: Feedback for successfully completing certain parts of the exercise.
-          example: Some parts of this answer are correct.
-          default: ""
-        search_values:
-          type: string
-          description: Search queries that were used to build the exercise.
-          example: "['upostag=noun', 'dependency=object']"
-          default: "[]"
-        work_author:
-          type: string
-          description: Name of the person who wrote the base text for the exercise.
-          example: C. Iulius Caesar
-          default: ""
-        work_title:
-          type: string
-          description: Title of the base text for the exercise.
-          example: Noctes Atticae
-          default: ""

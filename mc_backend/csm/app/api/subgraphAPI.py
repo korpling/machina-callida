@@ -1,12 +1,9 @@
 import json
 from typing import Dict, List
-
 import flask
 from flask_restful import Resource
 from flask_restful.reqparse import RequestParser
-
-from mcserver.app.models import ExerciseData, GraphData, Solution, SolutionElement, AnnisResponse
-
+from mcserver.app.models import ExerciseData, GraphData, Solution, AnnisResponse, make_solution_element_from_salt_id
 from mcserver.app.services import CorpusService, AnnotationService, NetworkService
 
 
@@ -30,7 +27,7 @@ class SubgraphAPI(Resource):
         ctx_left: int = int(args["ctx_left"])
         ctx_right: int = int(args["ctx_right"])
         ar: AnnisResponse = CorpusService.get_subgraph(urn, aql, ctx_left, ctx_right, is_csm=True)
-        return NetworkService.make_json_response(ar.__dict__)
+        return NetworkService.make_json_response(ar.to_dict())
 
     def post(self):
         """ Returns subgraph data for a given CTS URN and AQL. """
@@ -45,9 +42,9 @@ class SubgraphAPI(Resource):
         for aql in aqls:
             node_ids: List[str] = CorpusService.find_matches(cts_urn, aql, is_csm=True)
             for node_id in node_ids:
-                gd: GraphData = AnnotationService.get_single_subgraph(disk_urn, [node_id], ctx_left, ctx_right,
-                                                                      is_csm=True)
-                exercise_data_list.append(ExerciseData(graph=gd, uri="",
-                                                       solutions=[Solution(target=SolutionElement(salt_id=node_id))]))
+                gd: GraphData = AnnotationService.get_single_subgraph(
+                    disk_urn, [node_id], ctx_left, ctx_right, is_csm=True)
+                exercise_data_list.append(ExerciseData(
+                    graph=gd, uri="", solutions=[Solution(target=make_solution_element_from_salt_id(node_id))]))
         ret_val: List[dict] = [x.serialize() for x in exercise_data_list]
         return NetworkService.make_json_response(ret_val)

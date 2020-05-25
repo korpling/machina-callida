@@ -13,10 +13,9 @@ from lxml import etree
 from networkx import graph, MultiDiGraph
 from networkx.readwrite import json_graph
 from requests import HTTPError
-
 from mcserver.app import db
 from mcserver.app.models import CitationLevel, GraphData, Solution, ExerciseType, Phenomenon, FrequencyAnalysis, \
-    AnnisResponse, SolutionElement, CorpusMC
+    AnnisResponse, CorpusMC, make_solution_element_from_salt_id
 from mcserver.app.services import AnnotationService, XMLservice, TextService, FileService, FrequencyService, \
     CustomCorpusService
 from mcserver.config import Config
@@ -97,7 +96,7 @@ class CorpusService:
             # get graph data for further processing
             graph_data_raw: dict = CorpusService.get_graph_data(cts_urn)
             if not graph_data_raw:
-                return AnnisResponse()
+                return AnnisResponse(graph_data=GraphData(links=[], nodes=[]))
             graph_data: GraphData = AnnotationService.map_graph_data(graph_data_raw)
             ar: AnnisResponse = AnnisResponse(solutions=[], uri="", exercise_id="", graph_data=graph_data)
             return ar
@@ -105,14 +104,13 @@ class CorpusService:
             # there is actually no text, only a URN, so we need to get it ourselves
             url: str = f"{Config.INTERNET_PROTOCOL}{Config.HOST_IP_CSM}:{Config.CORPUS_STORAGE_MANAGER_PORT}/"
             response: requests.Response = requests.get(url, params=dict(urn=cts_urn))
-            return AnnisResponse(json_dict=json.loads(response.text))
+            return AnnisResponse(graph_data=GraphData.from_dict(json.loads(response.text)))
 
     @staticmethod
     def get_frequency_analysis(urn: str, is_csm: bool) -> FrequencyAnalysis:
         """ Collects frequency statistics for various combinations of linguistic annotations in a corpus. """
         if is_csm:
             ar: AnnisResponse = CorpusService.get_corpus(urn, is_csm)
-            gd: GraphData = GraphData(json_dict=ar.__dict__)
             search_phenomena: List[List[Phenomenon]] = []
             for head_phenomenon in Phenomenon:
                 for base_phenomenon in Phenomenon:
@@ -126,7 +124,7 @@ class CorpusService:
                     fa += FrequencyService.add_case_frequencies(disk_urn, search_phenomenon)
                 elif search_phenomenon[0] in [Phenomenon.lemma, Phenomenon.partOfSpeech]:
                     fa += FrequencyService.add_generic_frequencies(disk_urn, search_phenomenon)
-            FrequencyService.add_dependency_frequencies(gd, fa)
+            FrequencyService.add_dependency_frequencies(ar.graph_data, fa)
             return FrequencyService.extract_case_values(fa)
         else:
             url: str = Config.INTERNET_PROTOCOL + f"{Config.HOST_IP_CSM}:{Config.CORPUS_STORAGE_MANAGER_PORT}" + \
@@ -195,21 +193,23 @@ class CorpusService:
                 # it's cloze or markWords; the solutions only have a target, no explicit value
                 if search_phenomena[0] == Phenomenon.dependency:
                     node_ids = [node_ids[i] for i in range(len(node_ids)) if i % 2 != 0]
-                    matches += [Solution(target=SolutionElement(salt_id=x)) for x in node_ids]
+                    matches += [Solution(target=make_solution_element_from_salt_id(x)) for x in node_ids]
                 else:
-                    matches += [Solution(target=SolutionElement(salt_id=x)) for x in node_ids]
+                    matches += [Solution(target=make_solution_element_from_salt_id(x)) for x in node_ids]
             else:
                 # it's a matching exercise
                 if search_phenomena[0] == Phenomenon.dependency:
                     for i in range(len(node_ids)):
                         if i % 3 == 0:
-                            matches.append(Solution(target=SolutionElement(salt_id=node_ids[i + 1]),
-                                                    value=SolutionElement(salt_id=node_ids[i + 2])))
+                            matches.append(Solution(
+                                target=make_solution_element_from_salt_id(node_ids[i + 1]),
+                                value=make_solution_element_from_salt_id(node_ids[i + 2])))
                 else:
                     for i in range(len(node_ids)):
                         if i % 2 == 0:
-                            matches.append(Solution(target=SolutionElement(salt_id=node_ids[i]),
-                                                    value=SolutionElement(salt_id=node_ids[i + 1])))
+                            matches.append(
+                                Solution(target=make_solution_element_from_salt_id(node_ids[i]),
+                                         value=make_solution_element_from_salt_id(node_ids[i + 1])))
         from operator import attrgetter
         matches.sort(key=attrgetter("target.sentence_id", "target.token_id"))
         return matches
@@ -218,8 +218,7 @@ class CorpusService:
     def get_raw_text(urn: str, is_csm: bool):
         """ Retrieves the raw text for a corpus. """
         ar: AnnisResponse = CorpusService.get_corpus(cts_urn=urn, is_csm=is_csm)
-        graph_data: GraphData = GraphData(json_dict=ar.__dict__)
-        text_raw = " ".join(x.annis_tok for x in graph_data.nodes)
+        text_raw = " ".join(x.annis_tok for x in ar.graph_data.nodes)
         # remove the spaces before punctuation because, otherwise, the parser won't work correctly
         return TextService.strip_whitespace(text_raw)
 
@@ -279,7 +278,7 @@ class CorpusService:
                        Config.SERVER_URI_CSM_SUBGRAPH
             response: requests.Response = requests.get(url, params=dict(urn=disk_urn, aqls=aql,
                                                                         ctx_left=ctx_left, ctx_right=ctx_right))
-            return AnnisResponse(json_dict=json.loads(response.text))
+            return AnnisResponse.from_dict(json.loads(response.text))
 
     @staticmethod
     def init_graphannis_logging() -> None:
@@ -332,7 +331,7 @@ class CorpusService:
             if "newpar" in x.metadata and not x.metadata["newpar"]:
                 del x.metadata["newpar"]
             text_conll += x.serialize()
-        return dict(graph_data_raw=graph_data_raw, solutions=[x.serialize() for x in solutions], conll=text_conll)
+        return dict(graph_data_raw=graph_data_raw, solutions=[x.to_dict() for x in solutions], conll=text_conll)
 
     @staticmethod
     def update_corpora():

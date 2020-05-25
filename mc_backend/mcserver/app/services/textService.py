@@ -42,7 +42,7 @@ class TextService:
     @staticmethod
     def get_solutions_by_index(exercise: Exercise, solution_indices: List[int] = None) -> List[Solution]:
         """ If available, makes use of the solution indices to return only the wanted solutions. """
-        available_solutions: List[Solution] = [Solution(json_dict=x) for x in json.loads(exercise.solutions)]
+        available_solutions: List[Solution] = [Solution.from_dict(x) for x in json.loads(exercise.solutions)]
         if solution_indices is None:
             return available_solutions
         return [available_solutions[i] for i in solution_indices] if len(solution_indices) > 0 else []

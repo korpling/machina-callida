@@ -1,6 +1,5 @@
 """Unit tests for testing the application functionality."""
 import copy
-import logging
 import ntpath
 import os
 import uuid
@@ -23,7 +22,6 @@ from typing import Dict, List, Tuple, Type, Any
 
 from conllu import TokenList
 from flask import Flask
-from flask.testing import FlaskClient
 from gensim.models import Word2Vec
 from lxml import etree
 from networkx import MultiDiGraph, Graph
@@ -39,8 +37,9 @@ from mcserver.app import create_app, db, start_updater, full_init
 from mcserver.app.api.exerciseAPI import map_exercise_data_to_database
 from mcserver.app.models import ResourceType, FileType, ExerciseType, ExerciseData, \
     NodeMC, LinkMC, GraphData, Phenomenon, CustomCorpus, AnnisResponse, Solution, DownloadableFile, Language, \
-    VocabularyCorpus, SolutionElement, TextComplexityMeasure, FrequencyAnalysis, CitationLevel, FrequencyItem, \
-    TextComplexity, Dependency, PartOfSpeech, Choice, XapiStatement, ExerciseMC, CorpusMC
+    VocabularyCorpus, TextComplexityMeasure, FrequencyAnalysis, CitationLevel, FrequencyItem, \
+    TextComplexity, Dependency, PartOfSpeech, Choice, XapiStatement, ExerciseMC, CorpusMC, \
+    make_solution_element_from_salt_id
 from mcserver.app.services import AnnotationService, CorpusService, FileService, CustomCorpusService, DatabaseService, \
     XMLservice, TextService
 from mcserver.config import TestingConfig, Config
@@ -52,40 +51,21 @@ class McTestCase(unittest.TestCase):
     """The test suite for the main application."""
 
     def mocked_requests_get(*args, **kwargs):
-        if TestingConfig.SIMULATE_CORPUS_NOT_FOUND:
-            return MockResponse(json.dumps(AnnisResponse().__dict__))
-        elif TestingConfig.SIMULATE_HTTP_ERROR:
+        if TestingConfig.SIMULATE_HTTP_ERROR:
             raise HTTPError
-        elif TestingConfig.SIMULATE_EMPTY_GRAPH:
-            graph_data_raw: dict = dict(Mocks.annis_response_dict["graph_data_raw"])
-            graph_data_raw["nodes"] = []
-            return MockResponse(json.dumps(graph_data_raw))
-        url: str = args[0]
-        if url == Config.CTS_API_BASE_URL:
-            if kwargs['params']['request'] == 'GetCapabilities':
-                return MockResponse(Mocks.cts_capabilities_xml)
-            return MockResponse(Mocks.cts_reff_xml)
-        elif url.endswith(Config.SERVER_URI_CSM_SUBGRAPH):
-            return MockResponse(json.dumps(Mocks.annis_response_dict))
         else:
-            gd: GraphData = AnnotationService.map_graph_data(Mocks.annis_response_dict["graph_data_raw"])
-            return MockResponse(json.dumps(gd.serialize()))
+            url: str = args[0]
+            if url == Config.CTS_API_BASE_URL:
+                if kwargs['params']['request'] == 'GetCapabilities':
+                    return MockResponse(Mocks.cts_capabilities_xml)
+                return MockResponse(Mocks.cts_reff_xml)
+            elif url.endswith(Config.SERVER_URI_CSM_SUBGRAPH):
+                return MockResponse(json.dumps(Mocks.annis_response_dict))
 
     def mocked_requests_post(*args, **kwargs):
         url: str = args[0]
         if url.endswith(Config.SERVER_URI_TEXT_COMPLEXITY):
             return MockResponse(Mocks.text_complexity_json_string)
-        else:
-            ed1: ExerciseData = AnnotationService.map_graph_data_to_exercise(
-                Mocks.annis_response_dict["graph_data_raw"],
-                "", [Solution(target=SolutionElement(
-                    salt_id='salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok1'))])
-            ed2: ExerciseData = AnnotationService.map_graph_data_to_exercise(
-                Mocks.annis_response_dict["graph_data_raw"],
-                "", [Solution(target=SolutionElement(
-                    salt_id='salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159695tok10'))])
-            ed2.graph.nodes = ed2.graph.nodes[42:]
-            return MockResponse(json.dumps([ed1.serialize(), ed2.serialize()]))
 
     def setUp(self):
         """Initializes the testing environment."""
@@ -199,6 +179,7 @@ class McTestCase(unittest.TestCase):
 
     def test_api_exercise_get(self):
         """ Retrieves an existing exercise by its exercise ID. """
+        db.session.query(Exercise).delete()
         response: Response = Mocks.app_dict[self.class_name].client.get(Config.SERVER_URI_EXERCISE,
                                                                         query_string=dict(eid=""))
         self.assertEqual(response.status_code, 404)
@@ -206,7 +187,8 @@ class McTestCase(unittest.TestCase):
         Mocks.exercise.urn = ""
         db.session.add(Mocks.exercise)
         db.session.commit()
-        with patch.object(CorpusService, "get_corpus", side_effect=[AnnisResponse(), Mocks.annis_response]):
+        ar: AnnisResponse = AnnisResponse(solutions=[], graph_data=GraphData(links=[], nodes=[]))
+        with patch.object(CorpusService, "get_corpus", side_effect=[ar, Mocks.annis_response]):
             response = Mocks.app_dict[self.class_name].client.get(Config.SERVER_URI_EXERCISE,
                                                                   query_string=dict(eid=Mocks.exercise.eid))
             self.assertEqual(response.status_code, 404)
@@ -214,11 +196,43 @@ class McTestCase(unittest.TestCase):
             db.session.commit()
             response = Mocks.app_dict[self.class_name].client.get(Config.SERVER_URI_EXERCISE,
                                                                   query_string=dict(eid=Mocks.exercise.eid))
-            graph_dict: dict = json.loads(response.data.decode("utf-8"))
-            ar: AnnisResponse = AnnisResponse(json_dict=graph_dict)
-            self.assertEqual(len(ar.nodes), 52)
+            graph_dict: dict = json.loads(response.get_data(as_text=True))
+            ar: AnnisResponse = AnnisResponse.from_dict(graph_dict)
+            self.assertEqual(len(ar.graph_data.nodes), 52)
             db.session.query(Exercise).delete()
             session.make_transient(Mocks.exercise)
+
+    def test_api_exercise_post(self):
+        """ Creates a new exercise from scratch. """
+
+        def post_response(*args, **kwargs):
+            url: str = args[0]
+            if url.endswith("/"):
+                return MockResponse("}{")
+            elif url.endswith(str(Config.CORPUS_STORAGE_MANAGER_PORT)):
+                return MockResponse(json.dumps(Mocks.annis_response_dict))
+            else:
+                return MockResponse(Mocks.text_complexity_json_string)
+
+        db.session.query(UpdateInfo).delete()
+        ui_exercises: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.exercise_list.name,
+                                                        last_modified_time=1, created_time=1)
+        db.session.add(ui_exercises)
+        db.session.commit()
+        data_dict: dict = dict(urn=Mocks.exercise.urn, type=ExerciseType.matching.value,
+                               search_values=Mocks.exercise.search_values, instructions='abc')
+        with patch.object(mcserver.app.api.exerciseAPI.requests, "post", side_effect=post_response):
+            response: Response = Mocks.app_dict[self.class_name].client.post(
+                Config.SERVER_URI_EXERCISE, headers=Mocks.headers_form_data, data=data_dict)
+            ar: AnnisResponse = AnnisResponse.from_dict(json.loads(response.get_data(as_text=True)))
+            self.assertEqual(len(ar.solutions), 3)
+            Config.CORPUS_STORAGE_MANAGER_PORT = f"{Config.CORPUS_STORAGE_MANAGER_PORT}/"
+            response: Response = Mocks.app_dict[self.class_name].client.post(
+                Config.SERVER_URI_EXERCISE, headers=Mocks.headers_form_data, data=data_dict)
+            self.assertEqual(response.status_code, 500)
+            Config.CORPUS_STORAGE_MANAGER_PORT = int(Config.CORPUS_STORAGE_MANAGER_PORT[:-1])
+            Mocks.app_dict[self.class_name].app_context.push()
+            db.session.query(UpdateInfo).delete()
 
     def test_api_exercise_list_get(self):
         """ Retrieves a list of available exercises. """
@@ -330,13 +344,23 @@ class McTestCase(unittest.TestCase):
         db.session.query(Exercise).delete()
         session.make_transient(Mocks.exercise)
 
-    @patch('mcserver.app.api.kwicAPI.requests.post', side_effect=mocked_requests_post)
-    def test_api_kwic_post(self, mock_post: MagicMock):
+    def test_api_kwic_post(self):
         """ Posts an AQL query to create a KWIC visualization in SVG format. """
+        ed1: ExerciseData = AnnotationService.map_graph_data_to_exercise(
+            Mocks.annis_response_dict["graph_data_raw"],
+            "", [Solution(target=make_solution_element_from_salt_id(
+                'salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok1'))])
+        ed2: ExerciseData = AnnotationService.map_graph_data_to_exercise(
+            Mocks.annis_response_dict["graph_data_raw"],
+            "", [Solution(target=make_solution_element_from_salt_id(
+                'salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159695tok10'))])
+        ed2.graph.nodes = ed2.graph.nodes[42:]
+        mr: MockResponse = MockResponse(json.dumps([ed1.serialize(), ed2.serialize()]))
         data_dict: dict = dict(search_values=Mocks.exercise.search_values, urn=Mocks.urn_custom)
-        response: Response = Mocks.app_dict[self.class_name].client.post(
-            TestingConfig.SERVER_URI_KWIC, headers=Mocks.headers_form_data, data=data_dict)
-        self.assertTrue(response.data.startswith(Mocks.kwic_svg))
+        with patch.object(mcserver.app.services.corpusService.requests, "post", return_value=mr):
+            response: Response = Mocks.app_dict[self.class_name].client.post(
+                TestingConfig.SERVER_URI_KWIC, headers=Mocks.headers_form_data, data=data_dict)
+            self.assertTrue(response.data.startswith(Mocks.kwic_svg))
 
     def test_api_not_found(self):
         """Checks the 404 response in case of an invalid API query URL."""
@@ -344,22 +368,25 @@ class McTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
 
     @patch('mcserver.app.services.textComplexityService.requests.post', side_effect=mocked_requests_post)
-    @patch('mcserver.app.services.corpusService.requests.get', side_effect=mocked_requests_get)
-    def test_api_raw_text_get(self, mock_post_tcs: MagicMock, mock_get_cs: MagicMock):
+    def test_api_raw_text_get(self, mock_post_tcs: MagicMock):
         """ Retrieves the raw text for a given URN. """
-        TestingConfig.SIMULATE_CORPUS_NOT_FOUND = True
-        response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_RAW_TEXT,
-                                                                        query_string=dict(urn=Mocks.urn_custom))
-        self.assertEqual(response.status_code, 404)
-        TestingConfig.SIMULATE_CORPUS_NOT_FOUND = False
-        response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_RAW_TEXT,
-                                                              query_string=dict(urn=Mocks.urn_custom))
-        self.assertEqual(len(json.loads(response.data.decode("utf-8"))["nodes"]), 52)
-        TestingConfig.SIMULATE_EMPTY_GRAPH = True
-        response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_RAW_TEXT,
-                                                              query_string=dict(urn=Mocks.urn_custom))
-        self.assertEqual(response.status_code, 404)
-        TestingConfig.SIMULATE_EMPTY_GRAPH = False
+        with patch.object(mcserver.app.services.corpusService.requests, "get") as mock_get_cs:
+            mock_get_cs.return_value = MockResponse(
+                json.dumps(AnnisResponse(graph_data=GraphData(links=[], nodes=[]), solutions=[]).to_dict()))
+            response: Response = Mocks.app_dict[self.class_name].client.get(
+                TestingConfig.SERVER_URI_RAW_TEXT, query_string=dict(urn=Mocks.urn_custom))
+            self.assertEqual(response.status_code, 404)
+            mock_get_cs.return_value = MockResponse(json.dumps(Mocks.graph_data.to_dict()))
+            response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_RAW_TEXT,
+                                                                  query_string=dict(urn=Mocks.urn_custom))
+            ar: AnnisResponse = AnnisResponse.from_dict(json.loads(response.get_data(as_text=True)))
+            self.assertEqual(len(ar.graph_data.nodes), 52)
+            graph_data_raw: dict = dict(Mocks.annis_response_dict["graph_data_raw"])
+            graph_data_raw["nodes"] = []
+            mock_get_cs.return_value = MockResponse(json.dumps(graph_data_raw))
+            response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_RAW_TEXT,
+                                                                  query_string=dict(urn=Mocks.urn_custom))
+            self.assertEqual(response.status_code, 404)
 
     def test_api_static_exercises_get(self):
         """ Retrieves static exercises from the frontend and publishes deep URLs for each one of them. """
@@ -402,18 +429,19 @@ class McTestCase(unittest.TestCase):
         ar: AnnisResponse = CorpusService.get_subgraph(Mocks.urn_custom, 'tok="quarum"', 0, 0, False)
         self.assertEqual(len(ar.solutions), 3)
 
-    @patch('mcserver.app.services.corpusService.requests.get', side_effect=mocked_requests_get)
     @patch('mcserver.app.services.textComplexityService.requests.post', side_effect=mocked_requests_post)
-    def test_api_text_complexity_get(self, mock_get: MagicMock, mock_post: MagicMock):
+    def test_api_text_complexity_get(self, mock_post: MagicMock):
         """ Calculates text complexity measures for a given URN. """
-        args: dict = dict(urn=Mocks.urn_custom, measure=TextComplexityMeasure.all.name)
-        response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_TEXT_COMPLEXITY,
-                                                                        query_string=args)
-        self.assertEqual(response.data.decode("utf-8"), Mocks.text_complexity_json_string)
-        args["measure"] = "n_w"
-        response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_TEXT_COMPLEXITY,
-                                                              query_string=args)
-        self.assertEqual(json.loads(response.data.decode("utf-8"))["n_w"], 52)
+        with patch.object(mcserver.app.services.corpusService.requests, "get",
+                          return_value=MockResponse(json.dumps(Mocks.graph_data.to_dict()))):
+            args: dict = dict(urn=Mocks.urn_custom, measure=TextComplexityMeasure.all.name)
+            response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_TEXT_COMPLEXITY,
+                                                                            query_string=args)
+            self.assertEqual(response.get_data(as_text=True), Mocks.text_complexity_json_string)
+            args["measure"] = "n_w"
+            response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_TEXT_COMPLEXITY,
+                                                                  query_string=args)
+            self.assertEqual(json.loads(response.get_data(as_text=True))["n_w"], 52)
 
     @patch('MyCapytain.retrievers.cts5.requests.get', side_effect=mocked_requests_get)
     def test_api_valid_reff_get(self, mock_get: MagicMock):  #
@@ -458,20 +486,22 @@ class McTestCase(unittest.TestCase):
                     headers=Mocks.headers_form_data, data=data_dict)
                 self.assertEqual(len(json.loads(response.data.decode("utf-8"))), 2)
 
-    @patch('mcserver.app.services.corpusService.requests.get', side_effect=mocked_requests_get)
     @patch('mcserver.app.services.textComplexityService.requests.post', side_effect=mocked_requests_post)
-    def test_api_vocabulary_get(self, mock_get: MagicMock, mock_post: MagicMock):
+    def test_api_vocabulary_get(self, mock_post: MagicMock):
         """ Calculates lexical overlap between a text (specified by URN) and a static vocabulary. """
-        args: dict = dict(query_urn=Mocks.urn_custom, show_oov=True, vocabulary=VocabularyCorpus.agldt.name,
-                          frequency_upper_bound=500)
-        response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_VOCABULARY,
-                                                                        query_string=args)
-        ar: AnnisResponse = AnnisResponse(json_dict=json.loads(response.data.decode("utf-8")))
-        self.assertTrue(NodeMC(json_dict=ar.nodes[3]).is_oov)
-        args["show_oov"] = False
-        args["frequency_upper_bound"] = 6000
-        response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_VOCABULARY, query_string=args)
-        self.assertEqual(json.loads(response.data.decode("utf-8"))[0]["matching_degree"], 90.9090909090909)
+        with patch.object(mcserver.app.services.corpusService.requests, "get",
+                          return_value=MockResponse(json.dumps(Mocks.graph_data.to_dict()))):
+            args: dict = dict(query_urn=Mocks.urn_custom, show_oov=True, vocabulary=VocabularyCorpus.agldt.name,
+                              frequency_upper_bound=500)
+            response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_VOCABULARY,
+                                                                            query_string=args)
+            ar: AnnisResponse = AnnisResponse.from_dict(json.loads(response.get_data(as_text=True)))
+            self.assertTrue(NodeMC.from_dict(ar.graph_data.nodes[3].to_dict()).is_oov)
+            args["show_oov"] = False
+            args["frequency_upper_bound"] = 6000
+            response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_VOCABULARY,
+                                                                  query_string=args)
+            self.assertEqual(json.loads(response.data.decode("utf-8"))[0]["matching_degree"], 90.9090909090909)
 
     def test_app_init(self):
         """Creates a CSM app in testing mode."""
@@ -536,7 +566,7 @@ class McTestCase(unittest.TestCase):
         db.session.commit()
         exercise_expected: Exercise = Mocks.exercise
         exercise: Exercise = map_exercise_data_to_database(
-            solutions=[Solution(json_dict=x) for x in json.loads(exercise_expected.solutions)],
+            solutions=[Solution.from_dict(x) for x in json.loads(exercise_expected.solutions)],
             exercise_data=Mocks.exercise_data, instructions=exercise_expected.instructions,
             exercise_type=exercise_expected.exercise_type,
             exercise_type_translation=exercise_expected.exercise_type_translation, xml_guid=exercise_expected.eid,
@@ -583,27 +613,9 @@ class McTestCase(unittest.TestCase):
 class CsmTestCase(unittest.TestCase):
     """The test suite for the Corpus Storage Manager application."""
 
-    @staticmethod
-    def set_up_mcserver() -> FlaskClient:
-        app: Flask = create_app(TestingConfig)
-        app.logger.setLevel(logging.CRITICAL)
-        app.testing = True
-        return app.test_client()
-
-    def mocked_requests_post(*args, **kwargs):
-        url: str = args[0]
-        if url.endswith(Config.SERVER_URI_TEXT_COMPLEXITY):
-            return MockResponse(Mocks.text_complexity_json_string)
-        elif url[-1] == '/':
-            return MockResponse("}{")
-        else:
-            return MockResponse(json.dumps(Mocks.annis_response_dict))
-
     def setUp(self):
         """Initializes the testing environment."""
         self.start_time = time.time()
-        if os.path.exists(Config.GRAPH_DATABASE_DIR):
-            shutil.rmtree(Config.GRAPH_DATABASE_DIR)
         self.class_name: str = str(self.__class__)
         TestHelper.update_flask_app(self.class_name, create_csm_app)
 
@@ -632,42 +644,20 @@ class CsmTestCase(unittest.TestCase):
 
     def test_api_csm_get(self):
         """Gets the raw text for a specific URN."""
-        ret_vals: List[AnnisResponse] = [AnnisResponse(), Mocks.annis_response]
+        ret_vals: List[AnnisResponse] = [
+            AnnisResponse(graph_data=GraphData(links=[], nodes=[])), Mocks.annis_response]
         with patch.object(CorpusService, "get_corpus", side_effect=ret_vals):
             response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_CSM,
                                                                             query_string=dict(urn=Mocks.urn[:5]))
             self.assertEqual(response.status_code, 404)
             response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_CSM,
                                                                             query_string=dict(urn=Mocks.urn_custom))
-            graph_data_raw: dict = json.loads(response.get_data().decode("utf-8"))
-            graph_data: GraphData = GraphData(json_dict=graph_data_raw)
-            text_raw = " ".join(x.annis_tok for x in graph_data.nodes)
+            ar: AnnisResponse = AnnisResponse.from_dict(json.loads(response.get_data(as_text=True)))
+            text_raw = " ".join(x.annis_tok for x in ar.graph_data.nodes)
             # remove the spaces before punctuation because, otherwise, the parser won't work correctly
             received_text: str = re.sub('[ ]([{0}])'.format(string.punctuation), r'\1', text_raw)
             expected_text: str = "Pars est prima prudentiae ipsam cui praecepturus es aestimare personam."
             self.assertIn(expected_text, received_text)
-
-    @patch('mcserver.app.services.corpusService.requests.post', side_effect=mocked_requests_post)
-    @patch('mcserver.app.services.textComplexityService.requests.post', side_effect=mocked_requests_post)
-    def test_api_exercise_post(self, mock_post_cs: MagicMock, mock_post_tcs: MagicMock):
-        """ Creates a new exercise from scratch. """
-        db.session.query(UpdateInfo).delete()
-        ui_exercises: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.exercise_list.name,
-                                                        last_modified_time=1, created_time=1)
-        db.session.add(ui_exercises)
-        db.session.commit()
-        client: FlaskClient = CsmTestCase.set_up_mcserver()
-        data_dict: dict = dict(urn=Mocks.exercise.urn, type=ExerciseType.matching.value,
-                               search_values=Mocks.exercise.search_values, instructions='abc')
-        response: Response = client.post(Config.SERVER_URI_EXERCISE, headers=Mocks.headers_form_data, data=data_dict)
-        ar: AnnisResponse = AnnisResponse(json_dict=json.loads(response.data.decode("utf-8")))
-        self.assertEqual(len(ar.solutions), 3)
-        Config.CORPUS_STORAGE_MANAGER_PORT = f"{Config.CORPUS_STORAGE_MANAGER_PORT}/"
-        response: Response = client.post(Config.SERVER_URI_EXERCISE, headers=Mocks.headers_form_data, data=data_dict)
-        self.assertEqual(response.status_code, 500)
-        Config.CORPUS_STORAGE_MANAGER_PORT = int(Config.CORPUS_STORAGE_MANAGER_PORT[:-1])
-        Mocks.app_dict[self.class_name].app_context.push()
-        db.session.query(UpdateInfo).delete()
 
     def test_api_frequency_get(self):
         """ Requests a frequency analysis for a given URN. """
@@ -707,17 +697,18 @@ class CsmTestCase(unittest.TestCase):
         args: dict = dict(urn=Mocks.urn_custom, measure=TextComplexityMeasure.all.name)
         response: Response = Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_TEXT_COMPLEXITY,
                                                                          data=json.dumps(args))
-        tc: TextComplexity = TextComplexity(json_dict=json.loads(response.data.decode("utf-8")))
+        tc: TextComplexity = TextComplexity.from_dict(json.loads(response.get_data(as_text=True)))
         self.assertEqual(tc.pos, 5)
         args["measure"] = "n_w"
         response = Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_TEXT_COMPLEXITY,
                                                                data=json.dumps(args))
-        tc = TextComplexity(json_dict=json.loads(response.data.decode("utf-8")))
+        tc = TextComplexity.from_dict(json.loads(response.get_data(as_text=True)))
         self.assertEqual(tc.n_w, 6)
 
     @patch('mcserver.app.services.corpusService.CorpusService.update_corpora')
     def test_check_corpus_list_age(self, mock_update: MagicMock):
         """Checks whether the list of available corpora needs to be updated."""
+        db.session.query(UpdateInfo).delete()
         ui_cts: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.cts_data.name,
                                                   last_modified_time=1, created_time=1)
         db.session.add(ui_cts)
@@ -839,6 +830,7 @@ class CsmTestCase(unittest.TestCase):
         with patch.object(csm, "get_app") as mock_get_app:
             csm.run_app()
             self.assertEqual(mock_get_app.call_count, 1)
+            Mocks.app_dict[self.class_name].app_context.push()
 
 
 class CommonTestCase(unittest.TestCase):
@@ -914,7 +906,7 @@ class CommonTestCase(unittest.TestCase):
     def test_get_corpus(self):
         """ Loads the text for a standard corpus from the CTS API or cache. """
         ar: AnnisResponse = CorpusService.get_corpus("", True)
-        self.assertEqual(len(ar.nodes), 0)
+        self.assertEqual(len(ar.graph_data.nodes), 0)
 
     def test_get_custom_corpus_annotations(self):
         """ Retrieves the annotated text for a custom non-PROIEL corpus, e.g. a textbook. """
@@ -948,7 +940,7 @@ class CommonTestCase(unittest.TestCase):
     def test_get_pdf_html_string(self):
         """ Builds an HTML string from an exercise, e.g. to construct a PDF from it. """
         Mocks.exercise.exercise_type = ExerciseType.matching.value
-        solutions: List[Solution] = [Solution(json_dict=x) for x in json.loads(Mocks.exercise.solutions)]
+        solutions: List[Solution] = [Solution.from_dict(x) for x in json.loads(Mocks.exercise.solutions)]
         result: str = FileService.get_pdf_html_string(Mocks.exercise, Mocks.annotations, FileType.pdf, solutions)
         self.assertEqual(result, '<br><p>: </p><p><table><tr><td>praecepturus</td><td>Caesar</td></tr></table></p>')
         Mocks.exercise.exercise_type = ExerciseType.markWords.value
@@ -1009,8 +1001,9 @@ class CommonTestCase(unittest.TestCase):
             self.assertEqual(len(cc.text_parts), 1)
 
     def test_init_db_alembic(self):
-        """ In Docker, the alembic version is not initially written to the database, so we need to set it manually. """
-        db.engine.execute(f"DROP TABLE {Config.DATABASE_TABLE_ALEMBIC}")
+        """In Docker, the alembic version is not initially written to the database, so we need to set it manually."""
+        if db.engine.dialect.has_table(db.engine, Config.DATABASE_TABLE_ALEMBIC):
+            db.engine.execute(f"DROP TABLE {Config.DATABASE_TABLE_ALEMBIC}")
         self.assertEqual(db.engine.dialect.has_table(db.engine, Config.DATABASE_TABLE_ALEMBIC), False)
         DatabaseService.init_db_alembic()
         self.assertEqual(db.engine.dialect.has_table(db.engine, Config.DATABASE_TABLE_ALEMBIC), True)
@@ -1064,7 +1057,7 @@ class CommonTestCase(unittest.TestCase):
     def test_make_docx_file(self):
         """ Saves an exercise to a DOCX file (e.g. for later download). """
         file_path: str = os.path.join(Config.TMP_DIRECTORY, "make_docx_file.docx")
-        solutions: List[Solution] = [Solution(json_dict=x) for x in json.loads(Mocks.exercise.solutions)]
+        solutions: List[Solution] = [Solution.from_dict(x) for x in json.loads(Mocks.exercise.solutions)]
         FileService.make_docx_file(Mocks.exercise, file_path, Mocks.annotations, FileType.docx, solutions)
         self.assertEqual(os.path.getsize(file_path), 36611)
         Mocks.exercise.exercise_type = ExerciseType.markWords.value
@@ -1101,13 +1094,14 @@ class CommonTestCase(unittest.TestCase):
         node_expected: NodeMC = ed_expected.graph.nodes[0]
         node = {"id": node_expected.id, "annis::node_name": node_expected.annis_node_name,
                 "annis::node_type": node_expected.annis_node_type, "annis::tok": node_expected.annis_tok,
-                "annis::type": node_expected.annis_type, "udep::lemma": node_expected.udep_lemma,
-                "udep::upostag": node_expected.udep_upostag, "udep::xpostag": node_expected.udep_xpostag}
+                "annis::type": node_expected.annis_type, "udep::feats": node_expected.udep_feats,
+                "udep::lemma": node_expected.udep_lemma, "udep::upostag": node_expected.udep_upostag,
+                "udep::xpostag": node_expected.udep_xpostag}
         link_expected: LinkMC = ed_expected.graph.links[0]
         link = {"source": link_expected.source, "target": link_expected.target,
                 "annis::component_name": link_expected.annis_component_name,
                 "annis::component_type": link_expected.annis_component_type, "udep::deprel": link_expected.udep_deprel}
-        graph_data_raw: Dict = dict(directed=ed_expected.graph.directed, graph=ed_expected.graph.graph,
+        graph_data_raw: dict = dict(directed=ed_expected.graph.directed, graph=ed_expected.graph.graph,
                                     multigraph=ed_expected.graph.multigraph, links=[link], nodes=[node])
         gd: GraphData = AnnotationService.map_graph_data(graph_data_raw=graph_data_raw)
         self.assertEqual(gd.graph, ed_expected.graph.graph)
@@ -1125,11 +1119,10 @@ class CommonTestCase(unittest.TestCase):
                                               last_modified_time=1)
         self.assertTrue(ui.__repr__().startswith("<UpdateInfo"))
         del ui
-        gd: GraphData = AnnotationService.map_graph_data(Mocks.annis_response_dict["graph_data_raw"])
-        self.assertFalse(gd.links[0] == gd.links[1])
-        self.assertFalse(gd.links[0] == "")
-        self.assertFalse(gd.nodes[0] == gd.nodes[1])
-        self.assertFalse(gd.nodes[0] == "")
+        self.assertFalse(Mocks.graph_data.links[0] == Mocks.graph_data.links[1])
+        self.assertTrue(Mocks.graph_data.links[0] == Mocks.graph_data.links[0])
+        self.assertFalse(Mocks.graph_data.nodes[0] == Mocks.graph_data.nodes[1])
+        self.assertTrue(Mocks.graph_data.nodes[0] == Mocks.graph_data.nodes[0])
         choice_dict: dict = dict(id="", description={"en-US": "desc"})
         self.assertEqual(Choice(choice_dict).serialize(), choice_dict)
         xapi: XapiStatement = XapiStatement(json.loads(Mocks.xapi_json_string)["0"])
@@ -1140,7 +1133,7 @@ class CommonTestCase(unittest.TestCase):
 
     def test_sort_nodes(self):
         """Sorts the nodes according to the ordering links, i.e. by their tokens' occurrence in the text."""
-        old_graph_data: GraphData = GraphData(nodes=[])
+        old_graph_data: GraphData = GraphData(nodes=[], links=[])
         new_graph_data: GraphData = AnnotationService.sort_nodes(old_graph_data)
         self.assertIs(old_graph_data, new_graph_data)
 
@@ -1167,7 +1160,7 @@ class CommonTestCase(unittest.TestCase):
         exercises: List[Exercise] = [
             ExerciseMC.from_dict(last_access_time=datetime.utcnow().timestamp(), urn="urn", solutions="[]", eid="eid1"),
             ExerciseMC.from_dict(last_access_time=datetime.utcnow().timestamp(), urn="urn",
-                                 solutions=json.dumps([Solution().serialize()]), text_complexity=0, eid="eid2")]
+                                 solutions=json.dumps([Solution().to_dict()]), text_complexity=0, eid="eid2")]
         db.session.add_all(exercises)
         db.session.commit()
 
