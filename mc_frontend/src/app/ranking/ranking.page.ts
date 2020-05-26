@@ -1,12 +1,12 @@
 import {Component} from '@angular/core';
 import {VocabularyService} from 'src/app/vocabulary.service';
-import {AnnisResponse} from 'src/app/models/annisResponse';
 import {ExerciseService} from 'src/app/exercise.service';
 import {HelperService} from 'src/app/helper.service';
 import {NavController, ToastController} from '@ionic/angular';
 import {CorpusService} from 'src/app/corpus.service';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Sentence} from 'src/app/models/sentence';
+import {AnnisResponse} from '../../../openapi';
 
 @Component({
     selector: 'app-ranking',
@@ -30,8 +30,8 @@ export class RankingPage {
         return new Promise<void>((resolve, reject) => {
             this.corpusService.currentUrn = this.corpusService.baseUrn + `@${rank[0].id}-${rank[rank.length - 1].id}`;
             this.vocService.getVocabularyCheck(this.corpusService.currentUrn, true).then((ar: AnnisResponse) => {
-                const urnStart: string = ar.nodes[0].id.split('/')[1];
-                const urnEnd: string = ar.nodes.slice(-1)[0].id.split('/')[1];
+                const urnStart: string = ar.graph_data.nodes[0].id.split('/')[1];
+                const urnEnd: string = ar.graph_data.nodes.slice(-1)[0].id.split('/')[1];
                 this.corpusService.currentUrn = urnStart.concat('-', urnEnd.split(':').slice(-1)[0]);
                 this.corpusService.processAnnisResponse(ar);
                 this.helperService.isVocabularyCheck = true;

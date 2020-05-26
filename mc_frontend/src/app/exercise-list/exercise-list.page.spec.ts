@@ -13,7 +13,6 @@ import {ExerciseType, MoodleExerciseType, SortingCategory, VocabularyCorpus} fro
 import MockMC from '../models/mockMC';
 import {ApplicationState} from '../models/applicationState';
 import {ExerciseMC} from '../models/exerciseMC';
-import {AnnisResponse} from '../models/annisResponse';
 import Spy = jasmine.Spy;
 import configMC from '../../configMC';
 import {UpdateInfo} from '../models/updateInfo';
@@ -100,7 +99,7 @@ describe('ExerciseListPage', () => {
         const requestSpy: Spy = spyOn(exerciseListPage.helperService, 'makeGetRequest').and.callFake(() => Promise.reject());
         spyOn(exerciseListPage.helperService, 'goToPreviewPage').and.returnValue(Promise.resolve(true));
         exerciseListPage.showExercise(new ExerciseMC()).then(() => {
-            requestSpy.and.returnValue(Promise.resolve(new AnnisResponse()));
+            requestSpy.and.returnValue(Promise.resolve({}));
             exerciseListPage.showExercise(new ExerciseMC({exercise_type: MoodleExerciseType.markWords.toString()})).then(() => {
                 expect(exerciseListPage.corpusService.exercise.type).toBe(ExerciseType.markWords);
                 done();

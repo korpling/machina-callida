@@ -145,7 +145,11 @@ paths:
     post:
       operationId: mcserver_app_api_exercise_api_post
       requestBody:
-        $ref: '#/components/requestBodies/ExerciseForm'
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExerciseForm'
+        required: true
       responses:
         "200":
           content:
@@ -155,35 +159,20 @@ paths:
           description: Exercise data object
       summary: Creates a new exercise.
       x-openapi-router-controller: openapi_server.controllers.default_controller
+  /exercises:
+    get:
+      operationId: mcserver_app_api_static_exercises_api_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Metadata for static exercises, including their respective URIs
+            in the frontend.
+      summary: Returns metadata for static exercises.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
 components:
-  requestBodies:
-    ExerciseForm:
-      content:
-        application/x-www-form-urlencoded:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ExerciseBase'
-            - description: Additional exercise data.
-              properties:
-                type:
-                  description: Type of exercise, concerning interaction and layout.
-                  example: markWords
-                  type: string
-                type_translation:
-                  description: Localized expression of the exercise type.
-                  example: Cloze
-                  type: string
-                urn:
-                  description: CTS URN for the text passage from which the exercise
-                    was created.
-                  example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
-                  type: string
-              required:
-              - type
-              type: object
-            type: object
-            x-body-name: exercise_data
-      required: true
   schemas:
     AnnisResponse:
       description: A response with graph data from ANNIS, possibly with additional
@@ -286,7 +275,7 @@ components:
         frequency_analysis:
           description: List of items with frequency data for linguistic phenomena.
           items:
-            $ref: '#/components/schemas/AnnisResponse_frequency_analysis'
+            $ref: '#/components/schemas/FrequencyItem'
           type: array
         graph_data:
           $ref: '#/components/schemas/GraphData'
@@ -402,6 +391,36 @@ components:
           description: Title of the base text for the exercise.
           example: Noctes Atticae
           type: string
+      required:
+      - instructions
+      - search_values
+      type: object
+    ExerciseForm:
+      allOf:
+      - $ref: '#/components/schemas/ExerciseBase'
+      - $ref: '#/components/schemas/ExerciseForm_allOf'
+    FrequencyItem:
+      example:
+        values: []
+        count: 1
+        phenomena: []
+      properties:
+        count:
+          description: How often the given combination of values occurred.
+          example: 1
+          type: integer
+        phenomena:
+          description: Labels for the phenomena described in this frequency entry.
+          example: []
+          items:
+            type: string
+          type: array
+        values:
+          description: Values for the phenomena described in this frequency entry.
+          example: []
+          items:
+            type: string
+          type: array
       type: object
     GraphData:
       description: Nodes, edges and metadata for a graph.
@@ -464,7 +483,7 @@ components:
         nodes:
           description: List of nodes for the graph.
           items:
-            $ref: '#/components/schemas/Node'
+            $ref: '#/components/schemas/NodeMC'
           type: array
       required:
       - links
@@ -626,13 +645,8 @@ components:
           description: Dependency relation described by the edge.
           example: det
           type: string
-      required:
-      - annis_component_name
-      - annis_component_type
-      - source
-      - target
       type: object
-    Node:
+    NodeMC:
       example:
         annis_node_name: urn:custom:latinLit:proiel.caes-gal.lat:1.1.1/doc1#sent52548tok1
         udep_xpostag: Ne
@@ -689,14 +703,6 @@ components:
         solution:
           description: Solution value for this node in an exercise.
           type: string
-      required:
-      - annis_node_name
-      - annis_node_type
-      - annis_tok
-      - annis_type
-      - id
-      - udep_lemma
-      - udep_upostag
       type: object
     Solution:
       description: Correct solution for an exercise.
@@ -742,7 +748,6 @@ components:
           example: 9
           type: integer
       required:
-      - content
       - sentence_id
       - token_id
       type: object
@@ -863,28 +868,6 @@ components:
       - resource_type
       type: object
       x-tablename: UpdateInfo
-    AnnisResponse_frequency_analysis:
-      example:
-        values: []
-        count: 1
-        phenomena: []
-      properties:
-        count:
-          description: How often the given combination of values occurred.
-          example: 1
-          type: integer
-        phenomena:
-          description: Labels for the phenomena described in this frequency entry.
-          example: []
-          items:
-            type: string
-          type: array
-        values:
-          description: Values for the phenomena described in this frequency entry.
-          example: []
-          items:
-            type: string
-          type: array
     Exercise_allOf:
       description: Data for creating and evaluating interactive exercises.
       properties:
@@ -947,3 +930,20 @@ components:
       required:
       - eid
       - last_access_time
+    ExerciseForm_allOf:
+      description: Additional exercise data.
+      properties:
+        type:
+          description: Type of exercise, concerning interaction and layout.
+          example: markWords
+          type: string
+        type_translation:
+          description: Localized expression of the exercise type.
+          example: Cloze
+          type: string
+        urn:
+          description: CTS URN for the text passage from which the exercise was created.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          type: string
+      required:
+      - type

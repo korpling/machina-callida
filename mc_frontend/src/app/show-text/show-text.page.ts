@@ -84,9 +84,10 @@ export class ShowTextPage implements OnInit {
     }
 
     getWhiteSpace(index: number): string {
-        if (this.corpusService.annisResponse.nodes[index + 1]) {
-            if (this.corpusService.annisResponse.nodes[index + 1].annis_tok &&
-                this.corpusService.annisResponse.nodes[index + 1].annis_tok.search(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g) >= 0) {
+        if (this.corpusService.annisResponse.graph_data.nodes[index + 1]) {
+            if (this.corpusService.annisResponse.graph_data.nodes[index + 1].annis_tok &&
+                this.corpusService.annisResponse.graph_data.nodes[index + 1].annis_tok
+                    .search(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g) >= 0) {
                 return '';
             }
             return ' ';

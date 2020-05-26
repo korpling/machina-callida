@@ -6,13 +6,13 @@ import {ActivatedRoute} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
 import {ExerciseService} from 'src/app/exercise.service';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {AnnisResponse} from 'src/app/models/annisResponse';
 import {ExerciseType, MoodleExerciseType} from 'src/app/models/enum';
 import {CorpusService} from 'src/app/corpus.service';
 import {ApplicationState} from '../models/applicationState';
 import {take} from 'rxjs/operators';
 import configMC from '../../configMC';
 import {Storage} from '@ionic/storage';
+import {AnnisResponse} from '../../../openapi';
 
 @Component({
     selector: 'app-exercise',

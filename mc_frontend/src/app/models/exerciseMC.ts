@@ -1,5 +1,6 @@
 /* tslint:disable:variable-name */
-import {Solution} from 'src/app/models/solution';
+
+import {Solution} from '../../../openapi';
 
 export class ExerciseMC {
     public conll: string;

@@ -98,7 +98,7 @@ class TestHelper:
         if not len(Mocks.app_dict):
             with patch.object(TextService, "init_stop_words_latin"):
                 Mocks.app_dict[class_name] = TestHelper(app_factory(TestingConfig))
-            Mocks.app_dict[class_name].app.logger.setLevel(logging.CRITICAL)
+            Mocks.app_dict[class_name].app.logger.setLevel(logging.WARNING)
             Mocks.app_dict[class_name].app.testing = True
         db.session.commit()
 

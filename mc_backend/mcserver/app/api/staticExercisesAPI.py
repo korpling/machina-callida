@@ -7,12 +7,12 @@ from decimal import Decimal, ROUND_HALF_UP
 from io import BytesIO
 from tempfile import mkstemp
 from time import time
-from typing import Dict, List, Set, Match, Tuple
+from typing import Dict, List, Set, Match, Tuple, Union
 from zipfile import ZipFile
 
+import connexion
 import requests
-from flask_restful import Resource, abort
-from flask_restful.reqparse import RequestParser
+from connexion.lifecycle import ConnexionResponse
 from requests import Response
 
 from mcserver.app.models import StaticExercise
@@ -20,22 +20,14 @@ from mcserver.app.services import NetworkService, AnnotationService
 from mcserver.config import Config
 
 
-class StaticExercisesAPI(Resource):
-    """The StaticExercises API resource. It guides users to static language exercises in the frontend."""
-
-    def __init__(self):
-        """Initialize possible arguments for calls to the StaticExercises REST API."""
-        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
-        super(StaticExercisesAPI, self).__init__()
-
-    def get(self):
-        """ The GET method for the StaticExercises REST API. It provides a list of static exercises
-        and their respective URLs in the frontend. """
-        # TODO: WRITE AND READ LAST UPDATE TIME FROM THE DATABASE
-        if datetime.fromtimestamp(time() - Config.INTERVAL_STATIC_EXERCISES) > NetworkService.exercises_last_update or \
-                len(NetworkService.exercises) == 0:
-            update_exercises()
-        return NetworkService.make_json_response({k: v.__dict__ for (k, v) in NetworkService.exercises.items()})
+def get() -> Union[Response, ConnexionResponse]:
+    """ The GET method for the StaticExercises REST API. It provides a list of static exercises
+    and their respective URLs in the frontend. """
+    # TODO: WRITE AND READ LAST UPDATE TIME FROM THE DATABASE
+    if datetime.fromtimestamp(time() - Config.INTERVAL_STATIC_EXERCISES) > NetworkService.exercises_last_update \
+            or len(NetworkService.exercises) == 0:
+        return update_exercises()
+    return NetworkService.make_json_response({k: v.__dict__ for (k, v) in NetworkService.exercises.items()})
 
 
 def get_relevant_strings(response: Response):
@@ -121,12 +113,13 @@ def handle_voc_list(content: dict, url: str, relevant_strings_dict: Dict[str, Se
         relevant_strings_dict[url].add(match_parts[0])
 
 
-def update_exercises():
+def update_exercises() -> Union[Response, ConnexionResponse]:
     """ Gets all static exercises from the frontend code repository and looks for the lemmata in them."""
     # TODO: check last update of the directory before pulling the whole zip archive
     response: Response = requests.get(Config.STATIC_EXERCISES_REPOSITORY_URL, stream=True)
     if not response.ok:
-        abort(503)
+        return connexion.problem(
+            503, Config.ERROR_TITLE_SERVICE_UNAVAILABLE, Config.ERROR_MESSAGE_SERVICE_UNAVAILABLE)
     relevant_strings_dict: Dict[str, Set[str]] = get_relevant_strings(response)
     file_dict: Dict = {}
     lemma_set: Set[str] = set()
@@ -150,3 +143,4 @@ def update_exercises():
                 word = word[:-1]
             NetworkService.exercises[url].solutions.append(list(search_results[search_results_dict[word]]))
     NetworkService.exercises_last_update = datetime.fromtimestamp(time())
+    return NetworkService.make_json_response({k: v.__dict__ for (k, v) in NetworkService.exercises.items()})

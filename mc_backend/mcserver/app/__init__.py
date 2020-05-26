@@ -110,6 +110,9 @@ def init_logging(app: Flask, log_file_path: str):
     app.logger.addHandler(file_handler)
     app.logger.setLevel(log_level)
     got_request_exception.connect(log_exception, app)
+    database_uri: str = app.config.get("SQLALCHEMY_DATABASE_URI", "")
+    database_uri = database_uri.split('@')[1] if '@' in database_uri else database_uri
+    app.logger.warning(f"Accessing database at: {database_uri}")
 
 
 def log_exception(sender_app: Flask, exception, **extra):
@@ -120,7 +123,7 @@ def log_exception(sender_app: Flask, exception, **extra):
         exception -- the exception to be logged
         **extra -- any additional arguments
     """
-    sender_app.logger.exception(f"ERROR for {flask.request.url}")
+    sender_app.logger.info(f"ERROR for {flask.request.url}")
 
 
 def start_updater(app: Flask) -> Thread:

@@ -13,7 +13,6 @@ import {
     VocabularyCorpusTranslation
 } from '../models/enum';
 import {TranslateService} from '@ngx-translate/core';
-import {AnnisResponse} from 'src/app/models/annisResponse';
 import {CorpusService} from 'src/app/corpus.service';
 import {VocabularyService} from 'src/app/vocabulary.service';
 import {Storage} from '@ionic/storage';
@@ -21,6 +20,7 @@ import configMC from '../../configMC';
 import {UpdateInfo} from '../models/updateInfo';
 import {take} from 'rxjs/operators';
 import {ApplicationState} from '../models/applicationState';
+import {AnnisResponse} from '../../../openapi';
 
 @Component({
     selector: 'app-exercise-list',

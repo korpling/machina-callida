@@ -6,13 +6,13 @@ from datetime import date, datetime  # noqa: F401
 from typing import List, Dict  # noqa: F401
 
 from openapi.openapi_server.models.base_model_ import Model
-from openapi.openapi_server.models.annis_response_frequency_analysis import AnnisResponseFrequencyAnalysis
+from openapi.openapi_server.models.frequency_item import FrequencyItem
 from openapi.openapi_server.models.graph_data import GraphData
 from openapi.openapi_server.models.solution import Solution
 from openapi.openapi_server.models.text_complexity import TextComplexity
 from openapi.openapi_server import util
 
-from openapi.openapi_server.models.annis_response_frequency_analysis import AnnisResponseFrequencyAnalysis  # noqa: E501
+from openapi.openapi_server.models.frequency_item import FrequencyItem  # noqa: E501
 from openapi.openapi_server.models.graph_data import GraphData  # noqa: E501
 from openapi.openapi_server.models.solution import Solution  # noqa: E501
 from openapi.openapi_server.models.text_complexity import TextComplexity  # noqa: E501
@@ -31,7 +31,7 @@ class AnnisResponse(Model):
         :param exercise_type: The exercise_type of this AnnisResponse.  # noqa: E501
         :type exercise_type: str
         :param frequency_analysis: The frequency_analysis of this AnnisResponse.  # noqa: E501
-        :type frequency_analysis: List[AnnisResponseFrequencyAnalysis]
+        :type frequency_analysis: List[FrequencyItem]
         :param graph_data: The graph_data of this AnnisResponse.  # noqa: E501
         :type graph_data: GraphData
         :param solutions: The solutions of this AnnisResponse.  # noqa: E501
@@ -44,7 +44,7 @@ class AnnisResponse(Model):
         self.openapi_types = {
             'exercise_id': str,
             'exercise_type': str,
-            'frequency_analysis': List[AnnisResponseFrequencyAnalysis],
+            'frequency_analysis': List[FrequencyItem],
             'graph_data': GraphData,
             'solutions': List[Solution],
             'text_complexity': TextComplexity,
@@ -133,7 +133,7 @@ class AnnisResponse(Model):
         List of items with frequency data for linguistic phenomena.  # noqa: E501
 
         :return: The frequency_analysis of this AnnisResponse.
-        :rtype: List[AnnisResponseFrequencyAnalysis]
+        :rtype: List[FrequencyItem]
         """
         return self._frequency_analysis
 
@@ -144,7 +144,7 @@ class AnnisResponse(Model):
         List of items with frequency data for linguistic phenomena.  # noqa: E501
 
         :param frequency_analysis: The frequency_analysis of this AnnisResponse.
-        :type frequency_analysis: List[AnnisResponseFrequencyAnalysis]
+        :type frequency_analysis: List[FrequencyItem]
         """
 
         self._frequency_analysis = frequency_analysis

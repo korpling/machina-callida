@@ -27,7 +27,14 @@ Alternatively, you can use `ssh root@localhost -p 8022 -o "UserKnownHostsFile /d
 
 To snapshot a running container, use `docker commit CONTAINER_ID`. It returns a snapshot ID, which you can access via `docker run -it SNAPSHOT_ID`.
 
+## Models
+To generate class structures for this project automatically: 
+1. Install OpenAPI Generator (using, e.g., `brew install openapi-generator`).
+2. Run: `openapi-generator generate -i mc_backend/mcserver/mcserver_api.yaml -g typescript-angular -o mc_frontend/openapi/ && openapi-generator generate -i mc_backend/mcserver/mcserver_api.yaml -g python-flask -o mc_backend/openapi/ && python mc_backend/openapi_generator.py`.
+
 ## Documentation
+### API
+To view the API documentation, visit https://korpling.org/mc-service/mc/api/v1.0/ui/ .
 ### Changelog
 To update the changelog, use: `git log --oneline --decorate > CHANGELOG`
 

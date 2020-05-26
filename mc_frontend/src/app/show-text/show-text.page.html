@@ -39,8 +39,9 @@
             <ion-col class="text" size="8">
                 <div *ngIf="highlightOOV; else noOOV">
                     <!-- do not add whitespace/newline etc. between the span elements!                   -->
-                    <span *ngFor="let node of corpusService.annisResponse.nodes; index as i"><span class="tok"
-                                                                                                   [class.oov]="node.is_oov">{{node.annis_tok}}</span>{{ getWhiteSpace(i) }}</span>
+                    <span *ngFor="let node of corpusService.annisResponse.graph_data.nodes; index as i"><span
+                            class="tok"
+                            [class.oov]="node.is_oov">{{node.annis_tok}}</span>{{ getWhiteSpace(i) }}</span>
                 </div>
                 <ng-template #noOOV>
                     <span class="tok">{{corpusService.currentText}}</span>

@@ -7,7 +7,6 @@ import {ActivatedRoute, RouterModule} from '@angular/router';
 import {TranslateTestingModule} from '../translate-testing/translate-testing.module';
 import {APP_BASE_HREF} from '@angular/common';
 import {of} from 'rxjs';
-import {AnnisResponse} from '../models/annisResponse';
 import {ExerciseType, MoodleExerciseType} from '../models/enum';
 import Spy = jasmine.Spy;
 import configMC from '../../configMC';
@@ -37,14 +36,17 @@ describe('ExercisePage', () => {
             schemas: [CUSTOM_ELEMENTS_SCHEMA],
         })
             .compileComponents().then();
+    }));
+
+    beforeEach(() => {
         fixture = TestBed.createComponent(ExercisePage);
         exercisePage = fixture.componentInstance;
         h5pSpy = spyOn(exercisePage.exerciseService, 'initH5P').and.returnValue(Promise.resolve());
         checkSpy = spyOn(exercisePage.corpusService, 'checkAnnisResponse').and.callFake(() => Promise.reject());
         getRequestSpy = spyOn(exercisePage.helperService, 'makeGetRequest').and.returnValue(Promise.resolve(
-            new AnnisResponse({exercise_type: MoodleExerciseType.cloze.toString()})));
+            {exercise_type: MoodleExerciseType.cloze.toString()}));
         fixture.detectChanges();
-    }));
+    });
 
     it('should create', () => {
         expect(exercisePage).toBeTruthy();
@@ -66,7 +68,7 @@ describe('ExercisePage', () => {
         exercisePage.helperService.applicationState.next(exercisePage.helperService.deepCopy(MockMC.applicationState));
         exercisePage.loadExercise().then(() => {
             expect(exercisePage.corpusService.exercise.type).toBe(ExerciseType.cloze);
-            getRequestSpy.and.returnValue(Promise.resolve(new AnnisResponse({exercise_type: MoodleExerciseType.markWords.toString()})));
+            getRequestSpy.and.returnValue(Promise.resolve({exercise_type: MoodleExerciseType.markWords.toString()}));
             exercisePage.loadExercise().then(() => {
                 expect(h5pSpy).toHaveBeenCalledWith(configMC.excerciseTypePathMarkWords);
                 getRequestSpy.and.callFake(() => Promise.reject());

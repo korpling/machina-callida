@@ -31,10 +31,13 @@ describe('SemanticsPage', () => {
             ],
             schemas: [CUSTOM_ELEMENTS_SCHEMA],
         }).compileComponents().then();
+    }));
+
+    beforeEach(() => {
         fixture = TestBed.createComponent(SemanticsPage);
         semanticsPage = fixture.componentInstance;
         fixture.detectChanges();
-    }));
+    });
 
     it('should create', () => {
         expect(semanticsPage).toBeTruthy();

@@ -4,7 +4,8 @@ import glob
 import os
 
 openapi_dir: str = "openapi"
-for file_path in glob.iglob(os.path.join(openapi_dir, "**/*"), recursive=True):
+change_count: int = 0
+for file_path in glob.iglob(os.path.join("mc_backend", openapi_dir, "**/*"), recursive=True):
     if not os.path.isdir(file_path) and file_path[-3:] == ".py":
         content: str
         with open(file_path) as f:
@@ -13,3 +14,5 @@ for file_path in glob.iglob(os.path.join(openapi_dir, "**/*"), recursive=True):
         content = content.replace("import openapi_server", f"import {openapi_dir}.openapi_server")
         with open(file_path, "w+") as f2:
             f2.write(content)
+            change_count += 1
+print(f"Adjusted python imports in {change_count} files.")

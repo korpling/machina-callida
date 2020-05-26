@@ -8,26 +8,21 @@ import {RouterModule} from '@angular/router';
 import {TranslateTestingModule} from '../translate-testing/translate-testing.module';
 import {FormsModule} from '@angular/forms';
 import {APP_BASE_HREF} from '@angular/common';
-import {CorpusService} from '../corpus.service';
 import {ToastController} from '@ionic/angular';
 import MockMC from '../models/mockMC';
-import {AnnisResponse} from '../models/annisResponse';
-import {Solution} from '../models/solution';
 import {ExerciseType} from '../models/enum';
-import {SolutionElement} from '../models/solutionElement';
 import Spy = jasmine.Spy;
-import {NodeMC} from '../models/nodeMC';
 import {TestResultMC} from '../models/testResultMC';
 import H5PeventDispatcherMock from '../models/h5pEventDispatcherMock';
 import Result from '../models/xAPI/Result';
 import configMC from '../../configMC';
+import {AnnisResponse, Solution} from '../../../openapi';
 
 declare var H5P: any;
 
 describe('PreviewPage', () => {
     let previewPage: PreviewPage;
     let fixture: ComponentFixture<PreviewPage>;
-    let corpusService: CorpusService;
     let checkAnnisResponseSpy: Spy;
     let xapiSpy: Spy;
 
@@ -48,15 +43,14 @@ describe('PreviewPage', () => {
             schemas: [CUSTOM_ELEMENTS_SCHEMA],
         })
             .compileComponents().then();
-        corpusService = TestBed.inject(CorpusService);
-        fixture = TestBed.createComponent(PreviewPage);
-        previewPage = fixture.componentInstance;
-        xapiSpy = spyOn(previewPage, 'setXAPIeventHandler');
-        checkAnnisResponseSpy = spyOn(corpusService, 'checkAnnisResponse').and.callFake(() => Promise.reject());
-        fixture.detectChanges();
     }));
 
     beforeEach(() => {
+        fixture = TestBed.createComponent(PreviewPage);
+        previewPage = fixture.componentInstance;
+        xapiSpy = spyOn(previewPage, 'setXAPIeventHandler');
+        checkAnnisResponseSpy = spyOn(previewPage.corpusService, 'checkAnnisResponse').and.callFake(() => Promise.reject());
+        fixture.detectChanges();
     });
 
     it('should create', () => {
@@ -65,7 +59,7 @@ describe('PreviewPage', () => {
 
     it('should copy the link', () => {
         previewPage.helperService.isVocabularyCheck = true;
-        previewPage.corpusService.annisResponse = new AnnisResponse({solutions: []});
+        previewPage.corpusService.annisResponse = {solutions: []};
         fixture.detectChanges();
         const button: HTMLIonButtonElement = document.querySelector('#showShareLinkButton');
         button.click();
@@ -78,7 +72,7 @@ describe('PreviewPage', () => {
 
     it('should initialize H5P', () => {
         spyOn(previewPage.exerciseService, 'initH5P').and.returnValue(Promise.resolve());
-        previewPage.corpusService.annisResponse = new AnnisResponse({exercise_id: '', solutions: [new Solution()]});
+        previewPage.corpusService.annisResponse = {exercise_id: '', solutions: [{}]};
         previewPage.currentSolutions = previewPage.corpusService.annisResponse.solutions;
         previewPage.initH5P();
         expect(previewPage.solutionIndicesString.length).toBe(0);
@@ -104,7 +98,7 @@ describe('PreviewPage', () => {
             checkAnnisResponseSpy.and.returnValue(Promise.resolve());
             spyOn(previewPage, 'initH5P');
             spyOn(previewPage, 'processAnnisResponse');
-            previewPage.currentSolutions = [new Solution()];
+            previewPage.currentSolutions = [{}];
             previewPage.ngOnInit().then(() => {
                 expect(previewPage.currentSolutions.length).toBe(0);
                 iframe = document.querySelector(previewPage.exerciseService.h5pIframeString);
@@ -116,41 +110,40 @@ describe('PreviewPage', () => {
     });
 
     it('should process an ANNIS response', () => {
-        previewPage.corpusService.annisResponse = new AnnisResponse({});
-        const ar: AnnisResponse = new AnnisResponse({
-            solutions: [new Solution({target: new SolutionElement({content: 'content'})})]
-        });
+        previewPage.corpusService.annisResponse = {graph_data: {links: [], nodes: []}};
+        const solution: Solution = {target: {content: 'content', sentence_id: 1, token_id: 1}};
+        const ar: AnnisResponse = {solutions: [solution], graph_data: {links: [], nodes: []}};
         previewPage.processAnnisResponse(ar);
         expect(previewPage.corpusService.annisResponse.solutions.length).toBe(1);
         previewPage.corpusService.currentUrn = 'urn:';
         previewPage.processAnnisResponse(ar);
-        expect(previewPage.corpusService.annisResponse.nodes).toEqual(ar.nodes);
+        expect(previewPage.corpusService.annisResponse.graph_data.nodes).toEqual(ar.graph_data.nodes);
     });
 
     it('should process solutions', () => {
         const solutions: Solution[] = [
-            new Solution({
-                target: new SolutionElement({content: 'content2', salt_id: 'id'}),
-                value: new SolutionElement({salt_id: 'id'})
-            }),
-            new Solution({
-                target: new SolutionElement({content: 'content1', salt_id: 'id'}),
-                value: new SolutionElement({salt_id: 'id'})
-            }),
-            new Solution({
-                target: new SolutionElement({content: 'content1', salt_id: 'id'}),
-                value: new SolutionElement({salt_id: 'id'})
-            }),
-            new Solution({
-                target: new SolutionElement({content: 'content3', salt_id: 'id'}),
-                value: new SolutionElement({salt_id: 'id'})
-            })];
+            {
+                target: {content: 'content2', salt_id: 'id', sentence_id: 1, token_id: 1},
+                value: {salt_id: 'id', content: '', sentence_id: 1, token_id: 1}
+            },
+            {
+                target: {content: 'content1', salt_id: 'id', sentence_id: 1, token_id: 1},
+                value: {salt_id: 'id', content: '', sentence_id: 1, token_id: 1}
+            },
+            {
+                target: {content: 'content1', salt_id: 'id', sentence_id: 1, token_id: 1},
+                value: {salt_id: 'id', content: '', sentence_id: 1, token_id: 1}
+            },
+            {
+                target: {content: 'content3', salt_id: 'id', sentence_id: 1, token_id: 1},
+                value: {salt_id: 'id', content: '', sentence_id: 1, token_id: 1}
+            }];
         previewPage.corpusService.exercise.type = ExerciseType.markWords;
         previewPage.exerciseService.excludeOOV = true;
-        previewPage.corpusService.annisResponse = new AnnisResponse({
-            nodes: [new NodeMC({is_oov: false, id: 'id'})],
+        previewPage.corpusService.annisResponse = {
+            graph_data: {nodes: [{is_oov: false, id: 'id'}], links: []},
             solutions
-        });
+        };
         previewPage.processSolutions(solutions);
         expect(previewPage.currentSolutions[2]).toBe(solutions[0]);
     });
@@ -170,8 +163,8 @@ describe('PreviewPage', () => {
     });
 
     it('should switch OOV', () => {
-        previewPage.currentSolutions = [new Solution()];
-        previewPage.corpusService.annisResponse = new AnnisResponse();
+        previewPage.currentSolutions = [{}];
+        previewPage.corpusService.annisResponse = {};
         spyOn(previewPage, 'processSolutions');
         spyOn(previewPage, 'initH5P');
         previewPage.switchOOV();

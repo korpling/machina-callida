@@ -10,21 +10,18 @@ import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {HelperService} from './helper.service';
 import MockMC from './models/mockMC';
 import {CaseValue, DependencyValue, ExerciseType, PartOfSpeechValue, Phenomenon} from './models/enum';
-import {AnnisResponse} from './models/annisResponse';
 import {ApplicationState} from './models/applicationState';
 import {QueryMC} from './models/queryMC';
 import {PhenomenonMapContent} from './models/phenomenonMap';
-import {FrequencyItem} from './models/frequencyItem';
 import {UpdateInfo} from './models/updateInfo';
 import configMC from '../configMC';
 import {TextData} from './models/textData';
 import {CorpusMC} from './models/corpusMC';
-import {LinkMC} from './models/linkMC';
-import {NodeMC} from './models/nodeMC';
 import {Author} from './models/author';
 import {take} from 'rxjs/operators';
 import {TextRange} from './models/textRange';
 import Spy = jasmine.Spy;
+import {AnnisResponse, NodeMC} from '../../openapi';
 
 describe('CorpusService', () => {
     let httpClient: HttpClient;
@@ -62,7 +59,7 @@ describe('CorpusService', () => {
         spyOn(corpusService, 'getSortedQueryValues').and.returnValue([PartOfSpeechValue.adjective.toString()]);
         helperService.applicationState.next(helperService.deepCopy(MockMC.applicationState) as ApplicationState);
         corpusService.exercise.type = ExerciseType.matching;
-        corpusService.annisResponse = new AnnisResponse({frequency_analysis: []});
+        corpusService.annisResponse = {frequency_analysis: []};
         corpusService.adjustTranslations().then(() => {
             expect(corpusService.exercise.queryItems.length).toBe(2);
             corpusService.exercise.type = ExerciseType.cloze;
@@ -146,7 +143,7 @@ describe('CorpusService', () => {
             spy.and.returnValue(Promise.resolve(
                 (helperService.deepCopy(MockMC.applicationState) as ApplicationState).mostRecentSetup.annisResponse));
             corpusService.getCTStextPassage('').then((ar: AnnisResponse) => {
-                expect(ar.nodes.length).toBe(1);
+                expect(ar.graph_data.nodes.length).toBe(1);
                 done();
             });
         });
@@ -167,7 +164,7 @@ describe('CorpusService', () => {
 
     it('should get a frequency analysis', (done) => {
         const spy: Spy = spyOn(helperService, 'makeGetRequest').and.callFake(() => Promise.reject());
-        corpusService.annisResponse = new AnnisResponse({frequency_analysis: []});
+        corpusService.annisResponse = {frequency_analysis: []};
         corpusService.getFrequencyAnalysis().then(() => {
         }, () => {
             expect(spy).toHaveBeenCalledTimes(1);
@@ -193,18 +190,18 @@ describe('CorpusService', () => {
         result = corpusService.getSortedQueryValues(query, 0);
         expect(result.length).toBe(3);
         corpusService.exercise.type = ExerciseType.matching;
-        corpusService.annisResponse = new AnnisResponse({
-            frequency_analysis: [new FrequencyItem({
+        corpusService.annisResponse = {
+            frequency_analysis: [{
                 values: [PartOfSpeechValue.adjective.toString(), 'a'],
                 phenomena: ['', Phenomenon.partOfSpeech.toString()]
-            }), new FrequencyItem({
+            }, {
                 values: [PartOfSpeechValue.adjective.toString(), 'b'],
                 phenomena: ['', Phenomenon.partOfSpeech.toString()]
-            }), new FrequencyItem({
+            }, {
                 values: [PartOfSpeechValue.adjective.toString(), 'c'],
                 phenomena: ['', Phenomenon.partOfSpeech.toString()]
-            })]
-        });
+            }]
+        };
         result = corpusService.getSortedQueryValues(query, 1);
         expect(result.length).toBe(3);
         corpusService.annisResponse.frequency_analysis.forEach(fi => fi.phenomena = [Phenomenon.partOfSpeech.toString()]);
@@ -300,13 +297,15 @@ describe('CorpusService', () => {
     });
 
     it('should process an ANNIS response', () => {
-        const ar: AnnisResponse = new AnnisResponse({
-            links: [new LinkMC({annis_component_type: 'Pointing', udep_deprel: 'nsubj'})],
-            nodes: [new NodeMC({annis_tok: 'tok .'})]
-        });
+        const ar: AnnisResponse = {
+            graph_data: {
+                links: [{annis_component_type: 'Pointing', udep_deprel: 'nsubj'}],
+                nodes: [{annis_tok: 'tok .'}]
+            }
+        };
         corpusService.processAnnisResponse(ar);
         expect(corpusService.phenomenonMap.dependency.specificValues[DependencyValue.subject]).toBe(1);
-        ar.links.push(ar.links[0]);
+        ar.graph_data.links.push(ar.graph_data.links[0]);
         corpusService.processAnnisResponse(ar);
         expect(corpusService.phenomenonMap.dependency.specificValues[DependencyValue.subject]).toBe(2);
     });
@@ -327,12 +326,12 @@ describe('CorpusService', () => {
     });
 
     it('should process nodes', () => {
-        const node: NodeMC = new NodeMC({
+        const node: NodeMC = {
             udep_lemma: 'lemma',
             udep_upostag: 'NOUN',
             udep_feats: `${Phenomenon.case.toString()}=Nom`
-        });
-        const ar: AnnisResponse = new AnnisResponse({nodes: [node, new NodeMC({...node})]});
+        };
+        const ar: AnnisResponse = {graph_data: {nodes: [node, {...node}], links: []}};
         corpusService.phenomenonMap.lemma = new PhenomenonMapContent({specificValues: {}, translationValues: {}});
         corpusService.phenomenonMap.case = new PhenomenonMapContent({specificValues: {}, translationValues: {}});
         corpusService.phenomenonMap.partOfSpeech = new PhenomenonMapContent({
@@ -355,7 +354,7 @@ describe('CorpusService', () => {
             getTextSpy.and.returnValue(Promise.resolve());
             helperService.applicationState.next(new ApplicationState({
                 mostRecentSetup: new TextData({
-                    annisResponse: new AnnisResponse({nodes: []})
+                    annisResponse: {graph_data: {nodes: [], links: []}}
                 })
             }));
             corpusService.restoreLastCorpus().then(() => {
@@ -365,7 +364,7 @@ describe('CorpusService', () => {
                     expect(getTextSpy).toHaveBeenCalledTimes(2);
                     helperService.applicationState.next(helperService.deepCopy(MockMC.applicationState) as ApplicationState);
                     corpusService.restoreLastCorpus().then(() => {
-                        expect(corpusService.annisResponse.nodes.length).toBe(1);
+                        expect(corpusService.annisResponse.graph_data.nodes.length).toBe(1);
                         done();
                     });
                 });
@@ -401,9 +400,9 @@ describe('CorpusService', () => {
     it('should update the base word', () => {
         const adjustSpy: Spy = spyOn(corpusService, 'adjustQueryValue');
         const queryValuesSpy: Spy = spyOn(corpusService, 'getSortedQueryValues').and.returnValue([]);
-        corpusService.annisResponse = new AnnisResponse({
+        corpusService.annisResponse = {
             frequency_analysis: helperService.deepCopy(MockMC.apiResponseFrequencyAnalysisGet)
-        });
+        };
         corpusService.annisResponse.frequency_analysis[0].phenomena.push(Phenomenon.case.toString());
         corpusService.exercise.type = ExerciseType.matching;
         corpusService.exercise.queryItems.push(new QueryMC());

@@ -8,8 +8,6 @@ import {RouterModule} from '@angular/router';
 import {TranslateTestingModule} from '../translate-testing/translate-testing.module';
 import {FormsModule} from '@angular/forms';
 import {APP_BASE_HREF} from '@angular/common';
-import {AnnisResponse} from '../models/annisResponse';
-import {NodeMC} from '../models/nodeMC';
 import {VocabularyCorpus} from '../models/enum';
 import Spy = jasmine.Spy;
 import MockMC from '../models/mockMC';
@@ -68,13 +66,13 @@ describe('ShowTextPage', () => {
     });
 
     it('should get whitespace', () => {
-        showTextPage.corpusService.annisResponse = new AnnisResponse({nodes: []});
+        showTextPage.corpusService.annisResponse = {graph_data: {nodes: [], links: []}};
         let result: string = showTextPage.getWhiteSpace(0);
         expect(result.length).toBe(0);
-        showTextPage.corpusService.annisResponse.nodes = [new NodeMC(), new NodeMC()];
+        showTextPage.corpusService.annisResponse.graph_data.nodes = [{}, {}];
         result = showTextPage.getWhiteSpace(0);
         expect(result.length).toBe(1);
-        showTextPage.corpusService.annisResponse.nodes[1].annis_tok = '.';
+        showTextPage.corpusService.annisResponse.graph_data.nodes[1].annis_tok = '.';
         result = showTextPage.getWhiteSpace(0);
         expect(result.length).toBe(0);
     });

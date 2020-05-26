@@ -8,7 +8,6 @@ import {RouterModule} from '@angular/router';
 import {TranslateTestingModule} from '../translate-testing/translate-testing.module';
 import {FormsModule} from '@angular/forms';
 import {APP_BASE_HREF} from '@angular/common';
-import {AnnisResponse} from '../models/annisResponse';
 import {TextRange} from '../models/textRange';
 import {ReplaySubject} from 'rxjs';
 import configMC from '../../configMC';
@@ -16,7 +15,6 @@ import {ExerciseType, PartOfSpeechValue, Phenomenon} from '../models/enum';
 import {ToastController} from '@ionic/angular';
 import {QueryMC} from '../models/queryMC';
 import {PhenomenonMapContent} from '../models/phenomenonMap';
-import {FrequencyItem} from '../models/frequencyItem';
 import Spy = jasmine.Spy;
 import MockMC from '../models/mockMC';
 
@@ -54,7 +52,7 @@ describe('ExerciseParametersPage', () => {
     });
 
     it('should generate an exercise', (done) => {
-        exerciseParametersPage.corpusService.annisResponse = new AnnisResponse({solutions: []});
+        exerciseParametersPage.corpusService.annisResponse = {solutions: []};
         exerciseParametersPage.corpusService.initCurrentCorpus().then(() => {
             exerciseParametersPage.corpusService.currentTextRange = new ReplaySubject<TextRange>(1);
             exerciseParametersPage.corpusService.currentTextRange.next(new TextRange({start: [], end: []}));
@@ -89,16 +87,16 @@ describe('ExerciseParametersPage', () => {
         let displayValue: string = exerciseParametersPage.getDisplayValue(new QueryMC({phenomenon: Phenomenon.lemma}), key);
         expect(displayValue.length).toBe(9);
         exerciseParametersPage.corpusService.exercise.type = ExerciseType.matching;
-        exerciseParametersPage.corpusService.annisResponse = new AnnisResponse({
-            frequency_analysis: [new FrequencyItem({values: [PartOfSpeechValue.adjective.toString(), key], count: 10})]
-        });
+        exerciseParametersPage.corpusService.annisResponse = {
+            frequency_analysis: [{values: [PartOfSpeechValue.adjective.toString(), key], count: 10}]
+        };
         displayValue = exerciseParametersPage.getDisplayValue(new QueryMC({phenomenon: Phenomenon.lemma}), key, 1);
         expect(displayValue.length).toBe(10);
-        exerciseParametersPage.corpusService.annisResponse.frequency_analysis[0] = new FrequencyItem({
+        exerciseParametersPage.corpusService.annisResponse.frequency_analysis[0] = {
             phenomena: [Phenomenon.lemma.toString()],
             values: [key],
             count: 100
-        });
+        };
         exerciseParametersPage.corpusService.annisResponse.frequency_analysis.push(
             exerciseParametersPage.corpusService.annisResponse.frequency_analysis[0]);
         displayValue = exerciseParametersPage.getDisplayValue(new QueryMC({phenomenon: Phenomenon.lemma}), key, 0);
@@ -125,10 +123,9 @@ describe('ExerciseParametersPage', () => {
     });
 
     it('should get a H5P exercise', (done) => {
-        const requestSpy: Spy = spyOn(exerciseParametersPage.helperService, 'makePostRequest').and.returnValue(
-            Promise.resolve(new AnnisResponse()));
+        const requestSpy: Spy = spyOn(exerciseParametersPage.helperService, 'makePostRequest').and.returnValue(Promise.resolve({}));
         const navSpy: Spy = spyOn(exerciseParametersPage.helperService, 'goToPreviewPage').and.returnValue(Promise.resolve(true));
-        exerciseParametersPage.corpusService.annisResponse = new AnnisResponse();
+        exerciseParametersPage.corpusService.annisResponse = {};
         exerciseParametersPage.helperService.applicationState.next(exerciseParametersPage.helperService.deepCopy(MockMC.applicationState));
         exerciseParametersPage.getH5Pexercise(new FormData()).then(() => {
             expect(navSpy).toHaveBeenCalledTimes(1);

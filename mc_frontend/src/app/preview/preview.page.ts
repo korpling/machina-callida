@@ -1,5 +1,4 @@
 /* tslint:disable:no-string-literal */
-import {AnnisResponse} from 'src/app/models/annisResponse';
 import {ExerciseType, FileType} from 'src/app/models/enum';
 import {HelperService} from 'src/app/helper.service';
 import {NavController, ToastController} from '@ionic/angular';
@@ -7,12 +6,12 @@ import {ExerciseService} from 'src/app/exercise.service';
 import {CorpusService} from 'src/app/corpus.service';
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
-import {Solution} from 'src/app/models/solution';
 import {HttpClient} from '@angular/common/http';
 import {XAPIevent} from 'src/app/models/xAPIevent';
 import {TestResultMC} from 'src/app/models/testResultMC';
 import configMC from '../../configMC';
 import {Storage} from '@ionic/storage';
+import {AnnisResponse, Solution} from '../../../openapi';
 
 declare var H5P: any;
 
@@ -90,19 +89,19 @@ export class PreviewPage implements OnDestroy, OnInit {
         this.processSolutions(ar.solutions);
         this.corpusService.annisResponse.uri = ar.uri;
         const isUrn: boolean = this.corpusService.currentUrn && this.corpusService.currentUrn.startsWith('urn:');
-        this.corpusService.annisResponse.nodes = isUrn ? this.corpusService.annisResponse.nodes : ar.nodes;
-        this.corpusService.annisResponse.links = isUrn ? this.corpusService.annisResponse.links : ar.links;
+        this.corpusService.annisResponse.graph_data.nodes = isUrn ? this.corpusService.annisResponse.graph_data.nodes : ar.graph_data.nodes;
+        this.corpusService.annisResponse.graph_data.links = isUrn ? this.corpusService.annisResponse.graph_data.links : ar.graph_data.links;
     }
 
     processSolutions(solutions: Solution[]): void {
         const isCloze: boolean = this.corpusService.exercise.type === ExerciseType.cloze;
         if (this.exerciseService.excludeOOV) {
-            const nodeIdSet: Set<string> = new Set(this.corpusService.annisResponse.nodes.filter(
+            const nodeIdSet: Set<string> = new Set(this.corpusService.annisResponse.graph_data.nodes.filter(
                 x => !x.is_oov).map(x => x.id));
             solutions = this.corpusService.annisResponse.solutions.filter(
                 x => nodeIdSet.has(x.target.salt_id) && (isCloze || nodeIdSet.has(x.value.salt_id)));
         }
-        let newSolutions: Solution[] = [];
+        let newSolutions: Solution[];
         if (isCloze) {
             this.maxGapLength = Math.max.apply(Math, solutions.map(x => x.target.content.length));
             this.solutionNodeIdSet = new Set(solutions.map(x => x.target.salt_id));

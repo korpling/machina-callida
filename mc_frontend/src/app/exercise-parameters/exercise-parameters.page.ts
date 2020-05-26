@@ -6,7 +6,6 @@ import {
     Phenomenon,
     PhenomenonTranslation
 } from '../models/enum';
-import {AnnisResponse} from 'src/app/models/annisResponse';
 import {NavController, ToastController} from '@ionic/angular';
 import {HttpClient} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
@@ -16,12 +15,12 @@ import {HelperService} from 'src/app/helper.service';
 import {CorpusService} from 'src/app/corpus.service';
 import {QueryMC} from 'src/app/models/queryMC';
 import {PhenomenonMapContent} from 'src/app/models/phenomenonMap';
-import {FrequencyItem} from 'src/app/models/frequencyItem';
 import {CorpusMC} from '../models/corpusMC';
 import {ApplicationState} from '../models/applicationState';
 import {take} from 'rxjs/operators';
 import {TextRange} from '../models/textRange';
 import configMC from '../../configMC';
+import {AnnisResponse, FrequencyItem} from '../../../openapi';
 
 @Component({
     selector: 'app-exercise-parameters',

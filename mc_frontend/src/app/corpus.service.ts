@@ -7,7 +7,6 @@ import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {TranslateService} from '@ngx-translate/core';
 import {ToastController} from '@ionic/angular';
 import {HelperService} from 'src/app/helper.service';
-import {AnnisResponse} from 'src/app/models/annisResponse';
 import {
     CaseTranslations,
     CaseValue,
@@ -20,13 +19,10 @@ import {
     PartOfSpeechValue,
     Phenomenon
 } from 'src/app/models/enum';
-import {NodeMC} from 'src/app/models/nodeMC';
-import {LinkMC} from 'src/app/models/linkMC';
 import {QueryMC} from 'src/app/models/queryMC';
 import {Exercise} from 'src/app/models/exercise';
 import {Feedback} from 'src/app/models/feedback';
 import {PhenomenonMap, PhenomenonMapContent} from 'src/app/models/phenomenonMap';
-import {FrequencyItem} from 'src/app/models/frequencyItem';
 import {ReplaySubject} from 'rxjs';
 import {ApplicationState} from './models/applicationState';
 import {take} from 'rxjs/operators';
@@ -34,6 +30,7 @@ import {TextData} from './models/textData';
 import {Storage} from '@ionic/storage';
 import {UpdateInfo} from './models/updateInfo';
 import configMC from '../configMC';
+import {AnnisResponse, FrequencyItem, Link, NodeMC} from '../../openapi';
 
 @Injectable({
     providedIn: 'root'
@@ -409,8 +406,8 @@ export class CorpusService {
         });
         this.phenomenonMap.lemma.translationValues = {};
         this.processNodes(ar);
-        const pointingLinks: LinkMC[] = ar.links.filter(x => x.annis_component_type === 'Pointing');
-        pointingLinks.forEach((link: LinkMC) => {
+        const pointingLinks: Link[] = ar.graph_data.links.filter(x => x.annis_component_type === 'Pointing');
+        pointingLinks.forEach((link: Link) => {
             const dep: DependencyValue = this.helperService.dependencyMap[link.udep_deprel];
             if (dep) {
                 const existingValue = this.phenomenonMap.dependency.specificValues[dep];
@@ -418,13 +415,13 @@ export class CorpusService {
             }
         });
         // need to add root dependencies manually because they are tricky to handle
-        const nodeIds: string[] = ar.nodes.map(x => x.id);
+        const nodeIds: string[] = ar.graph_data.nodes.map(x => x.id);
         const nodesWithDependencySet: Set<string> = new Set<string>(pointingLinks.map(x => x.target));
         const rootNodeIds: string[] = nodeIds.filter(x => !nodesWithDependencySet.has(x));
         this.phenomenonMap.dependency.specificValues[DependencyValue.root] = rootNodeIds.length;
         this.adjustQueryValue(this.exercise.queryItems[0], 0);
         // remove whitespace before punctuation
-        this.currentText = ar.nodes.map(x => x.annis_tok).join(' ').replace(/[ ]([.,\/#!$%\^&\*;:{}=\-_`~()])/g, (x: string) => {
+        this.currentText = ar.graph_data.nodes.map(x => x.annis_tok).join(' ').replace(/[ ]([.,\/#!$%\^&\*;:{}=\-_`~()])/g, (x: string) => {
             return x.trim();
         });
         this.annisResponse = ar;
@@ -480,7 +477,7 @@ export class CorpusService {
     }
 
     processNodes(ar: AnnisResponse): void {
-        ar.nodes.forEach((node: NodeMC) => {
+        ar.graph_data.nodes.forEach((node: NodeMC) => {
             let existingValue = this.phenomenonMap.lemma.specificValues[node.udep_lemma];
             this.phenomenonMap.lemma.specificValues[node.udep_lemma] = (existingValue ? existingValue : 0) + 1;
             this.phenomenonMap.lemma.translationValues[node.udep_lemma] = node.udep_lemma;
@@ -508,14 +505,15 @@ export class CorpusService {
                 this.currentCorpusCache = state.mostRecentSetup.currentCorpus;
                 this.currentTextRangeCache = state.mostRecentSetup.currentTextRange;
                 this.isTextRangeCorrect = true;
-                if (this.annisResponse && this.annisResponse.nodes.length) {
+                if (this.annisResponse && this.annisResponse.graph_data.nodes.length) {
                     this.processAnnisResponse(this.annisResponse, false);
                     return resolve();
                 } else if (this.currentText) {
                     // check if the data is already present
                     return resolve();
                 } else {
-                    const saveToCache: boolean = !state.mostRecentSetup.annisResponse || !state.mostRecentSetup.annisResponse.nodes.length;
+                    const saveToCache: boolean = !state.mostRecentSetup.annisResponse ||
+                        !state.mostRecentSetup.annisResponse.graph_data.nodes.length;
                     this.getText(saveToCache).then(() => {
                         return resolve();
                     }, () => {

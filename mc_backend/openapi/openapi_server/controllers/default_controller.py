@@ -3,8 +3,6 @@ import six
 
 from openapi.openapi_server.models.annis_response import AnnisResponse  # noqa: E501
 from openapi.openapi_server.models.corpus import Corpus  # noqa: E501
-from openapi.openapi_server.models.exercise_base import ExerciseBase  # noqa: E501
-from openapi.openapi_server.models.unknownbasetype import UNKNOWN_BASE_TYPE  # noqa: E501
 from openapi.openapi_server import util
 
 
@@ -79,16 +77,23 @@ def mcserver_app_api_exercise_api_get(eid):  # noqa: E501
     return 'do some magic!'
 
 
-def mcserver_app_api_exercise_api_post(unknown_base_type):  # noqa: E501
+def mcserver_app_api_exercise_api_post():  # noqa: E501
     """Creates a new exercise.
 
      # noqa: E501
 
-    :param unknown_base_type: 
-    :type unknown_base_type: dict | bytes
 
     :rtype: AnnisResponse
     """
-    if connexion.request.is_json:
-        unknown_base_type = UNKNOWN_BASE_TYPE.from_dict(connexion.request.get_json())  # noqa: E501
+    return 'do some magic!'
+
+
+def mcserver_app_api_static_exercises_api_get():  # noqa: E501
+    """Returns metadata for static exercises.
+
+     # noqa: E501
+
+
+    :rtype: object
+    """
     return 'do some magic!'

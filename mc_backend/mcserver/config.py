@@ -74,10 +74,14 @@ class Config(object):
     DOCKER_SERVICE_NAME_MCSERVER = "mcserver"
     ERROR_MESSAGE_CORPUS_NOT_FOUND = "A corpus with the specified ID was not found!"
     ERROR_MESSAGE_EXERCISE_NOT_FOUND = "An exercise with the specified ID was not found!"
-    ERROR_MESSAGE_INTERNAL_SERVER_ERROR = "The server encountered an unexpected condition that prevented it from " \
-                                          "fulfilling the request."
+    ERROR_MESSAGE_INTERNAL_SERVER_ERROR = \
+        "The server encountered an unexpected condition that prevented it from fulfilling the request."
+    ERROR_MESSAGE_SERVICE_UNAVAILABLE = \
+        "The server is currently unable to handle the request due to a temporary overload or scheduled " \
+        "maintenance, which will likely be alleviated after some delay."
     ERROR_TITLE_INTERNAL_SERVER_ERROR = "Internal Server Error"
     ERROR_TITLE_NOT_FOUND = "Not found"
+    ERROR_TITLE_SERVICE_UNAVAILABLE = "Service Unavailable"
     FAVICON_FILE_NAME = "favicon.ico"
     FLASK_MIGRATE = "migrate"
     GRAPHANNIS_DEPENDENCY_LINK = "dep"

@@ -118,38 +118,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/AnnisResponse'
       requestBody:
-        $ref: '#/components/requestBodies/ExerciseForm'
-components:
-  requestBodies:
-    ExerciseForm:
-      required: true
-      content:
-        application/x-www-form-urlencoded:
-          schema:
-            x-body-name: exercise_data
-            type: object
-            allOf:
-              - $ref: '#/components/schemas/ExerciseBase'
-                required:
-                  - instructions
-                  - search_values
-              - description: Additional exercise data.
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              x-body-name: exercise_data
+              type: object
+              $ref: '#/components/schemas/ExerciseForm'
+  /exercises:
+    get:
+      summary: Returns metadata for static exercises.
+      operationId: mcserver.app.api.staticExercisesAPI.get
+      responses:
+        200:
+          description: Metadata for static exercises, including their respective URIs in the frontend.
+          content:
+            application/json:
+              schema:
+#                TODO: specify object properties
                 type: object
-                properties:
-                  type:
-                    type: string
-                    description: Type of exercise, concerning interaction and layout.
-                    example: markWords
-                  type_translation:
-                    type: string
-                    description: Localized expression of the exercise type.
-                    example: Cloze
-                  urn:
-                    type: string
-                    description: CTS URN for the text passage from which the exercise was created.
-                    example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
-                required:
-                  - type
+components:
   schemas:
     AnnisResponse:
       description: A response with graph data from ANNIS, possibly with additional data for exercises.
@@ -167,24 +155,7 @@ components:
           type: array
           description: List of items with frequency data for linguistic phenomena.
           items:
-            type: object
-            properties:
-              count:
-                type: integer
-                description: How often the given combination of values occurred.
-                example: 1
-              phenomena:
-                type: array
-                description: Labels for the phenomena described in this frequency entry.
-                example: []
-                items:
-                  type: string
-              values:
-                type: array
-                description: Values for the phenomena described in this frequency entry.
-                example: []
-                items:
-                  type: string
+            $ref: "#/components/schemas/FrequencyItem"
         graph_data:
           $ref: "#/components/schemas/GraphData"
         solutions:
@@ -348,6 +319,48 @@ components:
           description: Title of the base text for the exercise.
           example: Noctes Atticae
           default: ""
+      required:
+        - instructions
+        - search_values
+    ExerciseForm:
+      allOf:
+        - $ref: '#/components/schemas/ExerciseBase'
+        - description: Additional exercise data.
+          type: object
+          properties:
+            type:
+              type: string
+              description: Type of exercise, concerning interaction and layout.
+              example: markWords
+            type_translation:
+              type: string
+              description: Localized expression of the exercise type.
+              example: Cloze
+            urn:
+              type: string
+              description: CTS URN for the text passage from which the exercise was created.
+              example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          required:
+            - type
+    FrequencyItem:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: How often the given combination of values occurred.
+          example: 1
+        phenomena:
+          type: array
+          description: Labels for the phenomena described in this frequency entry.
+          example: []
+          items:
+            type: string
+        values:
+          type: array
+          description: Values for the phenomena described in this frequency entry.
+          example: []
+          items:
+            type: string
     GraphData:
       type: object
       description: Nodes, edges and metadata for a graph.
@@ -373,7 +386,7 @@ components:
           type: array
           description: List of nodes for the graph.
           items:
-            $ref: '#/components/schemas/Node'
+            $ref: '#/components/schemas/NodeMC'
       required:
         - links
         - nodes
@@ -520,12 +533,7 @@ components:
           type: string
           description: Dependency relation described by the edge.
           example: "det"
-      required:
-        - annis_component_name
-        - annis_component_type
-        - source
-        - target
-    Node:
+    NodeMC:
       type: object
       properties:
         annis_node_name:
@@ -572,14 +580,6 @@ components:
           type: string
           description: Solution value for this node in an exercise.
           example: ""
-      required:
-        - annis_node_name
-        - annis_node_type
-        - annis_tok
-        - annis_type
-        - id
-        - udep_lemma
-        - udep_upostag
     Solution:
       type: object
       description: Correct solution for an exercise.
@@ -609,7 +609,6 @@ components:
           description: Unique identifier for the token in a sentence.
           example: 9
       required:
-        - content
         - sentence_id
         - token_id
     TextComplexity:

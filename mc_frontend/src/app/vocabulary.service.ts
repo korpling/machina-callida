@@ -7,8 +7,8 @@ import {Sentence} from 'src/app/models/sentence';
 import {HelperService} from 'src/app/helper.service';
 import {TestResultMC} from 'src/app/models/testResultMC';
 import {ToastController} from '@ionic/angular';
-import {AnnisResponse} from 'src/app/models/annisResponse';
 import configMC from '../configMC';
+import {AnnisResponse} from '../../openapi';
 
 @Injectable({
     providedIn: 'root'

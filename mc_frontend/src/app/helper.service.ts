@@ -11,6 +11,7 @@ import {Language} from 'src/app/models/language';
 import {ReplaySubject} from 'rxjs';
 import {TextData} from './models/textData';
 import configMC from '../configMC';
+import {GraphData} from '../../openapi/model/graphData';
 
 @Injectable({
     providedIn: 'root'
@@ -281,7 +282,8 @@ export class HelperService {
                     exerciseList: []
                 });
                 if (jsonString) {
-                    const state: ApplicationState = JSON.parse(jsonString) as ApplicationState;
+                    const jsonObject: any = this.updateAnnisResponse(jsonString);
+                    const state: ApplicationState = jsonObject as ApplicationState;
                     state.exerciseList = state.exerciseList ? state.exerciseList : [];
                     this.applicationStateCache = state;
                 }
@@ -363,5 +365,22 @@ export class HelperService {
             duration: 3000,
             position
         }).then((toast: HTMLIonToastElement) => toast.present());
+    }
+
+    updateAnnisResponse(jsonString: string): any {
+        const jsonObject: any = JSON.parse(jsonString);
+        // backwards compatibility
+        [jsonObject.currentSetup, jsonObject.mostRecentSetup].forEach((textdata: any) => {
+            if (textdata && textdata.annisResponse && !textdata.annisResponse.graph_data) {
+                const annisResp: any = textdata.annisResponse;
+                const props: string[] = ['links', 'nodes', 'directed', 'graph', 'multigraph'];
+                annisResp.graph_data = {};
+                props.forEach((prop: string) => {
+                    annisResp.graph_data[prop] = annisResp[prop];
+                    delete annisResp[prop];
+                });
+            }
+        });
+        return jsonObject;
     }
 }

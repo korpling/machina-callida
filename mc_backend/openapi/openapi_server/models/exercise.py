@@ -215,6 +215,8 @@ class Exercise(Model):
         :param instructions: The instructions of this Exercise.
         :type instructions: str
         """
+        if instructions is None:
+            raise ValueError("Invalid value for `instructions`, must not be `None`")  # noqa: E501
 
         self._instructions = instructions
 
@@ -261,6 +263,8 @@ class Exercise(Model):
         :param search_values: The search_values of this Exercise.
         :type search_values: str
         """
+        if search_values is None:
+            raise ValueError("Invalid value for `search_values`, must not be `None`")  # noqa: E501
 
         self._search_values = search_values
 

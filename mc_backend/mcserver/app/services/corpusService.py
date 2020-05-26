@@ -104,7 +104,7 @@ class CorpusService:
             # there is actually no text, only a URN, so we need to get it ourselves
             url: str = f"{Config.INTERNET_PROTOCOL}{Config.HOST_IP_CSM}:{Config.CORPUS_STORAGE_MANAGER_PORT}/"
             response: requests.Response = requests.get(url, params=dict(urn=cts_urn))
-            return AnnisResponse(graph_data=GraphData.from_dict(json.loads(response.text)))
+            return AnnisResponse.from_dict(json.loads(response.text))
 
     @staticmethod
     def get_frequency_analysis(urn: str, is_csm: bool) -> FrequencyAnalysis:

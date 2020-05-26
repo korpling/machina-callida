@@ -1,16 +1,14 @@
 import {CorpusMC} from './corpusMC';
 import {ExerciseMC} from './exerciseMC';
 import {PartOfSpeechValue, Phenomenon} from './enum';
-import {FrequencyItem} from './frequencyItem';
 import {ApplicationState} from './applicationState';
 import {TextData} from './textData';
-import {AnnisResponse} from './annisResponse';
-import {NodeMC} from './nodeMC';
 import {TestResultMC} from './testResultMC';
 import StatementBase from './xAPI/StatementBase';
 import Result from './xAPI/Result';
 import Score from './xAPI/Score';
 import {TextRange} from './textRange';
+import {AnnisResponse, FrequencyItem} from '../../../openapi';
 
 export default class MockMC {
     static apiResponseCorporaGet: CorpusMC[] = [new CorpusMC({
@@ -18,20 +16,28 @@ export default class MockMC {
         source_urn: 'urn',
         title: 'title',
     })];
-    static apiResponseFrequencyAnalysisGet: FrequencyItem[] = [new FrequencyItem({
+    static apiResponseFrequencyAnalysisGet: FrequencyItem[] = [{
         phenomena: [Phenomenon.partOfSpeech.toString()],
         values: [PartOfSpeechValue.adjective.toString()]
-    })];
-    static apiResponseTextGet: AnnisResponse = new AnnisResponse({
-        nodes: [new NodeMC({udep_lemma: 'lemma', annis_tok: 'tok'})],
-        links: []
-    });
+    }];
+    static apiResponseTextGet: AnnisResponse = {
+        graph_data: {
+            nodes: [{udep_lemma: 'lemma', annis_tok: 'tok'}],
+            links: []
+        }
+    };
     static applicationState: ApplicationState = new ApplicationState({
         currentSetup: new TextData({
             currentCorpus: new CorpusMC({citations: {}}),
             currentTextRange: new TextRange({start: ['1', '2'], end: ['1', '2']})
         }),
-        mostRecentSetup: new TextData({annisResponse: new AnnisResponse({nodes: [new NodeMC()], links: []})}),
+        mostRecentSetup: new TextData({
+            annisResponse: {
+                graph_data: {
+                    nodes: [{}], links: []
+                }
+            }
+        }),
         exerciseList: [new ExerciseMC()]
     });
     static popoverController: any = {create: () => Promise.resolve({present: () => Promise.resolve()})};

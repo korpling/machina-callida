@@ -82,8 +82,6 @@ class Link(Model):
         :param annis_component_name: The annis_component_name of this Link.
         :type annis_component_name: str
         """
-        if annis_component_name is None:
-            raise ValueError("Invalid value for `annis_component_name`, must not be `None`")  # noqa: E501
 
         self._annis_component_name = annis_component_name
 
@@ -107,8 +105,6 @@ class Link(Model):
         :param annis_component_type: The annis_component_type of this Link.
         :type annis_component_type: str
         """
-        if annis_component_type is None:
-            raise ValueError("Invalid value for `annis_component_type`, must not be `None`")  # noqa: E501
 
         self._annis_component_type = annis_component_type
 
@@ -132,8 +128,6 @@ class Link(Model):
         :param source: The source of this Link.
         :type source: str
         """
-        if source is None:
-            raise ValueError("Invalid value for `source`, must not be `None`")  # noqa: E501
 
         self._source = source
 
@@ -157,8 +151,6 @@ class Link(Model):
         :param target: The target of this Link.
         :type target: str
         """
-        if target is None:
-            raise ValueError("Invalid value for `target`, must not be `None`")  # noqa: E501
 
         self._target = target
 

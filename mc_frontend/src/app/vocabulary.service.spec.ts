@@ -6,9 +6,9 @@ import {IonicStorageModule} from '@ionic/storage';
 import {TranslateTestingModule} from './translate-testing/translate-testing.module';
 import {VocabularyCorpus} from './models/enum';
 import {Sentence} from './models/sentence';
-import {AnnisResponse} from './models/annisResponse';
 import {HttpErrorResponse} from '@angular/common/http';
 import Spy = jasmine.Spy;
+import {AnnisResponse} from '../../openapi';
 
 describe('VocabularyService', () => {
     let vocabularyService: VocabularyService;
@@ -37,7 +37,8 @@ describe('VocabularyService', () => {
         vocabularyService.getVocabularyCheck('', false).then(() => {
         }, async (response: HttpErrorResponse) => {
             expect(response.status).toBe(500);
-            requestSpy.and.returnValue(Promise.resolve(new AnnisResponse()));
+            const ar: AnnisResponse = {};
+            requestSpy.and.returnValue(Promise.resolve(ar));
             const result: AnnisResponse | Sentence[] = await vocabularyService.getVocabularyCheck('', true);
             expect(result.hasOwnProperty('length')).toBe(false);
             done();

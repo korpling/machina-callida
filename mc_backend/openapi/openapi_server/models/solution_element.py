@@ -77,8 +77,6 @@ class SolutionElement(Model):
         :param content: The content of this SolutionElement.
         :type content: str
         """
-        if content is None:
-            raise ValueError("Invalid value for `content`, must not be `None`")  # noqa: E501
 
         self._content = content
 

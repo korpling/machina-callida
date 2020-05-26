@@ -198,7 +198,7 @@ describe('HelperService', () => {
         helperService.saveApplicationState(helperService.deepCopy(MockMC.applicationState)).then(() => {
             helperService.storage.get(configMC.localStorageKeyApplicationState).then((jsonString: string) => {
                 const state: ApplicationState = JSON.parse(jsonString) as ApplicationState;
-                expect(state.mostRecentSetup.annisResponse.nodes.length).toBe(1);
+                expect(state.mostRecentSetup.annisResponse.graph_data.nodes.length).toBe(1);
                 done();
             });
         });

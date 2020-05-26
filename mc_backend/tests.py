@@ -376,14 +376,14 @@ class McTestCase(unittest.TestCase):
             response: Response = Mocks.app_dict[self.class_name].client.get(
                 TestingConfig.SERVER_URI_RAW_TEXT, query_string=dict(urn=Mocks.urn_custom))
             self.assertEqual(response.status_code, 404)
-            mock_get_cs.return_value = MockResponse(json.dumps(Mocks.graph_data.to_dict()))
+            mock_get_cs.return_value = MockResponse(json.dumps(Mocks.annis_response.to_dict()))
             response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_RAW_TEXT,
                                                                   query_string=dict(urn=Mocks.urn_custom))
             ar: AnnisResponse = AnnisResponse.from_dict(json.loads(response.get_data(as_text=True)))
             self.assertEqual(len(ar.graph_data.nodes), 52)
-            graph_data_raw: dict = dict(Mocks.annis_response_dict["graph_data_raw"])
-            graph_data_raw["nodes"] = []
-            mock_get_cs.return_value = MockResponse(json.dumps(graph_data_raw))
+            ar_copy: AnnisResponse = AnnisResponse.from_dict(Mocks.annis_response.to_dict())
+            ar_copy.graph_data.nodes = []
+            mock_get_cs.return_value = MockResponse(json.dumps(ar_copy.to_dict()))
             response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_RAW_TEXT,
                                                                   query_string=dict(urn=Mocks.urn_custom))
             self.assertEqual(response.status_code, 404)
@@ -413,15 +413,19 @@ class McTestCase(unittest.TestCase):
         for exercise in exercises:
             shutil.rmtree(os.path.join(Config.TMP_DIRECTORY, exercise[0]), ignore_errors=True)
         zip_content: bytes = open(TestingConfig.STATIC_EXERCISES_ZIP_FILE_PATH, "rb").read()
-        with patch.object(mcserver.app.api.staticExercisesAPI.requests, "get",
-                          side_effect=[MockResponse("{}", ok=False), MockResponse("{}", content=zip_content)]):
-            with patch.object(AnnotationService, "get_udpipe", return_value=Mocks.static_exercises_udpipe_string):
-                response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_STATIC_EXERCISES)
-                self.assertEqual(response.status_code, 503)
+        with patch.object(
+                mcserver.app.api.staticExercisesAPI.requests, "get", side_effect=[
+                    MockResponse("{}", ok=False), MockResponse("{}", content=zip_content)]):
+            with patch.object(AnnotationService, "get_udpipe",
+                              return_value=Mocks.static_exercises_udpipe_string) as mock_udpipe:
                 response: Response = Mocks.app_dict[self.class_name].client.get(
                     TestingConfig.SERVER_URI_STATIC_EXERCISES)
+                self.assertEqual(response.status_code, 503)
+                response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_STATIC_EXERCISES)
                 os.remove(TestingConfig.STATIC_EXERCISES_ZIP_FILE_PATH)
-                self.assertGreater(len(response.data.decode("utf-8")), 1900)
+                self.assertGreater(len(response.get_data(as_text=True)), 1900)
+                response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_STATIC_EXERCISES)
+                self.assertEqual(mock_udpipe.call_count, 1)
 
     @patch('mcserver.app.services.corpusService.requests.get', side_effect=mocked_requests_get)
     def test_api_subgraph_get(self, mock_get: MagicMock):
@@ -490,7 +494,7 @@ class McTestCase(unittest.TestCase):
     def test_api_vocabulary_get(self, mock_post: MagicMock):
         """ Calculates lexical overlap between a text (specified by URN) and a static vocabulary. """
         with patch.object(mcserver.app.services.corpusService.requests, "get",
-                          return_value=MockResponse(json.dumps(Mocks.graph_data.to_dict()))):
+                          return_value=MockResponse(json.dumps(Mocks.annis_response.to_dict()))):
             args: dict = dict(query_urn=Mocks.urn_custom, show_oov=True, vocabulary=VocabularyCorpus.agldt.name,
                               frequency_upper_bound=500)
             response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_VOCABULARY,
@@ -838,7 +842,7 @@ class CommonTestCase(unittest.TestCase):
         """Initializes the testing environment."""
         self.start_time = time.time()
         self.class_name: str = str(self.__class__)
-        TestHelper.update_flask_app(self.class_name, create_app)
+        TestHelper.update_flask_app(self.class_name, create_csm_app)
 
     def tearDown(self):
         """Finishes testing by removing the traces."""
@@ -1010,6 +1014,7 @@ class CommonTestCase(unittest.TestCase):
 
     def test_init_db_corpus(self):
         """Initializes the corpus table."""
+        db.session.query(Corpus).delete()
         cc: CustomCorpus = CustomCorpusService.custom_corpora[0]
         old_corpus: Corpus = Mocks.corpora[0]
         old_corpus.source_urn = cc.corpus.source_urn

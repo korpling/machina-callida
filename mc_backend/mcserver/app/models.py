@@ -4,13 +4,13 @@ from enum import Enum
 import typing
 from mcserver.config import Config
 from mcserver.models_auto import TExercise, Corpus, TCorpus, Exercise, TLearningResult, LearningResult
-from openapi.openapi_server.models import SolutionElement, Solution, Link, Node, TextComplexity, AnnisResponse, \
+from openapi.openapi_server.models import SolutionElement, Solution, Link, NodeMC, TextComplexity, AnnisResponse, \
     GraphData
 
 AnnisResponse = AnnisResponse
 GraphData = GraphData
 LinkMC = Link
-NodeMC = Node
+NodeMC = NodeMC
 SolutionElement = SolutionElement
 TextComplexity = TextComplexity
 

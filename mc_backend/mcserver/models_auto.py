@@ -149,6 +149,8 @@ Corpus: TCorpus = models.Corpus  # type: ignore
 class _ExerciseDictBase(typing.TypedDict, total=True):
     """TypedDict for properties that are required."""
 
+    instructions: str
+    search_values: str
     eid: str
     last_access_time: float
 
@@ -159,9 +161,7 @@ class ExerciseDict(_ExerciseDictBase, total=False):
     correct_feedback: str
     general_feedback: str
     incorrect_feedback: str
-    instructions: str
     partially_correct_feedback: str
-    search_values: str
     work_author: str
     work_title: str
     conll: str
@@ -233,14 +233,14 @@ class TExercise(typing.Protocol):
 
     def __init__(
         self,
+        instructions: str,
+        search_values: str,
         eid: str,
         last_access_time: float,
         correct_feedback: str = "",
         general_feedback: str = "",
         incorrect_feedback: str = "",
-        instructions: str = "",
         partially_correct_feedback: str = "",
-        search_values: str = "[]",
         work_author: str = "",
         work_title: str = "",
         conll: str = "",
@@ -289,14 +289,14 @@ class TExercise(typing.Protocol):
     @classmethod
     def from_dict(
         cls,
+        instructions: str,
+        search_values: str,
         eid: str,
         last_access_time: float,
         correct_feedback: str = "",
         general_feedback: str = "",
         incorrect_feedback: str = "",
-        instructions: str = "",
         partially_correct_feedback: str = "",
-        search_values: str = "[]",
         work_author: str = "",
         work_title: str = "",
         conll: str = "",
