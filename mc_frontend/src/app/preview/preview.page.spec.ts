@@ -79,7 +79,7 @@ describe('PreviewPage', () => {
         previewPage.exerciseService.excludeOOV = true;
         previewPage.corpusService.exercise.type = ExerciseType.markWords;
         previewPage.initH5P();
-        expect(previewPage.solutionIndicesString.length).toBe(21);
+        expect(previewPage.solutionIndicesString.length).toBe(19);
     });
 
     it('should be initialized', (done) => {

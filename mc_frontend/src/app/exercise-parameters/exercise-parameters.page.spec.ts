@@ -11,12 +11,13 @@ import {APP_BASE_HREF} from '@angular/common';
 import {TextRange} from '../models/textRange';
 import {ReplaySubject} from 'rxjs';
 import configMC from '../../configMC';
-import {ExerciseType, PartOfSpeechValue, Phenomenon} from '../models/enum';
+import {ExerciseType, PartOfSpeechValue} from '../models/enum';
 import {ToastController} from '@ionic/angular';
 import {QueryMC} from '../models/queryMC';
 import {PhenomenonMapContent} from '../models/phenomenonMap';
 import Spy = jasmine.Spy;
 import MockMC from '../models/mockMC';
+import {Phenomenon} from '../../../openapi/model/phenomenon';
 
 describe('ExerciseParametersPage', () => {
     let exerciseParametersPage: ExerciseParametersPage;
@@ -66,7 +67,7 @@ describe('ExerciseParametersPage', () => {
                 }, () => {
                     expect(h5pSpy).toHaveBeenCalledTimes(1);
                     configMC.maxTextLength = 0;
-                    exerciseParametersPage.corpusService.exercise.queryItems[0].phenomenon = Phenomenon.lemma;
+                    exerciseParametersPage.corpusService.exercise.queryItems[0].phenomenon = Phenomenon.Lemma;
                     exerciseParametersPage.corpusService.exercise.type = ExerciseType.matching;
                     exerciseParametersPage.corpusService.exercise.queryItems.push(new QueryMC({values: []}));
                     exerciseParametersPage.generateExercise().then(() => {
@@ -80,26 +81,26 @@ describe('ExerciseParametersPage', () => {
     });
 
     it('should get a display value', () => {
-        const pmc: PhenomenonMapContent = exerciseParametersPage.corpusService.phenomenonMap[Phenomenon.lemma];
+        const pmc: PhenomenonMapContent = exerciseParametersPage.corpusService.phenomenonMap[Phenomenon.Lemma];
         pmc.translationValues = {key: 'value'};
         pmc.specificValues = {key: 1};
         const key = 'key';
-        let displayValue: string = exerciseParametersPage.getDisplayValue(new QueryMC({phenomenon: Phenomenon.lemma}), key);
+        let displayValue: string = exerciseParametersPage.getDisplayValue(new QueryMC({phenomenon: Phenomenon.Lemma}), key);
         expect(displayValue.length).toBe(9);
         exerciseParametersPage.corpusService.exercise.type = ExerciseType.matching;
         exerciseParametersPage.corpusService.annisResponse = {
             frequency_analysis: [{values: [PartOfSpeechValue.adjective.toString(), key], count: 10}]
         };
-        displayValue = exerciseParametersPage.getDisplayValue(new QueryMC({phenomenon: Phenomenon.lemma}), key, 1);
+        displayValue = exerciseParametersPage.getDisplayValue(new QueryMC({phenomenon: Phenomenon.Lemma}), key, 1);
         expect(displayValue.length).toBe(10);
         exerciseParametersPage.corpusService.annisResponse.frequency_analysis[0] = {
-            phenomena: [Phenomenon.lemma.toString()],
+            phenomena: [Phenomenon.Lemma],
             values: [key],
             count: 100
         };
         exerciseParametersPage.corpusService.annisResponse.frequency_analysis.push(
             exerciseParametersPage.corpusService.annisResponse.frequency_analysis[0]);
-        displayValue = exerciseParametersPage.getDisplayValue(new QueryMC({phenomenon: Phenomenon.lemma}), key, 0);
+        displayValue = exerciseParametersPage.getDisplayValue(new QueryMC({phenomenon: Phenomenon.Lemma}), key, 0);
         expect(displayValue.length).toBe(11);
     });
 
@@ -113,7 +114,7 @@ describe('ExerciseParametersPage', () => {
             await exerciseParametersPage.getExerciseData();
             expect(kwicSpy).toHaveBeenCalledTimes(1);
             exerciseParametersPage.corpusService.exercise.type = ExerciseType.markWords;
-            const pmc: PhenomenonMapContent = exerciseParametersPage.corpusService.phenomenonMap[Phenomenon.partOfSpeech];
+            const pmc: PhenomenonMapContent = exerciseParametersPage.corpusService.phenomenonMap[Phenomenon.Upostag];
             pmc.translationValues = {};
             pmc.translationValues[PartOfSpeechValue.adjective.toString()] = '';
             await exerciseParametersPage.getExerciseData();

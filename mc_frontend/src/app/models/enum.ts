@@ -158,18 +158,11 @@ export enum PartOfSpeechTranslation {
     verb = 'PART_OF_SPEECH_VERB' as any,
 }
 
-export enum Phenomenon {
-    case = 'case' as any,
-    dependency = 'dependency' as any,
-    lemma = 'lemma' as any,
-    partOfSpeech = 'partOfSpeech' as any,
-}
-
 export enum PhenomenonTranslation {
-    case = 'PHENOMENON_CASE' as any,
     dependency = 'PHENOMENON_DEPENDENCY' as any,
+    feats = 'PHENOMENON_CASE' as any,
     lemma = 'PHENOMENON_LEMMA' as any,
-    partOfSpeech = 'PHENOMENON_PART_OF_SPEECH' as any,
+    upostag = 'PHENOMENON_PART_OF_SPEECH' as any,
 }
 
 export enum SortingCategory {

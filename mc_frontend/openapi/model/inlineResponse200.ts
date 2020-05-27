@@ -9,21 +9,16 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { Phenomenon } from './phenomenon';
 
 
-export interface FrequencyItem { 
+export interface InlineResponse200 { 
     /**
-     * How often the given combination of values occurred.
+     * Solutions for the exercise.
      */
-    count?: number;
+    solutions?: Array<Array<string>>;
     /**
-     * Labels for the linguistic phenomena described in this frequency entry.
+     * CTS URN for the text passage from which the exercise was created.
      */
-    phenomena?: Array<Phenomenon>;
-    /**
-     * Values for the phenomena described in this frequency entry.
-     */
-    values?: Array<string>;
+    urn?: string;
 }
 

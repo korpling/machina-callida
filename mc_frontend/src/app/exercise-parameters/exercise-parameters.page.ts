@@ -3,7 +3,6 @@ import {
     ExerciseType,
     ExerciseTypeTranslation,
     MoodleExerciseType,
-    Phenomenon,
     PhenomenonTranslation
 } from '../models/enum';
 import {NavController, ToastController} from '@ionic/angular';
@@ -20,7 +19,7 @@ import {ApplicationState} from '../models/applicationState';
 import {take} from 'rxjs/operators';
 import {TextRange} from '../models/textRange';
 import configMC from '../../configMC';
-import {AnnisResponse, FrequencyItem} from '../../../openapi';
+import {AnnisResponse, FrequencyItem, Phenomenon} from '../../../openapi';
 
 @Component({
     selector: 'app-exercise-parameters',
@@ -53,7 +52,7 @@ export class ExerciseParametersPage implements OnInit {
             if (0 < configMC.maxTextLength && configMC.maxTextLength < this.corpusService.currentText.length) {
                 this.helperService.showToast(this.toastCtrl, this.corpusService.textTooLongString).then();
                 return reject();
-            } else if ((phenomenon === Phenomenon.lemma && !this.corpusService.exercise.queryItems[0].values) ||
+            } else if ((phenomenon === Phenomenon.Lemma && !this.corpusService.exercise.queryItems[0].values) ||
                 this.corpusService.exercise.type === ExerciseType.matching && !this.corpusService.exercise.queryItems[1].values[0]) {
                 this.helperService.showToast(this.toastCtrl, this.corpusService.emptyQueryValueString).then();
                 return reject();
@@ -77,7 +76,7 @@ export class ExerciseParametersPage implements OnInit {
                 count = relevantFI.count;
             } else {
                 const relevantFIs: FrequencyItem[] = this.corpusService.annisResponse.frequency_analysis.filter(
-                    x => x.phenomena[0] === query.phenomenon.toString() && x.values[0] === key);
+                    x => x.phenomena[0] === query.phenomenon && x.values[0] === key);
                 count = relevantFIs.map(x => x.count).reduce((a, b) => a + b);
             }
         } else {

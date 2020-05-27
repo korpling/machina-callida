@@ -1,5 +1,6 @@
 """Application configuration classes for different environments / use cases"""
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from graphannis.cs import CorpusStorageManager
@@ -19,6 +20,7 @@ class Config(object):
     CURRENT_WORKING_DIRECTORY_PARENT = os.path.dirname(CURRENT_WORKING_DIRECTORY)
     CURRENT_WORKING_DIRECTORY_PARTS = os.path.split(CURRENT_WORKING_DIRECTORY)  # [::-1]
     GRAPH_DATABASE_DIR = os.path.join(os.sep, "tmp", "graphannis-data")
+    CSM_DIRECTORY = os.path.join(CURRENT_WORKING_DIRECTORY, "csm")
     MC_SERVER_DIRECTORY = CURRENT_WORKING_DIRECTORY if \
         os.path.split(CURRENT_WORKING_DIRECTORY)[-1] == "mcserver" else os.path.join(CURRENT_WORKING_DIRECTORY,
                                                                                      "mcserver")
@@ -33,9 +35,9 @@ class Config(object):
     TREEBANKS_PATH = os.path.join(ASSETS_DIRECTORY, "treebanks")
     TREEBANKS_PROIEL_PATH = os.path.join(TREEBANKS_PATH, "proiel")
 
-    API_SPEC_JSON_FILE_NAME = "openapi.json"
-    API_SPEC_JSON_FILE_PATH = os.path.join(MC_SERVER_DIRECTORY, API_SPEC_JSON_FILE_NAME)
-    API_SPEC_YAML_FILE_PATH = os.path.join(MC_SERVER_DIRECTORY, "mcserver_api.yaml")
+    API_SPEC_CSM_FILE_PATH = os.path.join(CSM_DIRECTORY, "csm_api.yaml")
+    API_SPEC_MCSERVER_FILE_PATH = os.path.join(MC_SERVER_DIRECTORY, "mcserver_api.yaml")
+    API_SPEC_MODELS_YAML_FILE_PATH = os.path.join(Path(MC_SERVER_DIRECTORY).parent, "openapi_models.yaml")
     AQL_CASE = "/.*Case=.*/"
     AQL_DEP = "->dep"
     AQL_DEPREL = "deprel"
@@ -47,7 +49,6 @@ class Config(object):
     CORPUS_STORAGE_MANAGER_PORT = 6555
     COVERAGE_CONFIGURATION_FILE_NAME = ".coveragerc"
     COVERAGE_ENVIRONMENT_VARIABLE = "COVERAGE_PROCESS_START"
-    CSM_DIRECTORY = os.path.join(CURRENT_WORKING_DIRECTORY, "csm")
     CSRF_ENABLED = True
     CTS_API_BASE_URL = "https://cts.perseids.org/api/cts/"
     CUSTOM_CORPUS_CAES_GAL_FILE_PATH = os.path.join(TREEBANKS_PROIEL_PATH, "caes-gal.conllu")
@@ -129,7 +130,7 @@ class Config(object):
     SERVER_URI_H5P = SERVER_URI_BASE + "h5p"
     SERVER_URI_KWIC = SERVER_URI_BASE + "kwic"
     SERVER_URI_RAW_TEXT = SERVER_URI_BASE + "rawtext"
-    SERVER_URI_STATIC_EXERCISES = SERVER_URI_BASE + "exercises"
+    SERVER_URI_STATIC_EXERCISES = SERVER_URI_BASE + "staticExercises"
     SERVER_URI_TEXT_COMPLEXITY = SERVER_URI_BASE + "textcomplexity"
     SERVER_URI_VALID_REFF = SERVER_URI_BASE + "validReff"
     SERVER_URI_VECTOR_NETWORK = SERVER_URI_BASE + "vectorNetwork"

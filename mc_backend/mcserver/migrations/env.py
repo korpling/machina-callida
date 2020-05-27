@@ -5,7 +5,7 @@ from logging.config import fileConfig
 import logging
 import open_alchemy
 
-open_alchemy.init_yaml(spec_filename="mcserver/mcserver_api.yaml")
+open_alchemy.init_yaml(spec_filename="openapi_models.yaml")
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

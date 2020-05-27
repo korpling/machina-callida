@@ -37,11 +37,10 @@ from mcserver.app import create_app, db, start_updater, full_init
 from mcserver.app.api.exerciseAPI import map_exercise_data_to_database
 from mcserver.app.models import ResourceType, FileType, ExerciseType, ExerciseData, \
     NodeMC, LinkMC, GraphData, Phenomenon, CustomCorpus, AnnisResponse, Solution, DownloadableFile, Language, \
-    VocabularyCorpus, TextComplexityMeasure, FrequencyAnalysis, CitationLevel, FrequencyItem, \
-    TextComplexity, Dependency, PartOfSpeech, Choice, XapiStatement, ExerciseMC, CorpusMC, \
-    make_solution_element_from_salt_id
+    VocabularyCorpus, TextComplexityMeasure, CitationLevel, FrequencyItem, TextComplexity, Dependency, PartOfSpeech, \
+    Choice, XapiStatement, ExerciseMC, CorpusMC, make_solution_element_from_salt_id
 from mcserver.app.services import AnnotationService, CorpusService, FileService, CustomCorpusService, DatabaseService, \
-    XMLservice, TextService
+    XMLservice, TextService, FrequencyService
 from mcserver.config import TestingConfig, Config
 from mcserver.models_auto import Corpus, Exercise, UpdateInfo, LearningResult
 from mocks import Mocks, MockResponse, MockW2V, MockQuery, TestHelper
@@ -268,12 +267,12 @@ class McTestCase(unittest.TestCase):
         db.session.add(ui_file)
         db.session.commit()
         # create a fake old file, to be deleted on the next GET request
-        FileService.create_tmp_file(FileType.xml, "old")
-        args: dict = dict(type=FileType.xml.value, id=Mocks.exercise.eid, solution_indices="[0]")
+        FileService.create_tmp_file(FileType.XML, "old")
+        args: dict = dict(type=FileType.XML, id=Mocks.exercise.eid, solution_indices=[0])
         response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_FILE,
                                                                         query_string=args)
         self.assertEqual(response.status_code, 404)
-        file_path: str = os.path.join(Config.TMP_DIRECTORY, Mocks.exercise.eid + "." + FileType.xml.value)
+        file_path: str = os.path.join(Config.TMP_DIRECTORY, Mocks.exercise.eid + "." + FileType.XML)
         file_content: str = "<xml></xml>"
         with open(file_path, "w+") as f:
             f.write(file_content)
@@ -286,7 +285,7 @@ class McTestCase(unittest.TestCase):
         # add the mapped exercise to the database
         db.session.add(Mocks.exercise)
         db.session.commit()
-        args["type"] = FileType.pdf.value
+        args["type"] = FileType.PDF
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_FILE, query_string=args)
         # the PDFs are not deterministically reproducible because the creation date etc. is written into them
         self.assertTrue(response.data.startswith(Mocks.exercise_pdf))
@@ -301,7 +300,7 @@ class McTestCase(unittest.TestCase):
                                                     data=data_dict)
         lrs: List[LearningResult] = db.session.query(LearningResult).all()
         self.assertEqual(len(lrs), 1)
-        data_dict: dict = dict(file_type=FileType.xml.name, urn=Mocks.urn_custom, html_content="<html></html>")
+        data_dict: dict = dict(file_type=FileType.XML, urn=Mocks.urn_custom, html_content="<html></html>")
         response: Response = Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_FILE,
                                                                          headers=Mocks.headers_form_data,
                                                                          data=data_dict)
@@ -313,11 +312,11 @@ class McTestCase(unittest.TestCase):
     def test_api_frequency_get(self):
         """ Requests a frequency analysis for a given URN. """
         with patch.object(mcserver.app.services.corpusService.requests, "get", return_value=MockResponse(
-                json.dumps([FrequencyItem(values=[], phenomena=[], count=[]).serialize()]))):
+                json.dumps([FrequencyItem(values=[], phenomena=[], count=0).to_dict()]))):
             response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_FREQUENCY,
                                                                             query_string=dict(urn=Mocks.urn_custom))
-            result_list: List[dict] = json.loads(response.data.decode("utf-8"))
-            fa: FrequencyAnalysis = FrequencyAnalysis(json_list=result_list)
+            result_list: List[dict] = json.loads(response.get_data(as_text=True))
+            fa: List[FrequencyItem] = [FrequencyItem.from_dict(x) for x in result_list]
             self.assertEqual(len(fa), 1)
 
     def test_api_h5p_get(self):
@@ -637,13 +636,13 @@ class CsmTestCase(unittest.TestCase):
         matches: List[str] = json.loads(response.get_data())
         self.assertEqual(len(matches), 6)
         solutions: List[Solution] = CorpusService.get_matches(Mocks.urn_custom, ['tok ->dep tok'],
-                                                              [Phenomenon.dependency])
+                                                              [Phenomenon.DEPENDENCY])
         self.assertEqual(len(solutions), 5)
         solutions = CorpusService.get_matches(Mocks.urn_custom, ['upostag="VERB" ->dep tok'],
-                                              [Phenomenon.partOfSpeech, Phenomenon.dependency])
+                                              [Phenomenon.UPOSTAG, Phenomenon.DEPENDENCY])
         self.assertEqual(len(solutions), 5)
         solutions = CorpusService.get_matches(Mocks.urn_custom, ['tok ->dep tok ->dep tok'],
-                                              [Phenomenon.dependency, Phenomenon.partOfSpeech])
+                                              [Phenomenon.DEPENDENCY, Phenomenon.UPOSTAG])
         self.assertEqual(len(solutions), 3)
 
     def test_api_csm_get(self):
@@ -665,16 +664,14 @@ class CsmTestCase(unittest.TestCase):
 
     def test_api_frequency_get(self):
         """ Requests a frequency analysis for a given URN. """
-        expected_fa: FrequencyAnalysis = FrequencyAnalysis()
-        expected_fa.append(
-            FrequencyItem(values=[Dependency.object.name], phenomena=[Phenomenon.dependency], count=1))
-        expected_fa.append(
-            FrequencyItem(values=[PartOfSpeech.adjective.name], phenomena=[Phenomenon.partOfSpeech], count=1))
+        expected_fa: List[FrequencyItem] = [
+            FrequencyItem(values=[Dependency.object.name], phenomena=[Phenomenon.DEPENDENCY], count=1),
+            FrequencyItem(values=[PartOfSpeech.adjective.name], phenomena=[Phenomenon.UPOSTAG], count=1)]
         with patch.object(CorpusService, "get_frequency_analysis", return_value=expected_fa):
             response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_FREQUENCY,
                                                                             query_string=dict(urn=Mocks.urn_custom))
-            result_list: List[dict] = json.loads(response.data.decode("utf-8"))
-            fa: FrequencyAnalysis = FrequencyAnalysis(json_list=result_list)
+            result_list: List[dict] = json.loads(response.get_data(as_text=True))
+            fa: List[FrequencyItem] = [FrequencyItem.from_dict(x) for x in result_list]
             self.assertEqual(fa[0].values, expected_fa[0].values)
             self.assertEqual(fa[1].values[0], None)
 
@@ -728,11 +725,11 @@ class CsmTestCase(unittest.TestCase):
         Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_CSM,
                                                    query_string=dict(urn=Mocks.urn_custom))
         data_dict: dict = dict(title=Mocks.exercise.urn, annotations=Mocks.exercise.conll, aqls=Mocks.aqls,
-                               exercise_type=ExerciseType.cloze.name, search_phenomena=[Phenomenon.partOfSpeech.name])
+                               exercise_type=ExerciseType.cloze.name, search_phenomena=[Phenomenon.UPOSTAG])
         first_response: Response = Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_CSM,
                                                                                data=json.dumps(data_dict))
         # ANNIS does not create deterministically reproducible results, so we only test for a substring
-        self.assertIn(Mocks.graph_data_raw_part, first_response.data.decode("utf-8"))
+        self.assertIn(Mocks.graph_data_raw_part, first_response.get_data(as_text=True))
         third_response: Response = Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_CSM,
                                                                                data=data_dict)
         # Response: Bad Request
@@ -781,13 +778,13 @@ class CsmTestCase(unittest.TestCase):
     def test_get_frequency_analysis(self):
         """ Gets a frequency analysis by calling the CSM. """
         with patch.object(mcserver.app.services.corpusService.requests, "get", return_value=MockResponse(
-                json.dumps([FrequencyItem(values=[], phenomena=[], count=[]).serialize()]))):
-            fa: FrequencyAnalysis = CorpusService.get_frequency_analysis(urn=Mocks.urn_custom, is_csm=False)
+                json.dumps([FrequencyItem(values=[], phenomena=[], count=0).to_dict()]))):
+            fa: List[FrequencyItem] = CorpusService.get_frequency_analysis(urn=Mocks.urn_custom, is_csm=False)
             self.assertEqual(len(fa), 1)
         CorpusService.get_corpus(Mocks.urn_custom, True)
         with patch.object(CorpusService, "get_corpus", return_value=Mocks.annis_response):
             fa = CorpusService.get_frequency_analysis(Mocks.urn_custom, True)
-            self.assertEqual(len(fa), 191)
+            self.assertEqual(len(fa), 163)
 
     def test_get_graph(self):
         """ Retrieves a graph from the cache or, if not there, builds it from scratch. """
@@ -818,7 +815,7 @@ class CsmTestCase(unittest.TestCase):
                                              cs=Config.CORPUS_STORAGE_MANAGER, file_name=disk_urn)
         result: dict = CorpusService.process_corpus_data(urn=Mocks.urn_custom, annotations=Mocks.annotations,
                                                          aqls=["upostag"], exercise_type=ExerciseType.cloze,
-                                                         search_phenomena=[Phenomenon.partOfSpeech])
+                                                         search_phenomena=[Phenomenon.UPOSTAG])
         gd: GraphData = AnnotationService.map_graph_data(result["graph_data_raw"])
         self.assertEqual(len(gd.nodes), len(Mocks.nodes))
         urn_parts: List[str] = Mocks.urn_custom.split(":")
@@ -848,6 +845,15 @@ class CommonTestCase(unittest.TestCase):
         """Finishes testing by removing the traces."""
         print("{0}: {1} seconds".format(self.id(), "%.2f" % (time.time() - self.start_time)))
 
+    def test_add_dependency_frequencies(self):
+        """ Performs a frequency analysis for dependency annotations in a corpus. """
+        gd: GraphData = GraphData.from_dict(Mocks.graph_data.to_dict())
+        gd.links[0].udep_deprel = "safebpfw"
+        gd.links[48].udep_deprel = "fkonürwür"
+        fis: List[FrequencyItem] = []
+        FrequencyService.add_dependency_frequencies(gd, fis)
+        self.assertEqual(len(fis), 134)
+
     def test_add_edges(self):
         """Adds edges to an existing graph based on a list of keys and constraints to their similarity and frequency."""
         from mcserver.app.api.vectorNetworkAPI import add_edges
@@ -874,7 +880,7 @@ class CommonTestCase(unittest.TestCase):
         """Exports the exercise data to the Moodle XML format. See https://docs.moodle.org/35/en/Moodle_XML_format ."""
         xml_string: str = XMLservice.create_xml_string(
             ExerciseMC.from_dict(exercise_type=ExerciseType.matching.value, last_access_time=0, eid=str(uuid.uuid4())),
-            [], FileType.pdf, [])
+            [], FileType.PDF, [])
         self.assertEqual(xml_string, Mocks.exercise_xml)
 
     def test_dependency_imports(self):
@@ -945,10 +951,10 @@ class CommonTestCase(unittest.TestCase):
         """ Builds an HTML string from an exercise, e.g. to construct a PDF from it. """
         Mocks.exercise.exercise_type = ExerciseType.matching.value
         solutions: List[Solution] = [Solution.from_dict(x) for x in json.loads(Mocks.exercise.solutions)]
-        result: str = FileService.get_pdf_html_string(Mocks.exercise, Mocks.annotations, FileType.pdf, solutions)
+        result: str = FileService.get_pdf_html_string(Mocks.exercise, Mocks.annotations, FileType.PDF, solutions)
         self.assertEqual(result, '<br><p>: </p><p><table><tr><td>praecepturus</td><td>Caesar</td></tr></table></p>')
         Mocks.exercise.exercise_type = ExerciseType.markWords.value
-        result = FileService.get_pdf_html_string(Mocks.exercise, Mocks.annotations, FileType.pdf, solutions)
+        result = FileService.get_pdf_html_string(Mocks.exercise, Mocks.annotations, FileType.PDF, solutions)
         self.assertEqual(result, '<p>: </p><p>Caesar et Galli fortes sunt.</p><br><br>')
         Mocks.exercise.exercise_type = ExerciseType.cloze.value
 
@@ -1063,33 +1069,33 @@ class CommonTestCase(unittest.TestCase):
         """ Saves an exercise to a DOCX file (e.g. for later download). """
         file_path: str = os.path.join(Config.TMP_DIRECTORY, "make_docx_file.docx")
         solutions: List[Solution] = [Solution.from_dict(x) for x in json.loads(Mocks.exercise.solutions)]
-        FileService.make_docx_file(Mocks.exercise, file_path, Mocks.annotations, FileType.docx, solutions)
+        FileService.make_docx_file(Mocks.exercise, file_path, Mocks.annotations, FileType.DOCX, solutions)
         self.assertEqual(os.path.getsize(file_path), 36611)
         Mocks.exercise.exercise_type = ExerciseType.markWords.value
-        FileService.make_docx_file(Mocks.exercise, file_path, Mocks.annotations, FileType.docx, solutions)
+        FileService.make_docx_file(Mocks.exercise, file_path, Mocks.annotations, FileType.DOCX, solutions)
         self.assertEqual(os.path.getsize(file_path), 36599)
         Mocks.exercise.exercise_type = ExerciseType.matching.value
-        FileService.make_docx_file(Mocks.exercise, file_path, Mocks.annotations, FileType.docx, solutions)
+        FileService.make_docx_file(Mocks.exercise, file_path, Mocks.annotations, FileType.DOCX, solutions)
         self.assertEqual(os.path.getsize(file_path), 36714)
         Mocks.exercise.exercise_type = ExerciseType.cloze.value
         os.remove(file_path)
 
     def test_make_tmp_file_from_exercise(self):
         """ Creates a temporary file from a given exercise, e.g. for downloading. """
-        df: DownloadableFile = FileService.make_tmp_file_from_exercise(FileType.xml, Mocks.exercise, [0])
+        df: DownloadableFile = FileService.make_tmp_file_from_exercise(FileType.XML, Mocks.exercise, [0])
         self.assertTrue(os.path.exists(df.file_path))
         os.remove(df.file_path)
-        df: DownloadableFile = FileService.make_tmp_file_from_exercise(FileType.docx, Mocks.exercise, [0])
+        df: DownloadableFile = FileService.make_tmp_file_from_exercise(FileType.DOCX, Mocks.exercise, [0])
         self.assertTrue(os.path.exists(df.file_path))
         os.remove(df.file_path)
 
     def test_make_tmp_file_from_html(self):
         """ Creates a temporary file from a given HTML string, e.g. for downloading. """
         html: str = "<html lang='la'><p>test</p><span class='tok'><u>abc</u></span></html>"
-        df: DownloadableFile = FileService.make_tmp_file_from_html(Mocks.urn_custom, FileType.pdf, html)
+        df: DownloadableFile = FileService.make_tmp_file_from_html(Mocks.urn_custom, FileType.PDF, html)
         self.assertTrue(os.path.exists(df.file_path))
         os.remove(df.file_path)
-        df: DownloadableFile = FileService.make_tmp_file_from_html(Mocks.urn_custom, FileType.docx, html)
+        df: DownloadableFile = FileService.make_tmp_file_from_html(Mocks.urn_custom, FileType.DOCX, html)
         self.assertTrue(os.path.exists(df.file_path))
         os.remove(df.file_path)
 

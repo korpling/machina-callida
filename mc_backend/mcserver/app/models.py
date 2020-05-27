@@ -1,17 +1,21 @@
 """Models for dealing with text data, both in the database and in the application itself."""
-from typing import Dict, List, Union, Any
+from typing import Dict, List
 from enum import Enum
 import typing
 from mcserver.config import Config
 from mcserver.models_auto import TExercise, Corpus, TCorpus, Exercise, TLearningResult, LearningResult
 from openapi.openapi_server.models import SolutionElement, Solution, Link, NodeMC, TextComplexity, AnnisResponse, \
-    GraphData
+    GraphData, StaticExercise, FileType, FrequencyItem, Phenomenon
 
 AnnisResponse = AnnisResponse
+FileType = FileType
+FrequencyItem = FrequencyItem
 GraphData = GraphData
 LinkMC = Link
 NodeMC = NodeMC
+Phenomenon = Phenomenon
 SolutionElement = SolutionElement
+StaticExercise = StaticExercise
 TextComplexity = TextComplexity
 
 
@@ -74,7 +78,8 @@ class Dependency(Enum):
     punctuation = 26
     root = 27
     subject = 28
-    vocative = 29
+    unspecified = 29
+    vocative = 30
 
 
 class ExerciseType(Enum):
@@ -84,11 +89,8 @@ class ExerciseType(Enum):
     matching = "matching"
 
 
-class FileType(Enum):
-    docx = "docx"
-    json = "json"
-    pdf = "pdf"
-    xml = "xml"
+class Feats(Enum):
+    Case = "case"
 
 
 class Language(Enum):
@@ -127,13 +129,6 @@ class PartOfSpeech(Enum):
     punctuation = 13
     symbol = 14
     verb = 15
-
-
-class Phenomenon(Enum):
-    case = "feats"
-    dependency = "dependency"
-    lemma = "lemma"
-    partOfSpeech = "upostag"
 
 
 class ResourceType(Enum):
@@ -466,35 +461,3 @@ class Sentence:
     def __init__(self, id: int, matching_degree: int):
         self.id = id
         self.matching_degree = matching_degree
-
-
-class StaticExercise:
-    def __init__(self, solutions: List[List[str]] = None, urn: str = ""):
-        self.solutions = [] if solutions is None else solutions
-        self.urn = urn
-
-
-class FrequencyItem:
-
-    def __init__(self, values: List[str], phenomena: List[Phenomenon], count: Union[int, Any]):
-        self.values = values
-        self.phenomena = phenomena
-        self.count = count
-
-    def serialize(self) -> dict:
-        ret_val: dict = self.__dict__
-        ret_val["phenomena"] = [x.name for x in self.phenomena]
-        return ret_val
-
-
-class FrequencyAnalysis(List[FrequencyItem]):
-
-    def __init__(self, json_list: list = None):
-        if json_list:
-            for x in json_list:
-                self.append(FrequencyItem(x["values"], [Phenomenon[y] for y in x["phenomena"]], x["count"]))
-        else:
-            super(FrequencyAnalysis).__init__()
-
-    def serialize(self) -> List[dict]:
-        return [x.serialize() for x in self]

@@ -17,7 +17,6 @@ import {
     InstructionsTranslation,
     PartOfSpeechTranslation,
     PartOfSpeechValue,
-    Phenomenon
 } from 'src/app/models/enum';
 import {QueryMC} from 'src/app/models/queryMC';
 import {Exercise} from 'src/app/models/exercise';
@@ -31,6 +30,7 @@ import {Storage} from '@ionic/storage';
 import {UpdateInfo} from './models/updateInfo';
 import configMC from '../configMC';
 import {AnnisResponse, FrequencyItem, Link, NodeMC} from '../../openapi';
+import {Phenomenon} from '../../openapi';
 
 @Injectable({
     providedIn: 'root'
@@ -56,7 +56,7 @@ export class CorpusService {
         type: ExerciseType.cloze,
         typeTranslation: '',
         queryItems: [new QueryMC({
-            phenomenon: Phenomenon.partOfSpeech,
+            phenomenon: Phenomenon.Upostag,
             values: [PartOfSpeechValue.adjective],
         })],
         feedback: new Feedback({general: '', incorrect: '', partiallyCorrect: '', correct: ''}),
@@ -67,10 +67,10 @@ export class CorpusService {
     public invalidTextRangeString: string;
     public isTextRangeCorrect = false;
     public phenomenonMap: PhenomenonMap = new PhenomenonMap({
-        case: new PhenomenonMapContent({translationObject: CaseTranslations}),
         dependency: new PhenomenonMapContent({translationObject: DependencyTranslation}),
+        feats: new PhenomenonMapContent({translationObject: CaseTranslations}),
         lemma: new PhenomenonMapContent({translationObject: null}),
-        partOfSpeech: new PhenomenonMapContent({translationObject: PartOfSpeechTranslation})
+        upostag: new PhenomenonMapContent({translationObject: PartOfSpeechTranslation})
     });
     public searchRegexMissingString: string;
     public shareLinkCopiedString: string;
@@ -100,8 +100,8 @@ export class CorpusService {
                     value => this.exercise.instructionsTranslation = value);
             }
             if (this.exercise.type === ExerciseType.matching) {
-                this.exercise.queryItems = [new QueryMC({phenomenon: Phenomenon.partOfSpeech, values: []}),
-                    new QueryMC({phenomenon: Phenomenon.partOfSpeech, values: []})];
+                this.exercise.queryItems = [new QueryMC({phenomenon: Phenomenon.Upostag, values: []}),
+                    new QueryMC({phenomenon: Phenomenon.Upostag, values: []})];
                 this.getFrequencyAnalysis().then(() => {
                     this.adjustQueryValue(this.exercise.queryItems[0], 0);
                     this.adjustQueryValue(this.exercise.queryItems[1], 1);
@@ -241,13 +241,13 @@ export class CorpusService {
             if (queryIndex) {
                 const relevantFIs: FrequencyItem[] = this.annisResponse.frequency_analysis.filter(
                     x => x.values[0] === this.exercise.queryItems[0].values[0] &&
-                        x.phenomena[1] === query.phenomenon.toString());
+                        x.phenomena[1] === query.phenomenon);
                 return Array.from(new Set<string>(relevantFIs.map(x => x.values[1]))).sort((a, b) => {
                     return pmc.translationValues[a] < pmc.translationValues[b] ? -1 : 1;
                 });
             } else {
                 const relevantFIs: FrequencyItem[] = this.annisResponse.frequency_analysis.filter(
-                    x => x.phenomena[0] === query.phenomenon.toString());
+                    x => x.phenomena[0] === query.phenomenon);
                 return Array.from(new Set<string>(relevantFIs.map(x => x.values[0]))).sort((a, b) => {
                     return pmc.translationValues[a] < pmc.translationValues[b] ? -1 : 1;
                 });
@@ -353,9 +353,9 @@ export class CorpusService {
 
     initPhenomenonMap(): void {
         // map the different phenomena to their respective Enum for processing and display/translation
-        Object.keys(Phenomenon).forEach((key) => {
-            if (key !== Phenomenon[Phenomenon.lemma]) {
-                const pmc: PhenomenonMapContent = this.phenomenonMap[key];
+        Object.values(Phenomenon).forEach((value: string) => {
+            if (value !== Phenomenon.Lemma) {
+                const pmc: PhenomenonMapContent = this.phenomenonMap[value];
                 pmc.translationValues = {};
                 const translationObject: object = pmc.translationObject;
                 Object.keys(translationObject).forEach((k: string) => {
@@ -483,17 +483,17 @@ export class CorpusService {
             this.phenomenonMap.lemma.translationValues[node.udep_lemma] = node.udep_lemma;
             if (node.udep_feats) {
                 const featsParts: string[] = node.udep_feats.split('|');
-                const casePart: string = featsParts.find(x => x.toLowerCase().includes(Phenomenon[Phenomenon.case]));
+                const casePart: string = featsParts.find(x => x.toLowerCase().includes(Phenomenon.Feats));
                 if (casePart) {
                     const caseAbbreviation: string = casePart.split('=')[1];
                     const caseValue: CaseValue = this.helperService.caseMap[caseAbbreviation];
-                    existingValue = this.phenomenonMap.case.specificValues[caseValue];
-                    this.phenomenonMap.case.specificValues[caseValue] = (existingValue ? existingValue : 0) + 1;
+                    existingValue = this.phenomenonMap.feats.specificValues[caseValue];
+                    this.phenomenonMap.feats.specificValues[caseValue] = (existingValue ? existingValue : 0) + 1;
                 }
             }
             const pos: PartOfSpeechValue = this.helperService.partOfSpeechMap[node.udep_upostag];
-            existingValue = this.phenomenonMap.partOfSpeech.specificValues[pos];
-            this.phenomenonMap.partOfSpeech.specificValues[pos] = (existingValue ? existingValue : 0) + 1;
+            existingValue = this.phenomenonMap.upostag.specificValues[pos];
+            this.phenomenonMap.upostag.specificValues[pos] = (existingValue ? existingValue : 0) + 1;
         });
     }
 
@@ -558,7 +558,7 @@ export class CorpusService {
             if (!this.getSortedQueryValues(this.exercise.queryItems[1], 1).length) {
                 const fi: FrequencyItem = this.annisResponse.frequency_analysis.find(
                     x => x.values[0] === this.exercise.queryItems[0].values[0]);
-                this.exercise.queryItems[1].phenomenon = Phenomenon[fi.phenomena[1]];
+                this.exercise.queryItems[1].phenomenon = fi.phenomena[1];
             }
             this.adjustQueryValue(this.exercise.queryItems[1], 1);
         }

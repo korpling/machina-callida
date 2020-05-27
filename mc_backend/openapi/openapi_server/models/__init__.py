@@ -10,12 +10,14 @@ from openapi.openapi_server.models.exercise_all_of import ExerciseAllOf
 from openapi.openapi_server.models.exercise_base import ExerciseBase
 from openapi.openapi_server.models.exercise_form import ExerciseForm
 from openapi.openapi_server.models.exercise_form_all_of import ExerciseFormAllOf
+from openapi.openapi_server.models.file_type import FileType
 from openapi.openapi_server.models.frequency_item import FrequencyItem
 from openapi.openapi_server.models.graph_data import GraphData
-from openapi.openapi_server.models.learning_result import LearningResult
+from openapi.openapi_server.models.inline_object import InlineObject
 from openapi.openapi_server.models.link import Link
 from openapi.openapi_server.models.node_mc import NodeMC
+from openapi.openapi_server.models.phenomenon import Phenomenon
 from openapi.openapi_server.models.solution import Solution
 from openapi.openapi_server.models.solution_element import SolutionElement
+from openapi.openapi_server.models.static_exercise import StaticExercise
 from openapi.openapi_server.models.text_complexity import TextComplexity
-from openapi.openapi_server.models.update_info import UpdateInfo

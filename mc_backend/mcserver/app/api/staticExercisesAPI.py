@@ -27,7 +27,8 @@ def get() -> Union[Response, ConnexionResponse]:
     if datetime.fromtimestamp(time() - Config.INTERVAL_STATIC_EXERCISES) > NetworkService.exercises_last_update \
             or len(NetworkService.exercises) == 0:
         return update_exercises()
-    return NetworkService.make_json_response({k: v.__dict__ for (k, v) in NetworkService.exercises.items()})
+    return NetworkService.make_json_response(
+        {x: NetworkService.exercises[x].to_dict() for x in NetworkService.exercises})
 
 
 def get_relevant_strings(response: Response):
@@ -136,11 +137,13 @@ def update_exercises() -> Union[Response, ConnexionResponse]:
     search_results_dict: Dict[str, int] = {item[0]: i for (i, item) in enumerate(search_results)}
     for url in relevant_strings_dict:
         # the URN points to Cicero's letters to his brother Quintus, 1.1.8-1.1.10
-        NetworkService.exercises[url] = StaticExercise(urn="urn:cts:latinLit:phi0474.phi058.perseus-lat1:1.1.8-1.1.10")
+        NetworkService.exercises[url] = StaticExercise(
+            solutions=[], urn="urn:cts:latinLit:phi0474.phi058.perseus-lat1:1.1.8-1.1.10")
         for word in relevant_strings_dict[url]:
             # UDpipe cannot handle name abbreviations, so remove the punctuation and only keep the upper case letter
             if word[-1] in string.punctuation:
                 word = word[:-1]
             NetworkService.exercises[url].solutions.append(list(search_results[search_results_dict[word]]))
     NetworkService.exercises_last_update = datetime.fromtimestamp(time())
-    return NetworkService.make_json_response({k: v.__dict__ for (k, v) in NetworkService.exercises.items()})
+    return NetworkService.make_json_response(
+        {x: NetworkService.exercises[x].to_dict() for x in NetworkService.exercises})

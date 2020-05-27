@@ -49,7 +49,7 @@ def get_graph_data(title: str, conll_string_or_urn: str, aqls: List[str], exerci
     url: str = f"{Config.INTERNET_PROTOCOL}{Config.HOST_IP_CSM}:{Config.CORPUS_STORAGE_MANAGER_PORT}"
     data: str = json.dumps(
         dict(title=title, annotations=conll_string_or_urn, aqls=aqls, exercise_type=exercise_type.name,
-             search_phenomena=[x.name for x in search_phenomena]))
+             search_phenomena=search_phenomena))
     response: requests.Response = requests.post(url, data=data)
     try:
         return json.loads(response.text)
@@ -117,7 +117,8 @@ def post(exercise_data: dict) -> Union[Response, ConnexionResponse]:
     search_values_list: List[str] = json.loads(exercise_data["search_values"])
     aqls: List[str] = AnnotationService.map_search_values_to_aql(search_values_list=search_values_list,
                                                                  exercise_type=exercise_type)
-    search_phenomena: List[Phenomenon] = [Phenomenon[x.split("=")[0]] for x in search_values_list]
+    search_phenomena: List[Phenomenon] = [Phenomenon().__getattribute__(x.split("=")[0].upper()) for x in
+                                          search_values_list]
     urn: str = exercise_data.get("urn", "")
     # if there is custom text instead of a URN, immediately annotate it
     conll_string_or_urn: str = urn if CorpusService.is_urn(urn) else AnnotationService.get_udpipe(

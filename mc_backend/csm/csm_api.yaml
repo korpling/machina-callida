@@ -1,0 +1,31 @@
+openapi: "3.0.0"
+
+info:
+  title: Machina Callida Backend REST API (Corpus Storage Manager)
+  version: "1.0"
+servers:
+  - url: http://localhost:6555/mc/api/v1.0
+
+paths:
+  /frequency:
+    get:
+      summary: Returns results for a frequency query from ANNIS for a given CTS URN.
+      operationId: csm.app.api.frequencyAPI.get
+      responses:
+        200:
+          description: Frequency analysis, i.e. a list of frequency items.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: List of items with frequency data for linguistic phenomena.
+                items:
+                  $ref: "../openapi_models.yaml#/components/schemas/FrequencyItem"
+      parameters:
+        - name: urn
+          in: query
+          description: CTS URN for referencing the corpus.
+          required: true
+          schema:
+            type: string
+            example: urn:cts:latinLit:phi1254.phi001.perseus-lat2:5.6.21-5.6.21

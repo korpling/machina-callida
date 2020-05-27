@@ -97,7 +97,7 @@ class XMLservice:
         for solution in solutions:
             gap_counter += 1
             target_token: OrderedDict = TextService.get_token_by_salt_id(solution.target.salt_id, conll)
-            target_token["form"] = "[[{0}]]".format(gap_counter) if file_type == FileType.xml else "_" * max_gap_length
+            target_token["form"] = "[[{0}]]".format(gap_counter) if file_type == FileType.XML else "_" * max_gap_length
         return TextService.strip_whitespace(" ".join([y["form"] for x in conll for y in x]))
 
     @staticmethod

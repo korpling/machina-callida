@@ -51,9 +51,15 @@ export class PreviewPage implements OnDestroy, OnInit {
         this.helperService.showToast(this.toastCtrl, this.corpusService.shareLinkCopiedString, 'middle').then();
     }
 
+    getSolutionIndices(solutions: Solution[]): string {
+        const indices: string[] =
+            solutions.map(x => this.corpusService.annisResponse.solutions.indexOf(x).toString());
+        return '&solution_indices=' + indices.join(',');
+    }
+
     initH5P(): void {
-        const solutionIndicesString: string = this.exerciseService.excludeOOV ? '&solution_indices=' +
-            JSON.stringify(this.currentSolutions.map(x => this.corpusService.annisResponse.solutions.indexOf(x))) : '';
+        const solutionIndicesString: string = this.exerciseService.excludeOOV ?
+            this.getSolutionIndices(this.currentSolutions) : '';
         // this will be called via GET request from the h5p standalone javascript library
         const url: string = `${configMC.backendBaseUrl + configMC.backendApiH5pPath}` +
             `?eid=${this.corpusService.annisResponse.exercise_id}&lang=${this.translateService.currentLang + solutionIndicesString}`;
@@ -161,7 +167,9 @@ export class PreviewPage implements OnDestroy, OnInit {
         const fileId: string = this.corpusService.annisResponse.exercise_id;
         const fileTypeBase = '&type=';
         this.urlBase = configMC.backendBaseUrl + configMC.backendApiFilePath + '?id=' + fileId + fileTypeBase;
-        this.solutionIndicesString = this.exerciseService.excludeOOV ? '&solution_indices=' +
-            JSON.stringify(this.currentSolutions.map(x => this.corpusService.annisResponse.solutions.indexOf(x))) : '';
+        this.solutionIndicesString = '';
+        if (this.exerciseService.excludeOOV) {
+            this.solutionIndicesString = this.getSolutionIndices(this.currentSolutions);
+        }
     }
 }

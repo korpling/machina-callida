@@ -159,7 +159,170 @@ paths:
           description: Exercise data object
       summary: Creates a new exercise.
       x-openapi-router-controller: openapi_server.controllers.default_controller
-  /exercises:
+  /exerciseList:
+    get:
+      operationId: mcserver_app_api_exercise_list_api_get
+      parameters:
+      - description: ISO 639-1 Language Code for the localization of exercise content.
+        explode: true
+        in: query
+        name: lang
+        required: true
+        schema:
+          example: en
+          type: string
+        style: form
+      - description: Upper bound for reference vocabulary frequency.
+        explode: true
+        in: query
+        name: frequency_upper_bound
+        required: false
+        schema:
+          default: 0
+          example: 500
+          type: integer
+        style: form
+      - description: Time (in milliseconds) of the last update.
+        explode: true
+        in: query
+        name: last_update_time
+        required: false
+        schema:
+          default: 0
+          example: 123456789
+          type: integer
+        style: form
+      - description: Identifier for a reference vocabulary.
+        explode: true
+        in: query
+        name: vocabulary
+        required: false
+        schema:
+          enum:
+          - agldt
+          - bws
+          - proiel
+          - viva
+          example: agldt
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+          description: Data for interactive exercises, excluding the linguistic details.
+      summary: Provides metadata for all available exercises.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /file:
+    get:
+      operationId: mcserver_app_api_file_api_get
+      parameters:
+      - description: Unique identifier (UUID) for an exercise.
+        explode: true
+        in: query
+        name: id
+        required: true
+        schema:
+          example: 12345678-1234-5678-1234-567812345678
+          type: string
+        style: form
+      - description: File format for the requested download.
+        explode: true
+        in: query
+        name: type
+        required: true
+        schema:
+          $ref: '#/components/schemas/FileType'
+        style: form
+      - description: Indices for the solutions that should be included in the download.
+        explode: true
+        in: query
+        name: solution_indices
+        required: false
+        schema:
+          default: []
+          items:
+            example: 0
+            type: integer
+          type: array
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exercise'
+          description: Data for interactive exercises, excluding the linguistic details.
+      summary: Provides the URL to download a specific file.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+    post:
+      operationId: mcserver_app_api_file_api_post
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object'
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              description: Data that should be serialized and persisted.
+              properties:
+                file_type:
+                  $ref: '#/components/schemas/FileType'
+                html_content:
+                  description: HTML content to be serialized.
+                  example: <html></html>
+                  type: string
+                learning_result:
+                  description: Serialized XAPI results for an interactive exercise.
+                  example: '{''0'': {}}'
+                  type: string
+                urn:
+                  description: CTS URN for the text passage from which the HTML content
+                    was created.
+                  example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+                  type: string
+              type: object
+              x-body-name: file_data
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: Indication of success, or name of the file that was generated.
+                example: 12345678-1234-5678-1234-567812345678.pdf
+                type: string
+          description: Indication of success, possibly a reference to the resulting
+            file.
+      summary: Serializes and persists learning results or HTML content for later
+        access.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /frequency:
+    get:
+      operationId: mcserver_app_api_frequency_api_get
+      parameters:
+      - description: CTS URN for referencing the corpus.
+        explode: true
+        in: query
+        name: urn
+        required: true
+        schema:
+          example: urn:cts:latinLit:phi1254.phi001.perseus-lat2:5.6.21-5.6.21
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: List of items with frequency data for linguistic phenomena.
+                items:
+                  $ref: '#/components/schemas/FrequencyItem'
+                type: array
+          description: Frequency analysis, i.e. a list of frequency items.
+      summary: Returns results for a frequency query from ANNIS for a given CTS URN.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /staticExercises:
     get:
       operationId: mcserver_app_api_static_exercises_api_get
       responses:
@@ -167,24 +330,94 @@ paths:
           content:
             application/json:
               schema:
+                additionalProperties:
+                  $ref: '#/components/schemas/StaticExercise'
                 type: object
-          description: Metadata for static exercises, including their respective URIs
+          description: Metadata for static exercises, mapped to their respective URIs
             in the frontend.
       summary: Returns metadata for static exercises.
       x-openapi-router-controller: openapi_server.controllers.default_controller
 components:
+  requestBodies:
+    inline_object:
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            $ref: '#/components/schemas/inline_object'
+      required: true
   schemas:
+    Corpus:
+      description: Collection of texts.
+      example:
+        citation_level_3: Section
+        author: Aulus Gellius
+        source_urn: urn:cts:latinLit:phi1254.phi001.perseus-lat2
+        title: Noctes Atticae
+        citation_level_1: Book
+        cid: 1
+        citation_level_2: Chapter
+      properties:
+        author:
+          default: Anonymus
+          description: Author of the texts in the corpus.
+          example: Aulus Gellius
+          nullable: false
+          type: string
+        cid:
+          description: Unique identifier for the corpus.
+          example: 1
+          type: integer
+          x-primary-key: true
+          x-autoincrement: true
+        citation_level_1:
+          default: default
+          description: First level for citing the corpus.
+          example: Book
+          type: string
+        citation_level_2:
+          default: default
+          description: Second level for citing the corpus.
+          example: Chapter
+          type: string
+        citation_level_3:
+          default: default
+          description: Third level for citing the corpus.
+          example: Section
+          type: string
+        source_urn:
+          description: CTS base URN for referencing the corpus.
+          example: urn:cts:latinLit:phi1254.phi001.perseus-lat2
+          type: string
+          x-unique: true
+        title:
+          default: Anonymus
+          description: Corpus title.
+          example: Noctes Atticae
+          nullable: false
+          type: string
+      required:
+      - source_urn
+      type: object
+      x-tablename: Corpus
     AnnisResponse:
       description: A response with graph data from ANNIS, possibly with additional
         data for exercises.
       example:
         frequency_analysis:
-        - values: []
+        - values:
+          - values
+          - values
           count: 1
-          phenomena: []
-        - values: []
+          phenomena:
+          - upostag
+          - upostag
+        - values:
+          - values
+          - values
           count: 1
-          phenomena: []
+          phenomena:
+          - upostag
+          - upostag
         text_complexity:
           all: 42.31
           n_abl_abs: 1
@@ -291,137 +524,42 @@ components:
           example: /mc/api/v1.0/file/fd97630c-1f5a-4102-af56-20eb0babdfee
           type: string
       type: object
-    Corpus:
-      description: Collection of texts.
-      example:
-        citation_level_3: Section
-        author: Aulus Gellius
-        source_urn: urn:cts:latinLit:phi1254.phi001.perseus-lat2
-        title: Noctes Atticae
-        citation_level_1: Book
-        cid: 1
-        citation_level_2: Chapter
-      properties:
-        author:
-          default: Anonymus
-          description: Author of the texts in the corpus.
-          example: Aulus Gellius
-          nullable: false
-          type: string
-        cid:
-          description: Unique identifier for the corpus.
-          example: 1
-          type: integer
-          x-primary-key: true
-          x-autoincrement: true
-        citation_level_1:
-          default: default
-          description: First level for citing the corpus.
-          example: Book
-          type: string
-        citation_level_2:
-          default: default
-          description: Second level for citing the corpus.
-          example: Chapter
-          type: string
-        citation_level_3:
-          default: default
-          description: Third level for citing the corpus.
-          example: Section
-          type: string
-        source_urn:
-          description: CTS base URN for referencing the corpus.
-          example: urn:cts:latinLit:phi1254.phi001.perseus-lat2
-          type: string
-          x-unique: true
-        title:
-          default: Anonymus
-          description: Corpus title.
-          example: Noctes Atticae
-          nullable: false
-          type: string
-      required:
-      - source_urn
-      type: object
-      x-tablename: Corpus
-    Exercise:
-      allOf:
-      - $ref: '#/components/schemas/ExerciseBase'
-      - $ref: '#/components/schemas/Exercise_allOf'
-    ExerciseBase:
-      description: Base data for creating and evaluating interactive exercises.
-      properties:
-        correct_feedback:
-          default: ""
-          description: Feedback for successful completion of the exercise.
-          example: Well done!
-          type: string
-        general_feedback:
-          default: ""
-          description: Feedback for finishing the exercise.
-          example: You have finished the exercise.
-          type: string
-        incorrect_feedback:
-          default: ""
-          description: Feedback for failing to complete the exercise successfully.
-          example: Unfortunately, that answer is wrong.
-          type: string
-        instructions:
-          default: ""
-          description: Hints for how to complete the exercise.
-          example: Fill in the gaps!
-          type: string
-        partially_correct_feedback:
-          default: ""
-          description: Feedback for successfully completing certain parts of the exercise.
-          example: Some parts of this answer are correct.
-          type: string
-        search_values:
-          default: '[]'
-          description: Search queries that were used to build the exercise.
-          example: '[''upostag=noun'', ''dependency=object'']'
-          type: string
-        work_author:
-          default: ""
-          description: Name of the person who wrote the base text for the exercise.
-          example: C. Iulius Caesar
-          type: string
-        work_title:
-          default: ""
-          description: Title of the base text for the exercise.
-          example: Noctes Atticae
-          type: string
-      required:
-      - instructions
-      - search_values
-      type: object
-    ExerciseForm:
-      allOf:
-      - $ref: '#/components/schemas/ExerciseBase'
-      - $ref: '#/components/schemas/ExerciseForm_allOf'
     FrequencyItem:
       example:
-        values: []
+        values:
+        - values
+        - values
         count: 1
-        phenomena: []
+        phenomena:
+        - upostag
+        - upostag
       properties:
         count:
           description: How often the given combination of values occurred.
           example: 1
           type: integer
         phenomena:
-          description: Labels for the phenomena described in this frequency entry.
-          example: []
+          description: Labels for the linguistic phenomena described in this frequency
+            entry.
           items:
-            type: string
+            $ref: '#/components/schemas/Phenomenon'
           type: array
         values:
           description: Values for the phenomena described in this frequency entry.
-          example: []
           items:
             type: string
           type: array
       type: object
+    Phenomenon:
+      description: 'Linguistic phenomena: syntactic dependencies, morphological features,
+        lemmata, parts of speech.'
+      enum:
+      - dependency
+      - feats
+      - lemma
+      - upostag
+      example: upostag
+      type: string
     GraphData:
       description: Nodes, edges and metadata for a graph.
       example:
@@ -489,134 +627,6 @@ components:
       - links
       - nodes
       type: object
-    LearningResult:
-      description: Learner data for completed exercises.
-      properties:
-        actor_account_name:
-          default: ""
-          description: H5P user ID, usually unique per device.
-          example: ebea3f3e-7410-4215-b34d-c1417f7c7c18
-          type: string
-        actor_object_type:
-          default: ""
-          description: Describes the kind of object that was recognized as actor.
-          example: Agent
-          type: string
-        category_id:
-          default: ""
-          description: Link to the exercise type specification.
-          example: http://h5p.org/libraries/H5P.MarkTheWords-1.9
-          type: string
-        category_object_type:
-          default: ""
-          description: Describes the kind of object that was recognized as exercise.
-          example: Activity
-          type: string
-        choices:
-          default: '[]'
-          description: JSON string containing a list of possible choices, each with
-            ID and description.
-          example: |-
-            [{'id':'2','description':{'en-US':'Quintus ist bei allen in der Provinz beliebt.
-            '}},{'id':'3','description':{'en-US':'Asia ist eine unbekannte Provinz.
-            '}}]
-          type: string
-        completion:
-          description: Whether the exercise was fully processed or not.
-          example: true
-          type: boolean
-        correct_responses_pattern:
-          description: JSON string containing a list of possible solutions to the
-            exercise, given as patterns of answers.
-          example: '[''0[,]1[,]2'']'
-          type: string
-        created_time:
-          description: When the learner data was received (POSIX timestamp).
-          example: 1234567.789
-          format: float
-          type: number
-          x-index: true
-          x-primary-key: true
-        duration:
-          default: PT0S
-          description: How many seconds it took a learner to complete the exercise.
-          example: PT9.19S
-          type: string
-        extensions:
-          default: '{}'
-          description: JSON string containing a mapping of keys and values (usually
-            the local content ID, i.e. a versioning mechanism).
-          example: '{''http://h5p.org/x-api/h5p-local-content-id'':1}'
-          type: string
-        interaction_type:
-          default: ""
-          description: Exercise type.
-          example: choice
-          type: string
-        object_definition_description:
-          description: Exercise content, possibly including instructions.
-          example: |
-            Bestimme die Form von custodem im Satz: Urbs custodem non tyrannum, domus hospitem non expilatorem recepit.
-          type: string
-        object_definition_type:
-          default: ""
-          description: Type of object definition that is presented to the user.
-          example: http://adlnet.gov/expapi/activities/cmi.interaction
-          type: string
-        object_object_type:
-          default: ""
-          description: Type of object that is presented to the user.
-          example: Activity
-          type: string
-        response:
-          description: Answer provided by the user, possibly as a pattern.
-          example: His in rebus[,]sociis[,]civibus[,]rei publicae
-          type: string
-        score_max:
-          description: Maximum possible score to be achieved in this exercise.
-          example: 1
-          type: integer
-        score_min:
-          description: Minimum score to be achieved in this exercise.
-          example: 0
-          type: integer
-        score_raw:
-          description: Score that was actually achieved by the user in this exercise.
-          example: 1
-          type: integer
-        score_scaled:
-          default: 0
-          description: Relative score (between 0 and 1) that was actually achieved
-            by the user in this exercise.
-          example: 0.8889
-          format: float
-          type: number
-        success:
-          description: Whether the exercise was successfully completed or not.
-          example: true
-          type: boolean
-        verb_display:
-          default: ""
-          description: Type of action that was performed by the user.
-          example: answered
-          type: string
-        verb_id:
-          default: ""
-          description: Link to the type of action that was performed by the user.
-          example: http://adlnet.gov/expapi/verbs/answered
-          type: string
-      required:
-      - completion
-      - correct_responses_pattern
-      - created_time
-      - object_definition_description
-      - response
-      - score_max
-      - score_min
-      - score_raw
-      - success
-      type: object
-      x-tablename: LearningResult
     Link:
       example:
         annis_component_name: dep
@@ -838,36 +848,128 @@ components:
           example: 1
           type: integer
       type: object
-    UpdateInfo:
-      description: Timestamps for updates of various resources.
-      properties:
-        created_time:
-          description: When the resource was created (as POSIX timestamp).
-          example: 1234567.789
-          format: float
-          type: number
-          x-index: true
-        last_modified_time:
-          description: When the resource was last modified (as POSIX timestamp).
-          example: 1234567.789
-          format: float
-          type: number
-          x-index: true
-        resource_type:
-          description: Name of the resource for which update timestamps are indexed.
-          enum:
-          - cts_data
-          - exercise_list
-          - file_api_clean
-          example: cts_data
-          type: string
-          x-primary-key: true
-      required:
-      - created_time
-      - last_modified_time
-      - resource_type
+    ExerciseForm:
+      allOf:
+      - $ref: '#/components/schemas/ExerciseBase'
+      - $ref: '#/components/schemas/ExerciseForm_allOf'
       type: object
-      x-tablename: UpdateInfo
+      x-body-name: exercise_data
+    ExerciseBase:
+      description: Base data for creating and evaluating interactive exercises.
+      properties:
+        correct_feedback:
+          default: ""
+          description: Feedback for successful completion of the exercise.
+          example: Well done!
+          type: string
+        general_feedback:
+          default: ""
+          description: Feedback for finishing the exercise.
+          example: You have finished the exercise.
+          type: string
+        incorrect_feedback:
+          default: ""
+          description: Feedback for failing to complete the exercise successfully.
+          example: Unfortunately, that answer is wrong.
+          type: string
+        instructions:
+          default: ""
+          description: Hints for how to complete the exercise.
+          example: Fill in the gaps!
+          type: string
+        partially_correct_feedback:
+          default: ""
+          description: Feedback for successfully completing certain parts of the exercise.
+          example: Some parts of this answer are correct.
+          type: string
+        search_values:
+          default: '[]'
+          description: Search queries that were used to build the exercise.
+          example: '[''upostag=noun'', ''dependency=object'']'
+          type: string
+        work_author:
+          default: ""
+          description: Name of the person who wrote the base text for the exercise.
+          example: C. Iulius Caesar
+          type: string
+        work_title:
+          default: ""
+          description: Title of the base text for the exercise.
+          example: Noctes Atticae
+          type: string
+      required:
+      - instructions
+      - search_values
+      type: object
+    Exercise:
+      allOf:
+      - $ref: '#/components/schemas/ExerciseBase'
+      - $ref: '#/components/schemas/Exercise_allOf'
+    FileType:
+      description: File format for the requested serialization.
+      enum:
+      - docx
+      - json
+      - pdf
+      - xml
+      example: pdf
+      type: string
+    StaticExercise:
+      description: Metadata for a static exercise.
+      properties:
+        solutions:
+          description: Solutions for the exercise.
+          items:
+            description: Single solution, given as tuple of correct response and its
+              lemma.
+            items:
+              description: Correct response or corresponding lemma.
+              example: gaudeas
+              type: string
+            type: array
+          type: array
+        urn:
+          description: CTS URN for the text passage from which the exercise was created.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          type: string
+      type: object
+    inline_object:
+      description: Data that should be serialized and persisted.
+      properties:
+        file_type:
+          $ref: '#/components/schemas/FileType'
+        html_content:
+          description: HTML content to be serialized.
+          example: <html></html>
+          type: string
+        learning_result:
+          description: Serialized XAPI results for an interactive exercise.
+          example: '{''0'': {}}'
+          type: string
+        urn:
+          description: CTS URN for the text passage from which the HTML content was
+            created.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          type: string
+      type: object
+      x-body-name: file_data
+    ExerciseForm_allOf:
+      description: Additional exercise data.
+      properties:
+        type:
+          description: Type of exercise, concerning interaction and layout.
+          example: markWords
+          type: string
+        type_translation:
+          description: Localized expression of the exercise type.
+          example: Cloze
+          type: string
+        urn:
+          description: CTS URN for the text passage from which the exercise was created.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          type: string
+      required:
+      - type
     Exercise_allOf:
       description: Data for creating and evaluating interactive exercises.
       properties:
@@ -930,20 +1032,3 @@ components:
       required:
       - eid
       - last_access_time
-    ExerciseForm_allOf:
-      description: Additional exercise data.
-      properties:
-        type:
-          description: Type of exercise, concerning interaction and layout.
-          example: markWords
-          type: string
-        type_translation:
-          description: Localized expression of the exercise type.
-          example: Cloze
-          type: string
-        urn:
-          description: CTS URN for the text passage from which the exercise was created.
-          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
-          type: string
-      required:
-      - type

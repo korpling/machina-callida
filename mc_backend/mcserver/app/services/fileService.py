@@ -26,7 +26,7 @@ class FileService:
     def create_tmp_file(file_type: FileType, file_id: str) -> DownloadableFile:
         """ Creates a new temporary file and adds it to the FileService watch list. """
         # generate temp file
-        (handle, path) = mkstemp(suffix=".{0}".format(file_type.value), dir=Config.TMP_DIRECTORY)
+        (handle, path) = mkstemp(suffix=".{0}".format(file_type), dir=Config.TMP_DIRECTORY)
         # grant all permissions for the file to everybody, so Docker can handle the files during builds / updates
         os.fchmod(handle, 0o777)
         file_name: str = os.path.basename(path)
@@ -85,6 +85,7 @@ class FileService:
         vocabulary_file_content: str = FileService.get_file_content(
             os.path.join(Config.ASSETS_DIRECTORY, vocabulary_corpus.value))
         vocabulary_list: List[str] = json.loads(vocabulary_file_content)
+        frequency_upper_bound = frequency_upper_bound if frequency_upper_bound else len(vocabulary_list)
         return set(vocabulary_list[:frequency_upper_bound])
 
     @staticmethod
@@ -120,16 +121,16 @@ class FileService:
         if solution_indices is not None:
             solutions = [solutions[x] for x in solution_indices]
         # write the relevant content to the file
-        if file_type == FileType.pdf:
+        if file_type == FileType.PDF:
             html_string: str = FileService.get_pdf_html_string(exercise, conll, file_type, solutions)
             with open(existing_file.file_path, "wb+") as f:
                 pdf = pisa.CreatePDF(StringIO(html_string), f)
-        elif file_type == FileType.xml:
+        elif file_type == FileType.XML:
             # export exercise data to XML
             xml_string: str = XMLservice.create_xml_string(exercise, conll, file_type, solutions)
             with open(existing_file.file_path, "w+") as f:
                 f.write(xml_string)
-        elif file_type == FileType.docx:
+        elif file_type == FileType.DOCX:
             FileService.make_docx_file(exercise, existing_file.file_path, conll, file_type, solutions)
         return existing_file
 
@@ -138,10 +139,10 @@ class FileService:
         """Creates a temporary file for the HTML content, so the users can download it."""
         existing_file: DownloadableFile = FileService.create_tmp_file(file_type, urn)
         # write the relevant content to the file
-        if file_type == FileType.pdf:
+        if file_type == FileType.PDF:
             with open(existing_file.file_path, "wb+") as f:
                 pdf = pisa.CreatePDF(StringIO(html_content), f)
-        elif file_type == FileType.docx:
+        elif file_type == FileType.DOCX:
             soup: BeautifulSoup = BeautifulSoup(html_content, 'html.parser')
             doc: Document = Document()
             par1: Paragraph = doc.add_paragraph(soup.p.text)

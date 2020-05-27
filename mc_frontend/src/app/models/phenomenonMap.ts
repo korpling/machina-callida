@@ -9,10 +9,10 @@ export class PhenomenonMapContent {
 }
 
 export class PhenomenonMap {
-    public case: PhenomenonMapContent;
     public dependency: PhenomenonMapContent;
+    public feats: PhenomenonMapContent;
     public lemma: PhenomenonMapContent;
-    public partOfSpeech: PhenomenonMapContent;
+    public upostag: PhenomenonMapContent;
 
     constructor(init?: Partial<PhenomenonMap>) {
         Object.assign(this, init);

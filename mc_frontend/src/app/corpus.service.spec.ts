@@ -9,7 +9,7 @@ import {HttpClientTestingModule, HttpTestingController} from '@angular/common/ht
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {HelperService} from './helper.service';
 import MockMC from './models/mockMC';
-import {CaseValue, DependencyValue, ExerciseType, PartOfSpeechValue, Phenomenon} from './models/enum';
+import {CaseValue, DependencyValue, ExerciseType, PartOfSpeechValue} from './models/enum';
 import {ApplicationState} from './models/applicationState';
 import {QueryMC} from './models/queryMC';
 import {PhenomenonMapContent} from './models/phenomenonMap';
@@ -22,6 +22,7 @@ import {take} from 'rxjs/operators';
 import {TextRange} from './models/textRange';
 import Spy = jasmine.Spy;
 import {AnnisResponse, NodeMC} from '../../openapi';
+import {Phenomenon} from '../../openapi';
 
 describe('CorpusService', () => {
     let httpClient: HttpClient;
@@ -181,7 +182,7 @@ describe('CorpusService', () => {
 
     it('should get sorted query values', () => {
         corpusService.exercise.type = ExerciseType.cloze;
-        const query: QueryMC = new QueryMC({phenomenon: Phenomenon.partOfSpeech});
+        const query: QueryMC = new QueryMC({phenomenon: Phenomenon.Upostag});
         let result: string[] = corpusService.getSortedQueryValues(query, 0);
         expect(result.length).toBe(0);
         const pmc: PhenomenonMapContent = corpusService.phenomenonMap[query.phenomenon];
@@ -193,18 +194,18 @@ describe('CorpusService', () => {
         corpusService.annisResponse = {
             frequency_analysis: [{
                 values: [PartOfSpeechValue.adjective.toString(), 'a'],
-                phenomena: ['', Phenomenon.partOfSpeech.toString()]
+                phenomena: [Phenomenon.Upostag, Phenomenon.Upostag]
             }, {
                 values: [PartOfSpeechValue.adjective.toString(), 'b'],
-                phenomena: ['', Phenomenon.partOfSpeech.toString()]
+                phenomena: [Phenomenon.Upostag, Phenomenon.Upostag]
             }, {
                 values: [PartOfSpeechValue.adjective.toString(), 'c'],
-                phenomena: ['', Phenomenon.partOfSpeech.toString()]
+                phenomena: [Phenomenon.Upostag, Phenomenon.Upostag]
             }]
         };
         result = corpusService.getSortedQueryValues(query, 1);
         expect(result.length).toBe(3);
-        corpusService.annisResponse.frequency_analysis.forEach(fi => fi.phenomena = [Phenomenon.partOfSpeech.toString()]);
+        corpusService.annisResponse.frequency_analysis.forEach(fi => fi.phenomena = [Phenomenon.Upostag]);
         corpusService.annisResponse.frequency_analysis[0].values[0] = 'a';
         corpusService.annisResponse.frequency_analysis[1].values[0] = 'b';
         corpusService.annisResponse.frequency_analysis[2].values[0] = 'c';
@@ -329,19 +330,19 @@ describe('CorpusService', () => {
         const node: NodeMC = {
             udep_lemma: 'lemma',
             udep_upostag: 'NOUN',
-            udep_feats: `${Phenomenon.case.toString()}=Nom`
+            udep_feats: `${Phenomenon.Feats}=Nom`
         };
         const ar: AnnisResponse = {graph_data: {nodes: [node, {...node}], links: []}};
         corpusService.phenomenonMap.lemma = new PhenomenonMapContent({specificValues: {}, translationValues: {}});
-        corpusService.phenomenonMap.case = new PhenomenonMapContent({specificValues: {}, translationValues: {}});
-        corpusService.phenomenonMap.partOfSpeech = new PhenomenonMapContent({
+        corpusService.phenomenonMap.feats = new PhenomenonMapContent({specificValues: {}, translationValues: {}});
+        corpusService.phenomenonMap.upostag = new PhenomenonMapContent({
             specificValues: {},
             translationValues: {}
         });
         corpusService.processNodes(ar);
         expect(corpusService.phenomenonMap.lemma.specificValues[node.udep_lemma]).toBe(2);
-        expect(corpusService.phenomenonMap.case.specificValues[CaseValue.nominative]).toBe(2);
-        expect(corpusService.phenomenonMap.partOfSpeech.specificValues[PartOfSpeechValue.noun]).toBe(2);
+        expect(corpusService.phenomenonMap.feats.specificValues[CaseValue.nominative]).toBe(2);
+        expect(corpusService.phenomenonMap.upostag.specificValues[PartOfSpeechValue.noun]).toBe(2);
     });
 
     it('should restore the last corpus', (done) => {
@@ -403,12 +404,12 @@ describe('CorpusService', () => {
         corpusService.annisResponse = {
             frequency_analysis: helperService.deepCopy(MockMC.apiResponseFrequencyAnalysisGet)
         };
-        corpusService.annisResponse.frequency_analysis[0].phenomena.push(Phenomenon.case.toString());
+        corpusService.annisResponse.frequency_analysis[0].phenomena.push(Phenomenon.Feats);
         corpusService.exercise.type = ExerciseType.matching;
         corpusService.exercise.queryItems.push(new QueryMC());
         corpusService.updateBaseWord(new QueryMC(), 0);
         expect(adjustSpy).toHaveBeenCalledTimes(1);
         expect(queryValuesSpy).toHaveBeenCalledTimes(1);
-        expect(corpusService.exercise.queryItems[1].phenomenon).toBe(Phenomenon.case);
+        expect(corpusService.exercise.queryItems[1].phenomenon).toBe(Phenomenon.Feats);
     });
 });

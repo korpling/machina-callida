@@ -3,12 +3,14 @@ import logging
 import os
 import sys
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from threading import Thread
 from time import strftime
 from typing import Type
 import connexion
 import flask
 import open_alchemy
+import prance
 from connexion import FlaskApp
 from flask import Flask, got_request_exception, request, Response, send_from_directory
 from flask_cors import CORS
@@ -21,7 +23,7 @@ db: SQLAlchemy = SQLAlchemy()  # session_options={"autocommit": True}
 migrate: Migrate = Migrate(directory=Config.MIGRATIONS_DIRECTORY)
 if not hasattr(open_alchemy.models, Config.DATABASE_TABLE_CORPUS):
     # do this _BEFORE_ you add any APIs to your application
-    init_yaml(Config.API_SPEC_YAML_FILE_PATH, base=db.Model,
+    init_yaml(Config.API_SPEC_MODELS_YAML_FILE_PATH, base=db.Model,
               models_filename=os.path.join(Config.MC_SERVER_DIRECTORY, "models_auto.py"))
 
 
@@ -76,10 +78,13 @@ def full_init(app: Flask, cfg: Type[Config] = Config) -> None:
 
 def init_app_common(cfg: Type[Config] = Config, is_csm: bool = False) -> Flask:
     """ Initializes common Flask parts, e.g. CORS, configuration, database, migrations and custom corpora."""
+    spec_dir: str = Config.CSM_DIRECTORY if is_csm else Config.MC_SERVER_DIRECTORY
     connexion_app: FlaskApp = connexion.FlaskApp(
-        __name__, port=(cfg.CORPUS_STORAGE_MANAGER_PORT if is_csm else cfg.HOST_PORT),
-        specification_dir=Config.MC_SERVER_DIRECTORY)
-    connexion_app.add_api(Config.API_SPEC_YAML_FILE_PATH, arguments={'title': 'Machina Callida Backend REST API'})
+        __name__, port=(cfg.CORPUS_STORAGE_MANAGER_PORT if is_csm else cfg.HOST_PORT), specification_dir=spec_dir)
+    spec_path: str = Config.API_SPEC_CSM_FILE_PATH if is_csm else Config.API_SPEC_MCSERVER_FILE_PATH
+    parser = prance.ResolvingParser(spec_path, lazy=True, strict=False)  # str(Path(spec_path).absolute())
+    parser.parse()
+    connexion_app.add_api(parser.specification)
     apply_event_handlers(connexion_app)
     app: Flask = connexion_app.app
     # allow CORS requests for all API routes

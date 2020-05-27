@@ -51,7 +51,8 @@ class CorpusStorageManagerAPI(Resource):
         annotations_or_urn: str = args["annotations"]
         aqls: List[str] = args["aqls"]
         exercise_type: ExerciseType = ExerciseType[args["exercise_type"]]
-        search_phenomena: List[Phenomenon] = [Phenomenon[x] for x in args["search_phenomena"]]
+        search_phenomena: List[Phenomenon] = [Phenomenon().__getattribute__(x.upper()) for x in
+                                              args["search_phenomena"]]
         conll: List[TokenList] = CorpusService.get_annotations_from_string(annotations_or_urn)
         ret_val: dict = CorpusService.process_corpus_data(title, conll, aqls, exercise_type, search_phenomena)
         # serialize the results to json

@@ -1,4 +1,5 @@
-import {DependencyValue, PartOfSpeechValue, Phenomenon} from 'src/app/models/enum';
+import {DependencyValue, PartOfSpeechValue} from 'src/app/models/enum';
+import {Phenomenon} from '../../../openapi';
 
 export class QueryMC {
     public phenomenon: Phenomenon;

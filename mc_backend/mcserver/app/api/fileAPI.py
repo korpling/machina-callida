@@ -5,8 +5,10 @@ import uuid
 from datetime import datetime
 from typing import List, Union
 
+import connexion
 import flask
-from flask import send_from_directory
+from connexion.lifecycle import ConnexionResponse
+from flask import send_from_directory, Response
 from flask_restful import Resource, abort
 from flask_restful.reqparse import RequestParser
 from werkzeug.wrappers import ETagResponseMixin
@@ -18,71 +20,6 @@ from mcserver.config import Config
 from mcserver.models_auto import Exercise, UpdateInfo, LearningResult
 
 
-class FileAPI(Resource):
-    """The file API resource. It allows users to download files that are stored as strings in the database."""
-
-    def __init__(self):
-        """Initialize possible arguments for calls to the file REST API."""
-        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
-        self.reqparse.add_argument("id", type=str, required=False, location="args",
-                                   help="No exercise ID or URN provided")
-        self.reqparse.add_argument("type", type=str, required=False, location="args", help="No file type provided")
-        self.reqparse.add_argument("solution_indices", type=str, required=False, location="args",
-                                   help="No solution IDs provided")
-        self.reqparse.add_argument("learning_result", type=str, required=False, location="form",
-                                   help="No learning result provided")
-        self.reqparse.add_argument("html_content", type=str, required=False, location="form",
-                                   help="No HTML content provided")
-        self.reqparse.add_argument("file_type", type=str, required=False, location="form",
-                                   help="No file type provided")
-        self.reqparse.add_argument("urn", type=str, required=False, location="form", help="No URN provided")
-        super(FileAPI, self).__init__()
-
-    def get(self) -> ETagResponseMixin:
-        """The GET method for the file REST API. It provides the URL to download a specific file."""
-        clean_tmp_folder()
-        args = self.reqparse.parse_args()
-        eid: str = args["id"]
-        exercise: Exercise = db.session.query(Exercise).filter_by(eid=eid).first()
-        db.session.commit()
-        file_type: FileType = FileType[args["type"]]
-        file_name: str = eid + "." + file_type.value
-        mime_type: str = MimeType[file_type.value].value
-        if exercise is None:
-            # try and see if a file is already cached on disk
-            if not os.path.exists(os.path.join(Config.TMP_DIRECTORY, file_name)):
-                abort(404)
-            return send_from_directory(Config.TMP_DIRECTORY, file_name, mimetype=mime_type, as_attachment=True)
-        exercise.last_access_time = datetime.utcnow().timestamp()
-        db.session.commit()
-        solution_indices: List[int] = json.loads(args["solution_indices"] if args["solution_indices"] else "null")
-        if solution_indices is not None:
-            file_name = eid + "-" + str(uuid.uuid4()) + "." + file_type.value
-        existing_file: DownloadableFile = next(
-            (x for x in FileService.downloadable_files if x.id + "." + x.file_type.value == file_name), None)
-        if existing_file is None:
-            existing_file = FileService.make_tmp_file_from_exercise(file_type, exercise, solution_indices)
-        return send_from_directory(Config.TMP_DIRECTORY, existing_file.file_name, mimetype=mime_type,
-                                   as_attachment=True)
-
-    def post(self) -> Union[None, ETagResponseMixin]:
-        """ The POST method for the File REST API.
-
-        It writes learning results or HTML content to the disk for later access. """
-        form_data: dict = flask.request.form
-        lr_string: str = form_data.get("learning_result", None)
-        if lr_string:
-            lr_dict: dict = json.loads(lr_string)
-            for exercise_id in lr_dict:
-                xapi_statement: XapiStatement = XapiStatement(lr_dict[exercise_id])
-                save_learning_result(xapi_statement)
-        else:
-            file_type: FileType = FileType[form_data["file_type"]]
-            existing_file: DownloadableFile = FileService.make_tmp_file_from_html(form_data["urn"], file_type,
-                                                                                  form_data["html_content"])
-            return NetworkService.make_json_response(existing_file.file_name)
-
-
 def clean_tmp_folder():
     """ Cleans the files directory regularly. """
     ui_file: UpdateInfo = db.session.query(UpdateInfo).filter_by(resource_type=ResourceType.file_api_clean.name).first()
@@ -91,13 +28,55 @@ def clean_tmp_folder():
         for file in [x for x in os.listdir(Config.TMP_DIRECTORY) if x not in ".gitignore"]:
             file_to_delete_type: str = os.path.splitext(file)[1].replace(".", "")
             file_to_delete: DownloadableFile = next((x for x in FileService.downloadable_files if
-                                                     x.file_name == file and x.file_type.value == file_to_delete_type),
+                                                     x.file_name == file and x.file_type == file_to_delete_type),
                                                     None)
             if file_to_delete is not None:
                 FileService.downloadable_files.remove(file_to_delete)
             os.remove(os.path.join(Config.TMP_DIRECTORY, file))
             ui_file.last_modified_time = datetime.utcnow().timestamp()
             db.session.commit()
+
+
+def get(id: str, type: FileType, solution_indices: List[int]) -> Union[ETagResponseMixin, ConnexionResponse]:
+    """The GET method for the file REST API. It provides the URL to download a specific file."""
+    clean_tmp_folder()
+    exercise: Exercise = db.session.query(Exercise).filter_by(eid=id).first()
+    db.session.commit()
+    file_name: str = id + "." + str(type)
+    mime_type: str = MimeType[type].value
+    if exercise is None:
+        # try and see if a file is already cached on disk
+        if not os.path.exists(os.path.join(Config.TMP_DIRECTORY, file_name)):
+            return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_EXERCISE_NOT_FOUND)
+        return send_from_directory(Config.TMP_DIRECTORY, file_name, mimetype=mime_type, as_attachment=True)
+    exercise.last_access_time = datetime.utcnow().timestamp()
+    db.session.commit()
+    if solution_indices:
+        file_name = id + "-" + str(uuid.uuid4()) + "." + str(type)
+    existing_file: DownloadableFile = next(
+        (x for x in FileService.downloadable_files if x.id + "." + str(x.file_type) == file_name), None)
+    if existing_file is None:
+        existing_file = FileService.make_tmp_file_from_exercise(type, exercise, solution_indices)
+    return send_from_directory(Config.TMP_DIRECTORY, existing_file.file_name, mimetype=mime_type,
+                               as_attachment=True)
+
+
+def post(file_data: dict) -> Response:
+    """ The POST method for the File REST API.
+
+    It writes learning results or HTML content to the disk for later access. """
+    lr_string: str = file_data.get("learning_result", None)
+    if lr_string:
+        lr_dict: dict = json.loads(lr_string)
+        for exercise_id in lr_dict:
+            xapi_statement: XapiStatement = XapiStatement(lr_dict[exercise_id])
+            save_learning_result(xapi_statement)
+        return NetworkService.make_json_response(str(True))
+    else:
+        file_type: FileType = file_data["file_type"]
+        existing_file: DownloadableFile = FileService.make_tmp_file_from_html(file_data["urn"], file_type,
+                                                                              file_data["html_content"])
+        return NetworkService.make_json_response(existing_file.file_name)
 
 
 def save_learning_result(xapi_statement: XapiStatement) -> LearningResult:

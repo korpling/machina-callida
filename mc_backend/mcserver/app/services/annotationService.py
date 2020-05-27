@@ -1,6 +1,5 @@
 import os
 import subprocess
-from enum import Enum
 from sys import platform
 from tempfile import mkstemp
 from typing import Dict, List, Set, Tuple
@@ -20,8 +19,8 @@ class AnnotationService:
     """Service for adding annotations to raw texts."""
 
     excluded_annotations_set: Set[str] = {'form', 'id', 'head', Config.AQL_DEPREL}
-    phenomenon_map: Dict[Enum, Dict[str, List[str]]] = {
-        Phenomenon.case: {
+    phenomenon_map: Dict[Phenomenon, Dict[str, List[str]]] = {
+        Phenomenon.FEATS: {
             Case.ablative.name: ["Abl"],
             Case.accusative.name: ["Acc"],
             Case.dative.name: ["Dat"],
@@ -30,7 +29,7 @@ class AnnotationService:
             Case.nominative.name: ["Nom"],
             Case.vocative.name: ["Voc"],
         },
-        Phenomenon.partOfSpeech: {
+        Phenomenon.UPOSTAG: {
             PartOfSpeech.adjective.name: ["ADJ"],
             PartOfSpeech.adverb.name: ["ADV"],
             PartOfSpeech.auxiliary.name: ["AUX"],
@@ -47,11 +46,11 @@ class AnnotationService:
             PartOfSpeech.symbol.name: ["SYM"],
             PartOfSpeech.verb.name: ["VERB"],
         },
-        Phenomenon.dependency: {
+        Phenomenon.DEPENDENCY: {
             Dependency.adjectivalClause.name: ["acl"],
             Dependency.adjectivalModifier.name: ["amod"],
             Dependency.adverbialClauseModifier.name: ["advcl"],
-            Dependency.adverbialModifier.name: ["advmod"],
+            Dependency.adverbialModifier.name: ["advmod", "advmod:emph"],
             Dependency.appositionalModifier.name: ["appos"],
             Dependency.auxiliary.name: ["aux", "aux:pass"],
             Dependency.caseMarking.name: ["case"],
@@ -77,9 +76,10 @@ class AnnotationService:
             Dependency.punctuation.name: ["punct"],
             Dependency.root.name: ["root"],
             Dependency.subject.name: ["nsubj", "nsubj:pass", "csubj", "csubj:pass"],
+            Dependency.unspecified.name: ["dep"],
             Dependency.vocative.name: ["vocative"]
         },
-        Phenomenon.lemma: {}}
+        Phenomenon.LEMMA: {}}
 
     @staticmethod
     def add_urn_to_sentences(text_list: List[Tuple[str, str]], annotations: List[TokenList]) -> None:
@@ -263,28 +263,28 @@ class AnnotationService:
         aql_parts: List[str] = []
         for i in range(len(search_values_list)):
             search_parts: List[str] = search_values_list[i].split("=")
-            phenomenon: Phenomenon = Phenomenon[search_parts[0]]
+            phenomenon: Phenomenon = Phenomenon().__getattribute__(search_parts[0].upper())
             raw_values: List[str] = search_parts[1].split("|")
             aql_base: str
-            if phenomenon == Phenomenon.dependency:
+            if phenomenon == Phenomenon.DEPENDENCY:
                 aql_base = f'node {Config.AQL_DEP}[{Config.AQL_DEPREL}=' + "{0}] node"
             else:
-                aql_base = phenomenon.value + '={0}'
-            if phenomenon == Phenomenon.lemma:
+                aql_base = str(phenomenon) + '={0}'
+            if phenomenon == Phenomenon.LEMMA:
                 for rv in raw_values:
                     # need to prepare the mapping dynamically, so we can handle the following steps in a uniform way
                     AnnotationService.phenomenon_map[phenomenon][rv] = [rv]
             for rv in raw_values:
                 translated_values: List[str] = AnnotationService.phenomenon_map[phenomenon][rv]
                 aql_part: str
-                if phenomenon == Phenomenon.case:
+                if phenomenon == Phenomenon.FEATS:
                     aql_part = aql_base.format('/.*Case={0}.*/'.format(translated_values[0]))
                 else:
                     aql_part = aql_base.format(f'"{translated_values[0]}"' if len(
                         translated_values) == 1 else f"/({'|'.join(translated_values)})/")
-                if AnnotationService.phenomenon_map[Phenomenon.dependency][Dependency.root.name][0] in aql_part:
+                if AnnotationService.phenomenon_map[Phenomenon.DEPENDENCY][Dependency.root.name][0] in aql_part:
                     aql_part = 'deps="{0}"'.format(
-                        AnnotationService.phenomenon_map[Phenomenon.dependency][Dependency.root.name][0])
+                        AnnotationService.phenomenon_map[Phenomenon.DEPENDENCY][Dependency.root.name][0])
                 aql_parts.append(aql_part)
         if exercise_type == ExerciseType.matching:
             final_aql: str = f'{aql_parts[0]} {Config.AQL_DEP} {aql_parts[1]}'

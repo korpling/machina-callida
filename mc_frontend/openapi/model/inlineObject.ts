@@ -9,21 +9,25 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { Phenomenon } from './phenomenon';
+import { FileType } from './fileType';
 
 
-export interface FrequencyItem { 
+/**
+ * Data that should be serialized and persisted.
+ */
+export interface InlineObject { 
+    file_type?: FileType;
     /**
-     * How often the given combination of values occurred.
+     * HTML content to be serialized.
      */
-    count?: number;
+    html_content?: string;
     /**
-     * Labels for the linguistic phenomena described in this frequency entry.
+     * Serialized XAPI results for an interactive exercise.
      */
-    phenomena?: Array<Phenomenon>;
+    learning_result?: string;
     /**
-     * Values for the phenomena described in this frequency entry.
+     * CTS URN for the text passage from which the HTML content was created.
      */
-    values?: Array<string>;
+    urn?: string;
 }
 

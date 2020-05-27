@@ -1,6 +1,6 @@
 import {CorpusMC} from './corpusMC';
 import {ExerciseMC} from './exerciseMC';
-import {PartOfSpeechValue, Phenomenon} from './enum';
+import {PartOfSpeechValue} from './enum';
 import {ApplicationState} from './applicationState';
 import {TextData} from './textData';
 import {TestResultMC} from './testResultMC';
@@ -9,6 +9,7 @@ import Result from './xAPI/Result';
 import Score from './xAPI/Score';
 import {TextRange} from './textRange';
 import {AnnisResponse, FrequencyItem} from '../../../openapi';
+import {Phenomenon} from '../../../openapi';
 
 export default class MockMC {
     static apiResponseCorporaGet: CorpusMC[] = [new CorpusMC({
@@ -17,7 +18,7 @@ export default class MockMC {
         title: 'title',
     })];
     static apiResponseFrequencyAnalysisGet: FrequencyItem[] = [{
-        phenomena: [Phenomenon.partOfSpeech.toString()],
+        phenomena: [Phenomenon.Upostag],
         values: [PartOfSpeechValue.adjective.toString()]
     }];
     static apiResponseTextGet: AnnisResponse = {

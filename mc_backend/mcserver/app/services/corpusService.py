@@ -14,8 +14,8 @@ from networkx import graph, MultiDiGraph
 from networkx.readwrite import json_graph
 from requests import HTTPError
 from mcserver.app import db
-from mcserver.app.models import CitationLevel, GraphData, Solution, ExerciseType, Phenomenon, FrequencyAnalysis, \
-    AnnisResponse, CorpusMC, make_solution_element_from_salt_id
+from mcserver.app.models import CitationLevel, GraphData, Solution, ExerciseType, Phenomenon, AnnisResponse, CorpusMC, \
+    make_solution_element_from_salt_id, FrequencyItem
 from mcserver.app.services import AnnotationService, XMLservice, TextService, FileService, FrequencyService, \
     CustomCorpusService
 from mcserver.config import Config
@@ -107,22 +107,23 @@ class CorpusService:
             return AnnisResponse.from_dict(json.loads(response.text))
 
     @staticmethod
-    def get_frequency_analysis(urn: str, is_csm: bool) -> FrequencyAnalysis:
+    def get_frequency_analysis(urn: str, is_csm: bool) -> List[FrequencyItem]:
         """ Collects frequency statistics for various combinations of linguistic annotations in a corpus. """
         if is_csm:
             ar: AnnisResponse = CorpusService.get_corpus(urn, is_csm)
             search_phenomena: List[List[Phenomenon]] = []
-            for head_phenomenon in Phenomenon:
-                for base_phenomenon in Phenomenon:
-                    search_phenomena.append([head_phenomenon, base_phenomenon])
+            for head_phenomenon in list(x for x in Phenomenon.__dict__.keys() if x.isupper()):
+                for base_phenomenon in list(x for x in Phenomenon.__dict__.keys() if x.isupper()):
+                    search_phenomena.append([Phenomenon().__getattribute__(head_phenomenon),
+                                             Phenomenon().__getattribute__(base_phenomenon)])
             disk_urn: str = AnnotationService.get_disk_urn(urn)
-            fa: FrequencyAnalysis = FrequencyAnalysis()
+            fa: List[FrequencyItem] = []
             for search_phenomenon in search_phenomena:
-                if Phenomenon.dependency in search_phenomenon:
+                if Phenomenon.DEPENDENCY in search_phenomenon:
                     continue
-                elif search_phenomenon[0] == Phenomenon.case:
+                elif search_phenomenon[0] == Phenomenon.FEATS:
                     fa += FrequencyService.add_case_frequencies(disk_urn, search_phenomenon)
-                elif search_phenomenon[0] in [Phenomenon.lemma, Phenomenon.partOfSpeech]:
+                elif search_phenomenon[0] in [Phenomenon.LEMMA, Phenomenon.UPOSTAG]:
                     fa += FrequencyService.add_generic_frequencies(disk_urn, search_phenomenon)
             FrequencyService.add_dependency_frequencies(ar.graph_data, fa)
             return FrequencyService.extract_case_values(fa)
@@ -130,7 +131,7 @@ class CorpusService:
             url: str = Config.INTERNET_PROTOCOL + f"{Config.HOST_IP_CSM}:{Config.CORPUS_STORAGE_MANAGER_PORT}" + \
                        Config.SERVER_URI_FREQUENCY
             response: requests.Response = requests.get(url, params=dict(urn=urn))
-            return FrequencyAnalysis(json_list=json.loads(response.text))
+            return [FrequencyItem.from_dict(x) for x in json.loads(response.text)]
 
     @staticmethod
     def get_graph(cts_urn: str) -> MultiDiGraph:
@@ -191,14 +192,14 @@ class CorpusService:
             node_ids: List[str] = CorpusService.find_matches(urn, aql, is_csm=True)
             if len(search_phenomena) == 1:
                 # it's cloze or markWords; the solutions only have a target, no explicit value
-                if search_phenomena[0] == Phenomenon.dependency:
+                if search_phenomena[0] == Phenomenon.DEPENDENCY:
                     node_ids = [node_ids[i] for i in range(len(node_ids)) if i % 2 != 0]
                     matches += [Solution(target=make_solution_element_from_salt_id(x)) for x in node_ids]
                 else:
                     matches += [Solution(target=make_solution_element_from_salt_id(x)) for x in node_ids]
             else:
                 # it's a matching exercise
-                if search_phenomena[0] == Phenomenon.dependency:
+                if search_phenomena[0] == Phenomenon.DEPENDENCY:
                     for i in range(len(node_ids)):
                         if i % 3 == 0:
                             matches.append(Solution(

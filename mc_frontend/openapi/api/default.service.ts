@@ -19,6 +19,10 @@ import { Observable }                                        from 'rxjs';
 
 import { AnnisResponse } from '../model/models';
 import { Corpus } from '../model/models';
+import { Exercise } from '../model/models';
+import { FileType } from '../model/models';
+import { FrequencyItem } from '../model/models';
+import { StaticExercise } from '../model/models';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -48,6 +52,19 @@ export class DefaultService {
         this.encoder = this.configuration.encoder || new CustomHttpParameterCodec();
     }
 
+    /**
+     * @param consumes string[] mime-types
+     * @return true: consumes contains 'multipart/form-data', false: otherwise
+     */
+    private canConsumeForm(consumes: string[]): boolean {
+        const form = 'multipart/form-data';
+        for (const consume of consumes) {
+            if (form === consume) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     private addToHttpParams(httpParams: HttpParams, value: any, key?: string): HttpParams {
@@ -387,13 +404,273 @@ export class DefaultService {
     }
 
     /**
+     * Provides metadata for all available exercises.
+     * @param lang ISO 639-1 Language Code for the localization of exercise content.
+     * @param frequencyUpperBound Upper bound for reference vocabulary frequency.
+     * @param lastUpdateTime Time (in milliseconds) of the last update.
+     * @param vocabulary Identifier for a reference vocabulary.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: 'agldt' | 'bws' | 'proiel' | 'viva', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Exercise>;
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: 'agldt' | 'bws' | 'proiel' | 'viva', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Exercise>>;
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: 'agldt' | 'bws' | 'proiel' | 'viva', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Exercise>>;
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: 'agldt' | 'bws' | 'proiel' | 'viva', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (lang === null || lang === undefined) {
+            throw new Error('Required parameter lang was null or undefined when calling mcserverAppApiExerciseListAPIGet.');
+        }
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (lang !== undefined && lang !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>lang, 'lang');
+        }
+        if (frequencyUpperBound !== undefined && frequencyUpperBound !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>frequencyUpperBound, 'frequency_upper_bound');
+        }
+        if (lastUpdateTime !== undefined && lastUpdateTime !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>lastUpdateTime, 'last_update_time');
+        }
+        if (vocabulary !== undefined && vocabulary !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>vocabulary, 'vocabulary');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<Exercise>(`${this.configuration.basePath}/exerciseList`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Provides the URL to download a specific file.
+     * @param id Unique identifier (UUID) for an exercise.
+     * @param type File format for the requested download.
+     * @param solutionIndices Indices for the solutions that should be included in the download.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Exercise>;
+    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Exercise>>;
+    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Exercise>>;
+    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling mcserverAppApiFileAPIGet.');
+        }
+        if (type === null || type === undefined) {
+            throw new Error('Required parameter type was null or undefined when calling mcserverAppApiFileAPIGet.');
+        }
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (id !== undefined && id !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>id, 'id');
+        }
+        if (type !== undefined && type !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>type, 'type');
+        }
+        if (solutionIndices) {
+            solutionIndices.forEach((element) => {
+                queryParameters = this.addToHttpParams(queryParameters,
+                  <any>element, 'solution_indices');
+            })
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<Exercise>(`${this.configuration.basePath}/file`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Serializes and persists learning results or HTML content for later access.
+     * @param fileType 
+     * @param htmlContent HTML content to be serialized.
+     * @param learningResult Serialized XAPI results for an interactive exercise.
+     * @param urn CTS URN for the text passage from which the HTML content was created.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiFileAPIPost(fileType?: FileType, htmlContent?: string, learningResult?: string, urn?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<string>;
+    public mcserverAppApiFileAPIPost(fileType?: FileType, htmlContent?: string, learningResult?: string, urn?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<string>>;
+    public mcserverAppApiFileAPIPost(fileType?: FileType, htmlContent?: string, learningResult?: string, urn?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<string>>;
+    public mcserverAppApiFileAPIPost(fileType?: FileType, htmlContent?: string, learningResult?: string, urn?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/x-www-form-urlencoded'
+        ];
+
+        const canConsumeForm = this.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any; };
+        let useForm = false;
+        let convertFormParamsToString = false;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new HttpParams({encoder: this.encoder});
+        }
+
+        if (fileType !== undefined) {
+            formParams = formParams.append('file_type', <any>fileType) as any || formParams;
+        }
+        if (htmlContent !== undefined) {
+            formParams = formParams.append('html_content', <any>htmlContent) as any || formParams;
+        }
+        if (learningResult !== undefined) {
+            formParams = formParams.append('learning_result', <any>learningResult) as any || formParams;
+        }
+        if (urn !== undefined) {
+            formParams = formParams.append('urn', <any>urn) as any || formParams;
+        }
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.post<string>(`${this.configuration.basePath}/file`,
+            convertFormParamsToString ? formParams.toString() : formParams,
+            {
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Returns results for a frequency query from ANNIS for a given CTS URN.
+     * @param urn CTS URN for referencing the corpus.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiFrequencyAPIGet(urn: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Array<FrequencyItem>>;
+    public mcserverAppApiFrequencyAPIGet(urn: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Array<FrequencyItem>>>;
+    public mcserverAppApiFrequencyAPIGet(urn: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Array<FrequencyItem>>>;
+    public mcserverAppApiFrequencyAPIGet(urn: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (urn === null || urn === undefined) {
+            throw new Error('Required parameter urn was null or undefined when calling mcserverAppApiFrequencyAPIGet.');
+        }
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (urn !== undefined && urn !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>urn, 'urn');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<Array<FrequencyItem>>(`${this.configuration.basePath}/frequency`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Returns metadata for static exercises.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public mcserverAppApiStaticExercisesAPIGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<object>;
-    public mcserverAppApiStaticExercisesAPIGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<object>>;
-    public mcserverAppApiStaticExercisesAPIGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<object>>;
+    public mcserverAppApiStaticExercisesAPIGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<{ [key: string]: StaticExercise; }>;
+    public mcserverAppApiStaticExercisesAPIGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<{ [key: string]: StaticExercise; }>>;
+    public mcserverAppApiStaticExercisesAPIGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<{ [key: string]: StaticExercise; }>>;
     public mcserverAppApiStaticExercisesAPIGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
 
         let headers = this.defaultHeaders;
@@ -416,7 +693,7 @@ export class DefaultService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<object>(`${this.configuration.basePath}/exercises`,
+        return this.httpClient.get<{ [key: string]: StaticExercise; }>(`${this.configuration.basePath}/staticExercises`,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
