@@ -25,8 +25,6 @@ import Definition from '../models/xAPI/Definition';
 import {HttpClientModule} from '@angular/common/http';
 import {By} from '@angular/platform-browser';
 
-declare var H5P: any;
-
 describe('TestPage', () => {
     let testPage: TestPage;
     let fixture: ComponentFixture<TestPage>;
@@ -182,7 +180,8 @@ describe('TestPage', () => {
     it('should set H5P event handlers', () => {
         const finishSpy: Spy = spyOn(testPage, 'finishCurrentExercise').and.returnValue(Promise.resolve());
         const newDispatcher: H5PeventDispatcherMock = new H5PeventDispatcherMock();
-        spyOn(H5P.externalDispatcher, 'on').and.callFake(newDispatcher.on.bind(newDispatcher));
+        const h5p: any = {externalDispatcher: {on: newDispatcher.on.bind(newDispatcher)}};
+        spyOn(testPage.helperService, 'getH5P').and.returnValue(h5p);
         testPage.setH5PeventHandlers();
         testPage.currentState = TestModuleState.showResults;
         const xapiEvent: XAPIevent = new XAPIevent({
@@ -223,7 +222,7 @@ describe('TestPage', () => {
             .map(x => x.exercises.length);
         testPage.exerciseService.currentExerciseIndex = previousExercises.reduce((a, b) => a + b);
         let wasH5Prendered = false;
-        H5P.externalDispatcher.on('domChanged', async (event: any) => {
+        testPage.helperService.getH5P().externalDispatcher.on('domChanged', async (event: any) => {
             wasH5Prendered = !wasH5Prendered;
             if (wasH5Prendered) {
                 const url: string = window.localStorage.getItem(configMC.localStorageKeyH5P);
@@ -231,7 +230,7 @@ describe('TestPage', () => {
                 const iframe2: HTMLIFrameElement = document.querySelector(testPage.exerciseService.h5pIframeString);
                 const parEl: HTMLParagraphElement = iframe2.contentWindow.document.querySelector('p');
                 expect(result.text).toContain(parEl.textContent);
-                H5P.externalDispatcher.off('domChanged');
+                testPage.helperService.getH5P().externalDispatcher.off('domChanged');
                 testPage.vocService.currentTestResults[2] = new TestResultMC({
                     statement: new StatementBase({
                         context: new Context({

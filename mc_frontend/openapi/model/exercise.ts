@@ -31,6 +31,10 @@ export interface Exercise {
      */
     instructions: string;
     /**
+     * ISO 639-1 Language Code for the localization of exercise content.
+     */
+    language?: string;
+    /**
      * Feedback for successfully completing certain parts of the exercise.
      */
     partially_correct_feedback?: string;
@@ -62,10 +66,6 @@ export interface Exercise {
      * Localized expression of the exercise type.
      */
     exercise_type_translation?: string;
-    /**
-     * ISO 639-1 Language Code for the localization of exercise content.
-     */
-    language?: string;
     /**
      * When the exercise was last accessed (as POSIX timestamp).
      */

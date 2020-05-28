@@ -124,14 +124,12 @@ paths:
       operationId: mcserver_app_api_exercise_api_get
       parameters:
       - description: Unique identifier (UUID) for the exercise.
-        explode: true
         in: query
         name: eid
         required: true
         schema:
           example: 12345678-1234-5678-1234-567812345678
           type: string
-        style: form
       responses:
         "200":
           content:
@@ -164,14 +162,12 @@ paths:
       operationId: mcserver_app_api_exercise_list_api_get
       parameters:
       - description: ISO 639-1 Language Code for the localization of exercise content.
-        explode: true
         in: query
         name: lang
         required: true
         schema:
           example: en
           type: string
-        style: form
       - description: Upper bound for reference vocabulary frequency.
         explode: true
         in: query
@@ -198,13 +194,7 @@ paths:
         name: vocabulary
         required: false
         schema:
-          enum:
-          - agldt
-          - bws
-          - proiel
-          - viva
-          example: agldt
-          type: string
+          $ref: '#/components/schemas/VocabularyMC'
         style: form
       responses:
         "200":
@@ -237,7 +227,6 @@ paths:
           $ref: '#/components/schemas/FileType'
         style: form
       - description: Indices for the solutions that should be included in the download.
-        explode: true
         in: query
         name: solution_indices
         required: false
@@ -247,7 +236,6 @@ paths:
             example: 0
             type: integer
           type: array
-        style: form
       responses:
         "200":
           content:
@@ -279,7 +267,7 @@ paths:
                 urn:
                   description: CTS URN for the text passage from which the HTML content
                     was created.
-                  example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+                  example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
                   type: string
               type: object
               x-body-name: file_data
@@ -302,14 +290,12 @@ paths:
       operationId: mcserver_app_api_frequency_api_get
       parameters:
       - description: CTS URN for referencing the corpus.
-        explode: true
         in: query
         name: urn
         required: true
         schema:
           example: urn:cts:latinLit:phi1254.phi001.perseus-lat2:5.6.21-5.6.21
           type: string
-        style: form
       responses:
         "200":
           content:
@@ -321,6 +307,83 @@ paths:
                 type: array
           description: Frequency analysis, i.e. a list of frequency items.
       summary: Returns results for a frequency query from ANNIS for a given CTS URN.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /h5p:
+    get:
+      operationId: mcserver_app_api_h5p_api_get
+      parameters:
+      - description: Unique identifier (UUID) for the exercise.
+        in: query
+        name: eid
+        required: true
+        schema:
+          example: 12345678-1234-5678-1234-567812345678
+          type: string
+      - description: ISO 639-1 Language Code for the localization of exercise content.
+        in: query
+        name: lang
+        required: true
+        schema:
+          example: en
+          type: string
+      - description: Indices for the solutions that should be included in the download.
+        in: query
+        name: solution_indices
+        required: false
+        schema:
+          default: []
+          items:
+            example: 0
+            type: integer
+          type: array
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: JSON template for an interactive H5P exercise.
+                example: {}
+                type: object
+          description: JSON template for an interactive H5P exercise.
+      summary: Provides JSON templates for client-side H5P exercise layouts.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /kwic:
+    post:
+      operationId: mcserver_app_api_kwic_api_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KwicForm'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+          description: HTML strings with SVG elements for rendering KWIC images.
+      summary: Provides example contexts for a given phenomenon in a given corpus.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /rawtext:
+    get:
+      operationId: mcserver_app_api_raw_text_api_get
+      parameters:
+      - description: CTS URN for referencing the corpus.
+        in: query
+        name: urn
+        required: true
+        schema:
+          example: urn:cts:latinLit:phi1254.phi001.perseus-lat2:5.6.21-5.6.21
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnisResponse'
+          description: Graph data for the text passage, including raw text and annotations.
+      summary: Provides the raw text for a requested text passage.
       x-openapi-router-controller: openapi_server.controllers.default_controller
   /staticExercises:
     get:
@@ -337,6 +400,201 @@ paths:
             in the frontend.
       summary: Returns metadata for static exercises.
       x-openapi-router-controller: openapi_server.controllers.default_controller
+  /textcomplexity:
+    get:
+      operationId: mcserver_app_api_textcomplexity_api_get
+      parameters:
+      - description: The desired measure of text complexity for the given text passage.
+        explode: true
+        in: query
+        name: measure
+        required: true
+        schema:
+          example: all
+          type: string
+        style: form
+      - description: CTS URN for referencing the corpus.
+        in: query
+        name: urn
+        required: true
+        schema:
+          example: urn:cts:latinLit:phi1254.phi001.perseus-lat2:5.6.21-5.6.21
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextComplexity'
+          description: Text complexity measures for a given text.
+      summary: Gives users measures of text complexity for a given text.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /validReff:
+    get:
+      operationId: mcserver_app_api_valid_reff_api_get
+      parameters:
+      - description: CTS URN for referencing the corpus.
+        in: query
+        name: urn
+        required: true
+        schema:
+          example: urn:cts:latinLit:phi1254.phi001.perseus-lat2:5.6.21-5.6.21
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  example: urn:custom:latinLit:proiel.caes-gal.lat:1.1.1
+                  type: string
+                type: array
+          description: Valid references for the desired text.
+      summary: Gives users all the citable text references for a corpus.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /vectorNetwork:
+    get:
+      operationId: mcserver_app_api_vector_network_api_get
+      parameters:
+      - description: Regular expression to determine relevant words in the text.
+        explode: true
+        in: query
+        name: search_regex
+        required: true
+        schema:
+          $ref: '#/components/schemas/SearchRegex'
+        style: form
+      - description: Regular expression to determine words in the text that should
+          be highlighted.
+        explode: true
+        in: query
+        name: highlight_regex
+        required: false
+        schema:
+          default: ""
+          example: ver[aoe]
+          type: string
+        style: form
+      - description: Minimum number of occurrences that a word needs to be included
+          in the analysis.
+        explode: true
+        in: query
+        name: min_count
+        required: false
+        schema:
+          default: 1
+          example: 3
+          type: integer
+        style: form
+      - description: Number of nearest neighbors that should be considered for each
+          relevant word.
+        explode: true
+        in: query
+        name: nearest_neighbor_count
+        required: false
+        schema:
+          $ref: '#/components/schemas/NearestNeighborCount'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+          description: HTML string with SVG elements for rendering the network graph.
+      summary: Provides network data for the vectors in an AI model.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+    post:
+      operationId: mcserver_app_api_vector_network_api_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VectorNetworkForm'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                description: List of tokenized sentences.
+                items:
+                  description: Tokenized sentence.
+                  example:
+                  - in
+                  - vino
+                  - veritas
+                  items:
+                    description: Token of a sentence.
+                    example: veritas
+                    type: string
+                  type: array
+                type: array
+          description: Sentences whose content is similar to a given word.
+      summary: Provides network data for the vectors in an AI model.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /vocabulary:
+    get:
+      operationId: mcserver_app_api_vocabulary_api_get
+      parameters:
+      - description: Upper bound for reference vocabulary frequency.
+        explode: true
+        in: query
+        name: frequency_upper_bound
+        required: true
+        schema:
+          example: 500
+          type: integer
+        style: form
+      - description: URN for the query corpus.
+        explode: true
+        in: query
+        name: query_urn
+        required: true
+        schema:
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
+          type: string
+        style: form
+      - description: Identifier for a reference vocabulary.
+        explode: true
+        in: query
+        name: vocabulary
+        required: true
+        schema:
+          $ref: '#/components/schemas/VocabularyMC'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Sentence'
+                type: array
+          description: Retrieves sentence ID and matching degree for each sentence
+            in the query text.
+      summary: Shows how well the vocabulary of a text matches a predefined reference
+        vocabulary.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+    post:
+      operationId: mcserver_app_api_vocabulary_api_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VocabularyForm'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnisResponse'
+          description: Indicates for each token of a corpus whether it is covered
+            by a reference vocabulary.
+      summary: Shows how well the vocabulary of a text matches a predefined reference
+        vocabulary.
+      x-openapi-router-controller: openapi_server.controllers.default_controller
 components:
   requestBodies:
     inline_object:
@@ -346,6 +604,10 @@ components:
             $ref: '#/components/schemas/inline_object'
       required: true
   schemas:
+    TextComplexityForm:
+      allOf:
+      - $ref: '#/components/schemas/TextComplexityFormBase'
+      type: object
     Corpus:
       description: Collection of texts.
       example:
@@ -877,6 +1139,11 @@ components:
           description: Hints for how to complete the exercise.
           example: Fill in the gaps!
           type: string
+        language:
+          default: de
+          description: ISO 639-1 Language Code for the localization of exercise content.
+          example: en
+          type: string
         partially_correct_feedback:
           default: ""
           description: Feedback for successfully completing certain parts of the exercise.
@@ -901,6 +1168,16 @@ components:
       - instructions
       - search_values
       type: object
+    VocabularyMC:
+      description: 'Reference vocabularies: Ancient Greek and Latin Dependency Treebank,
+        Bamberger Wortschatz, PROIEL treeban, VIVA textbook'
+      enum:
+      - agldt
+      - bws
+      - proiel
+      - viva
+      example: agldt
+      type: string
     Exercise:
       allOf:
       - $ref: '#/components/schemas/ExerciseBase'
@@ -914,6 +1191,36 @@ components:
       - xml
       example: pdf
       type: string
+    KwicForm:
+      description: Relevant parameters for creating a Keyword In Context view.
+      properties:
+        search_values:
+          default: '[]'
+          description: Search queries that were used to build the exercise.
+          example: '[''upostag=noun'', ''dependency=object'']'
+          type: string
+        urn:
+          description: CTS URN for the text passage from which the KWIC view should
+            be generated.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
+          type: string
+        ctx_left:
+          description: Number of tokens that should be given as context on the left
+            side of a target.
+          example: 5
+          type: integer
+        ctx_right:
+          description: Number of tokens that should be given as context on the right
+            side of a target.
+          example: 5
+          type: integer
+      required:
+      - ctx_left
+      - ctx_right
+      - search_values
+      - urn
+      type: object
+      x-body-name: kwic_data
     StaticExercise:
       description: Metadata for a static exercise.
       properties:
@@ -930,9 +1237,95 @@ components:
           type: array
         urn:
           description: CTS URN for the text passage from which the exercise was created.
-          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
           type: string
       type: object
+    SearchRegex:
+      description: Regular expression for a textual search.
+      example: ver[aoe]
+      type: string
+    NearestNeighborCount:
+      default: 0
+      description: Number of nearest neighbors that should be considered for each
+        target node in a graph analysis.
+      example: 50
+      type: integer
+    VectorNetworkForm:
+      description: Relevant parameters for finding sentences that are similar to a
+        target word.
+      properties:
+        search_regex:
+          description: Regular expression for a textual search.
+          example: ver[aoe]
+          type: string
+        nearest_neighbor_count:
+          default: 0
+          description: Number of nearest neighbors that should be considered for each
+            target node in a graph analysis.
+          example: 50
+          type: integer
+      required:
+      - search_regex
+      type: object
+      x-body-name: network_data
+    Sentence:
+      description: Sentence with metadata
+      example:
+        matching_degree: 76.34
+        id: 1
+      properties:
+        id:
+          description: Unique identifier (in the corpus).
+          example: 1
+          type: integer
+        matching_degree:
+          description: Percentage of words in the sentence that match a reference
+            vocabulary.
+          example: 76.34
+          format: float
+          type: number
+      type: object
+    VocabularyForm:
+      description: Relevant parameters for comparing a corpus to a reference vocabulary.
+      properties:
+        frequency_upper_bound:
+          description: Upper bound for reference vocabulary frequency.
+          example: 500
+          type: integer
+        query_urn:
+          description: URN for the query corpus.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
+          type: string
+        vocabulary:
+          $ref: '#/components/schemas/VocabularyMC'
+      required:
+      - frequency_upper_bound
+      - query_urn
+      - vocabulary
+      type: object
+      x-body-name: vocabulary_data
+    TextComplexityFormBase:
+      description: Relevant parameters for measuring the text complexity of a text
+        passage.
+      discriminator:
+        propertyName: measure
+      properties:
+        measure:
+          description: Label of the desired measure for text complexity.
+          example: all
+          type: string
+        urn:
+          description: CTS URN for the text passage from which the text complexity
+            should be calculated.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
+          type: string
+        annis_response:
+          $ref: '#/components/schemas/AnnisResponse'
+      required:
+      - measure
+      - urn
+      type: object
+      x-body-name: complexity_data
     inline_object:
       description: Data that should be serialized and persisted.
       properties:
@@ -949,7 +1342,7 @@ components:
         urn:
           description: CTS URN for the text passage from which the HTML content was
             created.
-          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
           type: string
       type: object
       x-body-name: file_data
@@ -961,15 +1354,17 @@ components:
           example: markWords
           type: string
         type_translation:
+          default: ""
           description: Localized expression of the exercise type.
           example: Cloze
           type: string
         urn:
           description: CTS URN for the text passage from which the exercise was created.
-          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
           type: string
       required:
       - type
+      - urn
     Exercise_allOf:
       description: Data for creating and evaluating interactive exercises.
       properties:
@@ -997,11 +1392,6 @@ components:
           description: Localized expression of the exercise type.
           example: Cloze
           type: string
-        language:
-          default: de
-          description: ISO 639-1 Language Code for the localization of exercise content.
-          example: en
-          type: string
         last_access_time:
           description: When the exercise was last accessed (as POSIX timestamp).
           example: 1234567.789
@@ -1026,7 +1416,7 @@ components:
         urn:
           default: ""
           description: CTS URN for the text passage from which the exercise was created.
-          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
           nullable: false
           type: string
       required:

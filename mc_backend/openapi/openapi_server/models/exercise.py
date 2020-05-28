@@ -19,7 +19,7 @@ class Exercise(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, correct_feedback='', general_feedback='', incorrect_feedback='', instructions='', partially_correct_feedback='', search_values='[]', work_author='', work_title='', conll='', eid=None, exercise_type='', exercise_type_translation='', language='de', last_access_time=None, solutions='[]', text_complexity=0, urn=''):  # noqa: E501
+    def __init__(self, correct_feedback='', general_feedback='', incorrect_feedback='', instructions='', language='de', partially_correct_feedback='', search_values='[]', work_author='', work_title='', conll='', eid=None, exercise_type='', exercise_type_translation='', last_access_time=None, solutions='[]', text_complexity=0, urn=''):  # noqa: E501
         """Exercise - a model defined in OpenAPI
 
         :param correct_feedback: The correct_feedback of this Exercise.  # noqa: E501
@@ -30,6 +30,8 @@ class Exercise(Model):
         :type incorrect_feedback: str
         :param instructions: The instructions of this Exercise.  # noqa: E501
         :type instructions: str
+        :param language: The language of this Exercise.  # noqa: E501
+        :type language: str
         :param partially_correct_feedback: The partially_correct_feedback of this Exercise.  # noqa: E501
         :type partially_correct_feedback: str
         :param search_values: The search_values of this Exercise.  # noqa: E501
@@ -46,8 +48,6 @@ class Exercise(Model):
         :type exercise_type: str
         :param exercise_type_translation: The exercise_type_translation of this Exercise.  # noqa: E501
         :type exercise_type_translation: str
-        :param language: The language of this Exercise.  # noqa: E501
-        :type language: str
         :param last_access_time: The last_access_time of this Exercise.  # noqa: E501
         :type last_access_time: float
         :param solutions: The solutions of this Exercise.  # noqa: E501
@@ -62,6 +62,7 @@ class Exercise(Model):
             'general_feedback': str,
             'incorrect_feedback': str,
             'instructions': str,
+            'language': str,
             'partially_correct_feedback': str,
             'search_values': str,
             'work_author': str,
@@ -70,7 +71,6 @@ class Exercise(Model):
             'eid': str,
             'exercise_type': str,
             'exercise_type_translation': str,
-            'language': str,
             'last_access_time': float,
             'solutions': str,
             'text_complexity': float,
@@ -82,6 +82,7 @@ class Exercise(Model):
             'general_feedback': 'general_feedback',
             'incorrect_feedback': 'incorrect_feedback',
             'instructions': 'instructions',
+            'language': 'language',
             'partially_correct_feedback': 'partially_correct_feedback',
             'search_values': 'search_values',
             'work_author': 'work_author',
@@ -90,7 +91,6 @@ class Exercise(Model):
             'eid': 'eid',
             'exercise_type': 'exercise_type',
             'exercise_type_translation': 'exercise_type_translation',
-            'language': 'language',
             'last_access_time': 'last_access_time',
             'solutions': 'solutions',
             'text_complexity': 'text_complexity',
@@ -101,6 +101,7 @@ class Exercise(Model):
         self._general_feedback = general_feedback
         self._incorrect_feedback = incorrect_feedback
         self._instructions = instructions
+        self._language = language
         self._partially_correct_feedback = partially_correct_feedback
         self._search_values = search_values
         self._work_author = work_author
@@ -109,7 +110,6 @@ class Exercise(Model):
         self._eid = eid
         self._exercise_type = exercise_type
         self._exercise_type_translation = exercise_type_translation
-        self._language = language
         self._last_access_time = last_access_time
         self._solutions = solutions
         self._text_complexity = text_complexity
@@ -219,6 +219,29 @@ class Exercise(Model):
             raise ValueError("Invalid value for `instructions`, must not be `None`")  # noqa: E501
 
         self._instructions = instructions
+
+    @property
+    def language(self):
+        """Gets the language of this Exercise.
+
+        ISO 639-1 Language Code for the localization of exercise content.  # noqa: E501
+
+        :return: The language of this Exercise.
+        :rtype: str
+        """
+        return self._language
+
+    @language.setter
+    def language(self, language):
+        """Sets the language of this Exercise.
+
+        ISO 639-1 Language Code for the localization of exercise content.  # noqa: E501
+
+        :param language: The language of this Exercise.
+        :type language: str
+        """
+
+        self._language = language
 
     @property
     def partially_correct_feedback(self):
@@ -407,29 +430,6 @@ class Exercise(Model):
         """
 
         self._exercise_type_translation = exercise_type_translation
-
-    @property
-    def language(self):
-        """Gets the language of this Exercise.
-
-        ISO 639-1 Language Code for the localization of exercise content.  # noqa: E501
-
-        :return: The language of this Exercise.
-        :rtype: str
-        """
-        return self._language
-
-    @language.setter
-    def language(self, language):
-        """Sets the language of this Exercise.
-
-        ISO 639-1 Language Code for the localization of exercise content.  # noqa: E501
-
-        :param language: The language of this Exercise.
-        :type language: str
-        """
-
-        self._language = language
 
     @property
     def last_access_time(self):

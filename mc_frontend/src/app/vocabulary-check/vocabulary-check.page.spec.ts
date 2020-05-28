@@ -55,7 +55,7 @@ describe('VocabularyCheckPage', () => {
         vocabularyCheckPage.corpusService.initCurrentTextRange();
         vocabularyCheckPage.helperService.applicationState.next(vocabularyCheckPage.helperService.deepCopy(MockMC.applicationState));
         vocabularyCheckPage.vocService.frequencyUpperBound = -1;
-        const getVocSpy: Spy = spyOn(vocabularyCheckPage.vocService, 'getVocabularyCheck')
+        const getVocSpy: Spy = spyOn(vocabularyCheckPage.vocService, 'getMatchingSentences')
             .and.returnValue(Promise.resolve([]));
         const navSpy: Spy = spyOn(vocabularyCheckPage.helperService, 'goToRankingPage').and.returnValue(Promise.resolve(true));
         vocabularyCheckPage.checkVocabulary().then(async () => {

@@ -1,4 +1,40 @@
 components:
+  parameters:
+    EidParam:
+      name: eid
+      in: query
+      description: Unique identifier (UUID) for the exercise.
+      required: true
+      schema:
+        type: string
+        example: 12345678-1234-5678-1234-567812345678
+    LangParam:
+      name: lang
+      in: query
+      description: ISO 639-1 Language Code for the localization of exercise content.
+      required: true
+      schema:
+        type: string
+        example: en
+    SolutionIndicesParam:
+      name: solution_indices
+      in: query
+      description: Indices for the solutions that should be included in the download.
+      required: false
+      schema:
+        type: array
+        items:
+          type: integer
+          example: 0
+        default: []
+    UrnParam:
+      name: urn
+      in: query
+      description: CTS URN for referencing the corpus.
+      required: true
+      schema:
+        type: string
+        example: urn:cts:latinLit:phi1254.phi001.perseus-lat2:5.6.21-5.6.21
   schemas:
     AnnisResponse:
       description: A response with graph data from ANNIS, possibly with additional data for exercises.
@@ -104,11 +140,6 @@ components:
               description: Localized expression of the exercise type.
               example: Cloze
               default: ""
-            language:
-              type: string
-              description: ISO 639-1 Language Code for the localization of exercise content.
-              example: en
-              default: de
             last_access_time:
               type: number
               format: float
@@ -130,7 +161,7 @@ components:
             urn:
               type: string
               description: CTS URN for the text passage from which the exercise was created.
-              example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+              example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
               default: ""
               nullable: false
           required:
@@ -160,6 +191,11 @@ components:
           description: Hints for how to complete the exercise.
           example: Fill in the gaps!
           default: ""
+        language:
+          type: string
+          description: ISO 639-1 Language Code for the localization of exercise content.
+          example: en
+          default: de
         partially_correct_feedback:
           type: string
           description: Feedback for successfully completing certain parts of the exercise.
@@ -199,12 +235,14 @@ components:
               type: string
               description: Localized expression of the exercise type.
               example: Cloze
+              default: ""
             urn:
               type: string
               description: CTS URN for the text passage from which the exercise was created.
-              example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+              example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
           required:
             - type
+            - urn
     FileType:
       type: string
       enum: [docx, json, pdf, xml]
@@ -257,6 +295,33 @@ components:
       required:
         - links
         - nodes
+    KwicForm:
+      x-body-name: kwic_data
+      type: object
+      description: Relevant parameters for creating a Keyword In Context view.
+      properties:
+        search_values:
+          type: string
+          description: Search queries that were used to build the exercise.
+          example: "['upostag=noun', 'dependency=object']"
+          default: "[]"
+        urn:
+          type: string
+          description: CTS URN for the text passage from which the KWIC view should be generated.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
+        ctx_left:
+          type: integer
+          description: Number of tokens that should be given as context on the left side of a target.
+          example: 5
+        ctx_right:
+          type: integer
+          description: Number of tokens that should be given as context on the right side of a target.
+          example: 5
+      required:
+        - ctx_left
+        - ctx_right
+        - search_values
+        - urn
     LearningResult:
       description: Learner data for completed exercises.
       type: object
@@ -400,6 +465,11 @@ components:
           type: string
           description: Dependency relation described by the edge.
           example: "det"
+    NearestNeighborCount:
+      type: integer
+      description: Number of nearest neighbors that should be considered for each target node in a graph analysis.
+      example: 50
+      default: 0
     NodeMC:
       type: object
       properties:
@@ -452,6 +522,23 @@ components:
       enum: [dependency, feats, lemma, upostag]
       description: "Linguistic phenomena: syntactic dependencies, morphological features, lemmata, parts of speech."
       example: upostag
+    SearchRegex:
+      type: string
+      description: Regular expression for a textual search.
+      example: ver[aoe]
+    Sentence:
+      type: object
+      description: Sentence with metadata
+      properties:
+        id:
+          type: integer
+          description: Unique identifier (in the corpus).
+          example: 1
+        matching_degree:
+          type: number
+          format: float
+          description: Percentage of words in the sentence that match a reference vocabulary.
+          example: 76.34
     Solution:
       type: object
       description: Correct solution for an exercise.
@@ -500,7 +587,7 @@ components:
         urn:
           type: string
           description: CTS URN for the text passage from which the exercise was created.
-          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
     TextComplexity:
       type: object
       description: Mapping of various elements of text complexity to their corresponding values.
@@ -571,6 +658,26 @@ components:
           type: integer
           description: Number of distinct part of speech tags in the given corpus.
           example: 1
+    TextComplexityFormBase:
+      x-body-name: complexity_data
+      type: object
+      description: Relevant parameters for measuring the text complexity of a text passage.
+      properties:
+        measure:
+          type: string
+          description: Label of the desired measure for text complexity.
+          example: all
+        urn:
+          type: string
+          description: CTS URN for the text passage from which the text complexity should be calculated.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
+        annis_response:
+          $ref: '#/components/schemas/AnnisResponse'
+      required:
+        - measure
+        - urn
+      discriminator:
+        propertyName: measure
     UpdateInfo:
       description: Timestamps for updates of various resources.
       type: object
@@ -598,3 +705,39 @@ components:
         - created_time
         - last_modified_time
         - resource_type
+    VectorNetworkForm:
+      x-body-name: network_data
+      type: object
+      description: Relevant parameters for finding sentences that are similar to a target word.
+      properties:
+        search_regex:
+          $ref: '#/components/schemas/SearchRegex'
+        nearest_neighbor_count:
+          $ref: '#/components/schemas/NearestNeighborCount'
+      required:
+        - search_regex
+    VocabularyMC:
+      type: string
+      enum: [agldt, bws, proiel, viva]
+      description: "Reference vocabularies: Ancient Greek and Latin Dependency Treebank, Bamberger Wortschatz,
+      PROIEL treebank, VIVA textbook"
+      example: agldt
+    VocabularyForm:
+      x-body-name: vocabulary_data
+      type: object
+      description: Relevant parameters for comparing a corpus to a reference vocabulary.
+      properties:
+        frequency_upper_bound:
+          type: integer
+          description: Upper bound for reference vocabulary frequency.
+          example: 500
+        query_urn:
+          type: string
+          description: URN for the query corpus.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
+        vocabulary:
+          $ref: '#/components/schemas/VocabularyMC'
+      required:
+        - frequency_upper_bound
+        - query_urn
+        - vocabulary

@@ -161,13 +161,13 @@ class ExerciseDict(_ExerciseDictBase, total=False):
     correct_feedback: str
     general_feedback: str
     incorrect_feedback: str
+    language: str
     partially_correct_feedback: str
     work_author: str
     work_title: str
     conll: str
     exercise_type: str
     exercise_type_translation: str
-    language: str
     solutions: str
     text_complexity: float
     urn: str
@@ -185,6 +185,8 @@ class TExercise(typing.Protocol):
         incorrect_feedback: Feedback for failing to complete the exercise
             successfully.
         instructions: Hints for how to complete the exercise.
+        language: ISO 639-1 Language Code for the localization of exercise
+            content.
         partially_correct_feedback: Feedback for successfully completing
             certain parts of the exercise.
         search_values: Search queries that were used to build the exercise.
@@ -196,8 +198,6 @@ class TExercise(typing.Protocol):
         eid: Unique identifier (UUID) for the exercise.
         exercise_type: Type of exercise, concerning interaction and layout.
         exercise_type_translation: Localized expression of the exercise type.
-        language: ISO 639-1 Language Code for the localization of exercise
-            content.
         last_access_time: When the exercise was last accessed (as POSIX
             timestamp).
         solutions: Correct solutions for the exercise.
@@ -217,6 +217,7 @@ class TExercise(typing.Protocol):
     general_feedback: str
     incorrect_feedback: str
     instructions: str
+    language: str
     partially_correct_feedback: str
     search_values: str
     work_author: str
@@ -225,7 +226,6 @@ class TExercise(typing.Protocol):
     eid: str
     exercise_type: str
     exercise_type_translation: str
-    language: str
     last_access_time: float
     solutions: str
     text_complexity: float
@@ -240,13 +240,13 @@ class TExercise(typing.Protocol):
         correct_feedback: str = "",
         general_feedback: str = "",
         incorrect_feedback: str = "",
+        language: str = "de",
         partially_correct_feedback: str = "",
         work_author: str = "",
         work_title: str = "",
         conll: str = "",
         exercise_type: str = "",
         exercise_type_translation: str = "",
-        language: str = "de",
         solutions: str = "[]",
         text_complexity: float = 0,
         urn: str = "",
@@ -261,6 +261,8 @@ class TExercise(typing.Protocol):
             incorrect_feedback: Feedback for failing to complete the exercise
                 successfully.
             instructions: Hints for how to complete the exercise.
+            language: ISO 639-1 Language Code for the localization of exercise
+                content.
             partially_correct_feedback: Feedback for successfully completing
                 certain parts of the exercise.
             search_values: Search queries that were used to build the exercise.
@@ -273,8 +275,6 @@ class TExercise(typing.Protocol):
             exercise_type: Type of exercise, concerning interaction and layout.
             exercise_type_translation: Localized expression of the exercise
                 type.
-            language: ISO 639-1 Language Code for the localization of exercise
-                content.
             last_access_time: When the exercise was last accessed (as POSIX
                 timestamp).
             solutions: Correct solutions for the exercise.
@@ -296,13 +296,13 @@ class TExercise(typing.Protocol):
         correct_feedback: str = "",
         general_feedback: str = "",
         incorrect_feedback: str = "",
+        language: str = "de",
         partially_correct_feedback: str = "",
         work_author: str = "",
         work_title: str = "",
         conll: str = "",
         exercise_type: str = "",
         exercise_type_translation: str = "",
-        language: str = "de",
         solutions: str = "[]",
         text_complexity: float = 0,
         urn: str = "",
@@ -317,6 +317,8 @@ class TExercise(typing.Protocol):
             incorrect_feedback: Feedback for failing to complete the exercise
                 successfully.
             instructions: Hints for how to complete the exercise.
+            language: ISO 639-1 Language Code for the localization of exercise
+                content.
             partially_correct_feedback: Feedback for successfully completing
                 certain parts of the exercise.
             search_values: Search queries that were used to build the exercise.
@@ -329,8 +331,6 @@ class TExercise(typing.Protocol):
             exercise_type: Type of exercise, concerning interaction and layout.
             exercise_type_translation: Localized expression of the exercise
                 type.
-            language: ISO 639-1 Language Code for the localization of exercise
-                content.
             last_access_time: When the exercise was last accessed (as POSIX
                 timestamp).
             solutions: Correct solutions for the exercise.

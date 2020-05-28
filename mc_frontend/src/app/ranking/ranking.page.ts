@@ -29,7 +29,7 @@ export class RankingPage {
     showText(rank: Sentence[]): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.corpusService.currentUrn = this.corpusService.baseUrn + `@${rank[0].id}-${rank[rank.length - 1].id}`;
-            this.vocService.getVocabularyCheck(this.corpusService.currentUrn, true).then((ar: AnnisResponse) => {
+            this.vocService.getOOVwords(this.corpusService.currentUrn).then((ar: AnnisResponse) => {
                 const urnStart: string = ar.graph_data.nodes[0].id.split('/')[1];
                 const urnEnd: string = ar.graph_data.nodes.slice(-1)[0].id.split('/')[1];
                 this.corpusService.currentUrn = urnStart.concat('-', urnEnd.split(':').slice(-1)[0]);

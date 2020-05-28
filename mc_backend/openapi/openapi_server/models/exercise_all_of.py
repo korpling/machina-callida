@@ -15,7 +15,7 @@ class ExerciseAllOf(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, conll='', eid=None, exercise_type='', exercise_type_translation='', language='de', last_access_time=None, solutions='[]', text_complexity=0, urn=''):  # noqa: E501
+    def __init__(self, conll='', eid=None, exercise_type='', exercise_type_translation='', last_access_time=None, solutions='[]', text_complexity=0, urn=''):  # noqa: E501
         """ExerciseAllOf - a model defined in OpenAPI
 
         :param conll: The conll of this ExerciseAllOf.  # noqa: E501
@@ -26,8 +26,6 @@ class ExerciseAllOf(Model):
         :type exercise_type: str
         :param exercise_type_translation: The exercise_type_translation of this ExerciseAllOf.  # noqa: E501
         :type exercise_type_translation: str
-        :param language: The language of this ExerciseAllOf.  # noqa: E501
-        :type language: str
         :param last_access_time: The last_access_time of this ExerciseAllOf.  # noqa: E501
         :type last_access_time: float
         :param solutions: The solutions of this ExerciseAllOf.  # noqa: E501
@@ -42,7 +40,6 @@ class ExerciseAllOf(Model):
             'eid': str,
             'exercise_type': str,
             'exercise_type_translation': str,
-            'language': str,
             'last_access_time': float,
             'solutions': str,
             'text_complexity': float,
@@ -54,7 +51,6 @@ class ExerciseAllOf(Model):
             'eid': 'eid',
             'exercise_type': 'exercise_type',
             'exercise_type_translation': 'exercise_type_translation',
-            'language': 'language',
             'last_access_time': 'last_access_time',
             'solutions': 'solutions',
             'text_complexity': 'text_complexity',
@@ -65,7 +61,6 @@ class ExerciseAllOf(Model):
         self._eid = eid
         self._exercise_type = exercise_type
         self._exercise_type_translation = exercise_type_translation
-        self._language = language
         self._last_access_time = last_access_time
         self._solutions = solutions
         self._text_complexity = text_complexity
@@ -175,29 +170,6 @@ class ExerciseAllOf(Model):
         """
 
         self._exercise_type_translation = exercise_type_translation
-
-    @property
-    def language(self):
-        """Gets the language of this ExerciseAllOf.
-
-        ISO 639-1 Language Code for the localization of exercise content.  # noqa: E501
-
-        :return: The language of this ExerciseAllOf.
-        :rtype: str
-        """
-        return self._language
-
-    @language.setter
-    def language(self, language):
-        """Sets the language of this ExerciseAllOf.
-
-        ISO 639-1 Language Code for the localization of exercise content.  # noqa: E501
-
-        :param language: The language of this ExerciseAllOf.
-        :type language: str
-        """
-
-        self._language = language
 
     @property
     def last_access_time(self):

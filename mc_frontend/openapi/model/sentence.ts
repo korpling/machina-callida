@@ -12,20 +12,16 @@
 
 
 /**
- * Additional exercise data.
+ * Sentence with metadata
  */
-export interface ExerciseFormAllOf { 
+export interface Sentence { 
     /**
-     * Type of exercise, concerning interaction and layout.
+     * Unique identifier (in the corpus).
      */
-    type: string;
+    id?: number;
     /**
-     * Localized expression of the exercise type.
+     * Percentage of words in the sentence that match a reference vocabulary.
      */
-    type_translation?: string;
-    /**
-     * CTS URN for the text passage from which the exercise was created.
-     */
-    urn: string;
+    matching_degree?: number;
 }
 

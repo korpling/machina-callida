@@ -12,20 +12,14 @@
 
 
 /**
- * Additional exercise data.
+ * Reference vocabularies: Ancient Greek and Latin Dependency Treebank, Bamberger Wortschatz, PROIEL treeban, VIVA textbook
  */
-export interface ExerciseFormAllOf { 
-    /**
-     * Type of exercise, concerning interaction and layout.
-     */
-    type: string;
-    /**
-     * Localized expression of the exercise type.
-     */
-    type_translation?: string;
-    /**
-     * CTS URN for the text passage from which the exercise was created.
-     */
-    urn: string;
-}
+export type VocabularyMC = 'agldt' | 'bws' | 'proiel' | 'viva';
+
+export const VocabularyMC = {
+    Agldt: 'agldt' as VocabularyMC,
+    Bws: 'bws' as VocabularyMC,
+    Proiel: 'proiel' as VocabularyMC,
+    Viva: 'viva' as VocabularyMC
+};
 

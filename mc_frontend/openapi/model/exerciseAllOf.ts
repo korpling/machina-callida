@@ -32,10 +32,6 @@ export interface ExerciseAllOf {
      */
     exercise_type_translation?: string;
     /**
-     * ISO 639-1 Language Code for the localization of exercise content.
-     */
-    language?: string;
-    /**
      * When the exercise was last accessed (as POSIX timestamp).
      */
     last_access_time: number;

@@ -13,8 +13,6 @@ import configMC from '../../configMC';
 import {Storage} from '@ionic/storage';
 import {AnnisResponse, Solution} from '../../../openapi';
 
-declare var H5P: any;
-
 @Component({
     selector: 'app-preview',
     templateUrl: './preview.page.html',
@@ -70,7 +68,7 @@ export class PreviewPage implements OnDestroy, OnInit {
     }
 
     ngOnDestroy(): void {
-        H5P.externalDispatcher.off('xAPI');
+        this.helperService.getH5P().externalDispatcher.off('xAPI');
     }
 
     ngOnInit(): Promise<void> {
@@ -140,7 +138,7 @@ export class PreviewPage implements OnDestroy, OnInit {
     }
 
     setXAPIeventHandler() {
-        H5P.externalDispatcher.on('xAPI', (event: XAPIevent) => {
+        this.helperService.getH5P().externalDispatcher.on('xAPI', (event: XAPIevent) => {
             // results are only available when a task has been completed/answered, not in the "attempted" or "interacted" stages
             if (event.data.statement.verb.id === configMC.xAPIverbIDanswered && event.data.statement.result) {
                 const iframe: HTMLIFrameElement = document.querySelector(this.exerciseService.h5pIframeString);

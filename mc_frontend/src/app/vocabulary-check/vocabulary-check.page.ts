@@ -50,7 +50,7 @@ export class VocabularyCheckPage {
                     this.vocService.ranking = [];
                     // remove old sentence boundaries
                     this.corpusService.currentUrn = this.corpusService.currentUrn.split('@')[0];
-                    this.vocService.getVocabularyCheck(this.corpusService.currentUrn, false).then((sentences: Sentence[]) => {
+                    this.vocService.getMatchingSentences(this.corpusService.currentUrn).then((sentences: Sentence[]) => {
                         this.processSentences(sentences);
                         this.helperService.goToRankingPage(this.navCtrl).then();
                         return resolve();

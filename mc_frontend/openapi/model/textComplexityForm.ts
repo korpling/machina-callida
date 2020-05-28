@@ -9,23 +9,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { AnnisResponse } from './annisResponse';
+import { TextComplexityFormBase } from './textComplexityFormBase';
 
 
-/**
- * Additional exercise data.
- */
-export interface ExerciseFormAllOf { 
-    /**
-     * Type of exercise, concerning interaction and layout.
-     */
-    type: string;
-    /**
-     * Localized expression of the exercise type.
-     */
-    type_translation?: string;
-    /**
-     * CTS URN for the text passage from which the exercise was created.
-     */
-    urn: string;
+export interface TextComplexityForm extends TextComplexityFormBase { 
 }
 

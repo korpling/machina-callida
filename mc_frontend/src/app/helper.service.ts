@@ -11,7 +11,16 @@ import {Language} from 'src/app/models/language';
 import {ReplaySubject} from 'rxjs';
 import {TextData} from './models/textData';
 import configMC from '../configMC';
-import {GraphData} from '../../openapi/model/graphData';
+
+declare var H5P: any;
+// dirty hack to prevent H5P access errors after resize events
+window.onresize = () => {
+    /* tslint:disable:prefer-const */
+    /* tslint:disable:no-shadowed-variable */
+    let H5P: any;
+    /* tslint:enable:prefer-const */
+    /* tslint:enable:no-shadowed-variable */
+};
 
 @Injectable({
     providedIn: 'root'
@@ -183,6 +192,10 @@ export class HelperService {
         return Object.keys(target).filter((value, index, array) => {
             return index % 2 !== 0;
         });
+    }
+
+    getH5P(): any {
+        return H5P;
     }
 
     goToAuthorDetailPage(navCtrl: NavController): Promise<boolean> {

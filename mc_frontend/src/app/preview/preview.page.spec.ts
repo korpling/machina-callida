@@ -18,8 +18,6 @@ import Result from '../models/xAPI/Result';
 import configMC from '../../configMC';
 import {AnnisResponse, Solution} from '../../../openapi';
 
-declare var H5P: any;
-
 describe('PreviewPage', () => {
     let previewPage: PreviewPage;
     let fixture: ComponentFixture<PreviewPage>;
@@ -90,8 +88,7 @@ describe('PreviewPage', () => {
         spyOn(previewPage, 'sendData').and.returnValue(Promise.resolve());
         previewPage.ngOnDestroy();
         const newDispatcher: H5PeventDispatcherMock = new H5PeventDispatcherMock();
-        const oldDispatcher: any = previewPage.helperService.deepCopy(H5P.externalDispatcher);
-        H5P.externalDispatcher = newDispatcher;
+        spyOn(previewPage.helperService, 'getH5P').and.returnValue({externalDispatcher: newDispatcher});
         xapiSpy.and.callThrough();
         previewPage.ngOnInit().then(() => {
             newDispatcher.triggerXAPI(configMC.xAPIverbIDanswered, new Result());
@@ -103,7 +100,6 @@ describe('PreviewPage', () => {
                 expect(previewPage.currentSolutions.length).toBe(0);
                 iframe = document.querySelector(previewPage.exerciseService.h5pIframeString);
                 iframe.parentNode.removeChild(iframe);
-                H5P.externalDispatcher = oldDispatcher;
                 done();
             });
         });

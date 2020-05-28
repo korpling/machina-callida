@@ -2,8 +2,8 @@
 import os
 import re
 from typing import List, Dict, Set, Tuple, Pattern
-from flask_restful import Resource
-from flask_restful.reqparse import RequestParser
+
+from flask import Response
 from gensim import matutils
 from gensim.models import Word2Vec
 from matplotlib import pyplot
@@ -12,63 +12,7 @@ from numpy.core.multiarray import ndarray, dot
 
 from mcserver import Config
 from mcserver.app.services import NetworkService
-
-
-class VectorNetworkAPI(Resource):
-    """The vector network API resource. It helps to manage network data for the vectors in an AI model."""
-
-    def __init__(self):
-        """Initialize possible arguments for calls to the corpus list REST API."""
-        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
-        self.reqparse.add_argument("search_regex", type=str, required=True,
-                                   help="No regular expression provided for the search")
-        self.reqparse.add_argument("min_count", type=int, required=False, default=1,
-                                   help="No minimum count for word occurrences provided")
-        self.reqparse.add_argument("highlight_regex", type=str, required=False, default="",
-                                   help="No regular expression provided for highlighting")
-        self.reqparse.add_argument("nearest_neighbor_count", type=int, required=False, default=0,
-                                   help="No regular expression provided for highlighting")
-        super(VectorNetworkAPI, self).__init__()
-
-    def get(self):
-        """The GET method for the vector network REST API. It provides network data for the vectors in an AI model."""
-        args: dict = self.reqparse.parse_args()
-        search_regex: str = args["search_regex"]
-        min_count: int = args["min_count"]
-        highlight_regex: str = args["highlight_regex"]
-        nearest_neighbor_count: int = args["nearest_neighbor_count"]
-        ret_val: str = get_concept_network(search_regex, min_count, highlight_regex, nearest_neighbor_count)
-        return NetworkService.make_json_response(ret_val)
-
-    def post(self):
-        """
-        The POST method for the vector network REST API. It provides sentences whose content is similar to a given word.
-        """
-        args: dict = self.reqparse.parse_args()
-        search_regex_string: str = args["search_regex"]
-        nearest_neighbor_count: int = args["nearest_neighbor_count"]
-        nearest_neighbor_count = nearest_neighbor_count if nearest_neighbor_count else 10
-        w2v: Word2Vec = Word2Vec.load(Config.PANEGYRICI_LATINI_MODEL_PATH)
-        search_regex: Pattern[str] = re.compile(search_regex_string)
-        keys: List[str] = [x for x in w2v.wv.vocab if search_regex.match(x)]
-        relevant_vectors: List[ndarray] = [w2v.wv.get_vector(x) for x in keys]
-        target_vector: ndarray = sum(relevant_vectors) / len(relevant_vectors)
-        sentences: List[str] = open(Config.PANEGYRICI_LATINI_TEXT_PATH).readlines()
-        sentence_vectors: Dict[int, ndarray] = {}
-        for i in range(len(sentences)):
-            toks: List[str] = sentences[i][:-1].split()
-            if toks:
-                vecs: List[ndarray] = []
-                for tok in toks:
-                    vector: ndarray = w2v.wv.get_vector(tok)
-                    vecs.append(vector)
-                sentence_vectors[i] = sum(vecs) / len(vecs)
-        sims: List[Tuple[int, ndarray]] = []
-        for key in sentence_vectors.keys():
-            sims.append((key, dot(matutils.unitvec(target_vector), matutils.unitvec(sentence_vectors[key]))))
-        sims.sort(key=lambda x: x[1], reverse=True)
-        sims = sims[:nearest_neighbor_count]
-        return [sentences[x[0]].split() for x in sims]
+from openapi.openapi_server.models import VectorNetworkForm
 
 
 def add_edges(keys: List[str], w2v: Word2Vec, nearest_neighbor_count: int, min_count: int, graph: Graph) -> None:
@@ -89,6 +33,12 @@ def add_edges(keys: List[str], w2v: Word2Vec, nearest_neighbor_count: int, min_c
             for edge_target in edge_dict[edge_source]:
                 if graph.has_node(edge_target):
                     graph.add_edge(edge_source, edge_target)
+
+
+def get(search_regex: str, highlight_regex: str, min_count: int, nearest_neighbor_count: int) -> Response:
+    """The GET method for the vector network REST API. It provides network data for the vectors in an AI model."""
+    ret_val: str = get_concept_network(search_regex, min_count, highlight_regex, nearest_neighbor_count)
+    return NetworkService.make_json_response(ret_val)
 
 
 def get_concept_network(search_regex_string: str, min_count: int = 1, highlight_regex_string: str = "",
@@ -122,3 +72,32 @@ def get_concept_network(search_regex_string: str, min_count: int = 1, highlight_
     os.remove(Config.NETWORK_GRAPH_TMP_PATH)
     svg_string: str = re.findall(r"<svg[\s\S]*?svg>", xml_string)[0]
     return svg_string
+
+
+def post(network_data: dict) -> Response:
+    """
+    The POST method for the vector network REST API. It provides sentences whose content is similar to a given word.
+    """
+    vnf: VectorNetworkForm = VectorNetworkForm.from_dict(network_data)
+    nearest_neighbor_count = vnf.nearest_neighbor_count if vnf.nearest_neighbor_count else 10
+    w2v: Word2Vec = Word2Vec.load(Config.PANEGYRICI_LATINI_MODEL_PATH)
+    search_regex: Pattern[str] = re.compile(vnf.search_regex)
+    keys: List[str] = [x for x in w2v.wv.vocab if search_regex.match(x)]
+    relevant_vectors: List[ndarray] = [w2v.wv.get_vector(x) for x in keys]
+    target_vector: ndarray = sum(relevant_vectors) / len(relevant_vectors)
+    sentences: List[str] = open(Config.PANEGYRICI_LATINI_TEXT_PATH).readlines()
+    sentence_vectors: Dict[int, ndarray] = {}
+    for i in range(len(sentences)):
+        toks: List[str] = sentences[i][:-1].split()
+        if toks:
+            vecs: List[ndarray] = []
+            for tok in toks:
+                vector: ndarray = w2v.wv.get_vector(tok)
+                vecs.append(vector)
+            sentence_vectors[i] = sum(vecs) / len(vecs)
+    sims: List[Tuple[int, ndarray]] = []
+    for key in sentence_vectors.keys():
+        sims.append((key, dot(matutils.unitvec(target_vector), matutils.unitvec(sentence_vectors[key]))))
+    sims.sort(key=lambda x: x[1], reverse=True)
+    sims = sims[:nearest_neighbor_count]
+    return NetworkService.make_json_response([sentences[x[0]].split() for x in sims])

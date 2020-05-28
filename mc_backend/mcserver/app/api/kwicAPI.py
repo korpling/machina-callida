@@ -10,46 +10,29 @@ from typing import List, Dict
 import requests
 from bs4 import BeautifulSoup, ResultSet, Tag
 from conllu import TokenList
-from flask_restful import Resource
-from flask_restful.reqparse import RequestParser
-
+from flask import Response
 from mcserver.app.models import ExerciseType, ExerciseData, LinkMC, NodeMC
 from mcserver.app.services import AnnotationService, NetworkService
 from mcserver.config import Config
+from openapi.openapi_server.models import KwicForm
 
 
-class KwicAPI(Resource):
-    """The KWIC API resource. It gives users example contexts for a given phenomenon in a given corpus."""
-
-    def __init__(self):
-        """Initializes possible arguments for calls to the KWIC REST API."""
-        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
-        self.reqparse.add_argument("urn", type=str, required=True, default="", location="form", help="No URN provided")
-        self.reqparse.add_argument("search_values", type=str, required=True, location="form",
-                                   help="No search value(s) provided")
-        self.reqparse.add_argument("ctx_left", type=int, required=False, location="form", default=5,
-                                   help="No left context size provided")
-        self.reqparse.add_argument("ctx_right", type=int, required=False, location="form", default=5,
-                                   help="No left context size provided")
-        super(KwicAPI, self).__init__()
-
-    def post(self) -> object:
-        """ The POST method for the KWIC REST API. It provides example contexts for a given phenomenon
-        in a given corpus. """
-        args = self.reqparse.parse_args()
-        search_values_list: List[str] = json.loads(args["search_values"])
-        aqls: List[str] = AnnotationService.map_search_values_to_aql(search_values_list, ExerciseType.kwic)
-        ctx_left: int = args["ctx_left"]
-        ctx_right: int = args["ctx_right"]
-        url: str = f"{Config.INTERNET_PROTOCOL}{Config.HOST_IP_CSM}:{Config.CORPUS_STORAGE_MANAGER_PORT}{Config.SERVER_URI_CSM_SUBGRAPH}"
-        data: str = json.dumps(dict(urn=args["urn"], aqls=aqls, ctx_left=str(ctx_left), ctx_right=str(ctx_right)))
-        response: requests.Response = requests.post(url, data=data)
-        response_content: List[dict] = json.loads(response.text)
-        exercise_data_list: List[ExerciseData] = [ExerciseData(json_dict=x) for x in response_content]
-        ret_val: str = ""
-        for i in range(len(exercise_data_list)):
-            ret_val += handle_exercise_data(exercise_data_list[i], ctx_left, ctx_right)
-        return NetworkService.make_json_response(ret_val)
+def post(kwic_data: dict) -> Response:
+    """ The POST method for the KWIC REST API. It provides example contexts for a given phenomenon
+    in a given corpus. """
+    kwic_form: KwicForm = KwicForm.from_dict(kwic_data)
+    search_values_list: List[str] = json.loads(kwic_form.search_values)
+    aqls: List[str] = AnnotationService.map_search_values_to_aql(search_values_list, ExerciseType.kwic)
+    url: str = f"{Config.INTERNET_PROTOCOL}{Config.HOST_IP_CSM}:{Config.CORPUS_STORAGE_MANAGER_PORT}{Config.SERVER_URI_CSM_SUBGRAPH}"
+    data: str = json.dumps(
+        dict(urn=kwic_data["urn"], aqls=aqls, ctx_left=str(kwic_form.ctx_left), ctx_right=str(kwic_form.ctx_right)))
+    response: requests.Response = requests.post(url, data=data)
+    response_content: List[dict] = json.loads(response.text)
+    exercise_data_list: List[ExerciseData] = [ExerciseData(json_dict=x) for x in response_content]
+    ret_val: str = ""
+    for i in range(len(exercise_data_list)):
+        ret_val += handle_exercise_data(exercise_data_list[i], kwic_form.ctx_left, kwic_form.ctx_right)
+    return NetworkService.make_json_response(ret_val)
 
 
 def handle_exercise_data(ed: ExerciseData, ctx_left: int, ctx_right: int) -> str:

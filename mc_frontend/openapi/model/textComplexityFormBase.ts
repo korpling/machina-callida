@@ -9,23 +9,21 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { AnnisResponse } from './annisResponse';
 
 
 /**
- * Additional exercise data.
+ * Relevant parameters for measuring the text complexity of a text passage.
  */
-export interface ExerciseFormAllOf { 
+export interface TextComplexityFormBase { 
     /**
-     * Type of exercise, concerning interaction and layout.
+     * Label of the desired measure for text complexity.
      */
-    type: string;
+    measure: string;
     /**
-     * Localized expression of the exercise type.
-     */
-    type_translation?: string;
-    /**
-     * CTS URN for the text passage from which the exercise was created.
+     * CTS URN for the text passage from which the text complexity should be calculated.
      */
     urn: string;
+    annis_response?: AnnisResponse;
 }
 

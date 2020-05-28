@@ -12,20 +12,16 @@
 
 
 /**
- * Additional exercise data.
+ * Relevant parameters for finding sentences that are similar to a target word.
  */
-export interface ExerciseFormAllOf { 
+export interface VectorNetworkForm { 
     /**
-     * Type of exercise, concerning interaction and layout.
+     * Regular expression for a textual search.
      */
-    type: string;
+    search_regex: string;
     /**
-     * Localized expression of the exercise type.
+     * Number of nearest neighbors that should be considered for each target node in a graph analysis.
      */
-    type_translation?: string;
-    /**
-     * CTS URN for the text passage from which the exercise was created.
-     */
-    urn: string;
+    nearest_neighbor_count?: number;
 }
 

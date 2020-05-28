@@ -18,8 +18,6 @@ import configMC from '../../configMC';
 import {Storage} from '@ionic/storage';
 import {CorpusService} from '../corpus.service';
 
-declare var H5P: any;
-
 @Component({
     selector: 'app-test',
     templateUrl: './test.page.html',
@@ -167,8 +165,8 @@ export class TestPage implements OnDestroy, OnInit {
         this.results = [];
         this.resultsBaseIndex = this.isTestMode ? 2 : 1;
         const allTestIndices: number[] = Object.keys(this.vocService.currentTestResults).map(x => +x);
-        let relevantTestIndices: number[];
-        let correctlySolved: number[];
+        let relevantTestIndices: number[] = [];
+        let correctlySolved: number[] = [];
         if (this.isTestMode) {
             this.analyzePretestResults(allTestIndices, relevantTestIndices, correctlySolved);
         }
@@ -263,8 +261,8 @@ export class TestPage implements OnDestroy, OnInit {
 
     ngOnDestroy(): void {
         this.removeTimer(false);
-        H5P.externalDispatcher.off('xAPI');
-        H5P.externalDispatcher.off('domChanged');
+        this.helperService.getH5P().externalDispatcher.off('xAPI');
+        this.helperService.getH5P().externalDispatcher.off('domChanged');
     }
 
     ngOnInit(): void {
@@ -350,7 +348,7 @@ export class TestPage implements OnDestroy, OnInit {
     }
 
     setH5PeventHandlers(): void {
-        H5P.externalDispatcher.on('xAPI', (event: XAPIevent) => {
+        this.helperService.getH5P().externalDispatcher.on('xAPI', (event: XAPIevent) => {
             if (this.currentState !== TestModuleState.inProgress) {
                 return;
             }
@@ -359,7 +357,7 @@ export class TestPage implements OnDestroy, OnInit {
                 this.finishCurrentExercise(event).then();
             }
         });
-        H5P.externalDispatcher.on('domChanged', (event: any) => {
+        this.helperService.getH5P().externalDispatcher.on('domChanged', (event: any) => {
             // dirty hack because domChanged events are triggered twice for every new H5P exercise
             if (!this.areEventHandlersSet) {
                 if (this.currentState === TestModuleState.inProgress && event.data.library === this.h5pBlanksString) {
@@ -405,7 +403,7 @@ export class TestPage implements OnDestroy, OnInit {
                 if (newIndex ===
                     this.exerciseService.currentExerciseParts[this.exerciseService.currentExerciseParts.length - 1].startIndex) {
                     this.analyzeResults();
-                    H5P.externalDispatcher.off('xAPI');
+                    this.helperService.getH5P().externalDispatcher.off('xAPI');
                 }
                 return resolve();
             }

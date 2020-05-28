@@ -22,7 +22,10 @@ import { Corpus } from '../model/models';
 import { Exercise } from '../model/models';
 import { FileType } from '../model/models';
 import { FrequencyItem } from '../model/models';
+import { Sentence } from '../model/models';
 import { StaticExercise } from '../model/models';
+import { TextComplexity } from '../model/models';
+import { VocabularyMC } from '../model/models';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -412,10 +415,10 @@ export class DefaultService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: 'agldt' | 'bws' | 'proiel' | 'viva', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Exercise>;
-    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: 'agldt' | 'bws' | 'proiel' | 'viva', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Exercise>>;
-    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: 'agldt' | 'bws' | 'proiel' | 'viva', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Exercise>>;
-    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: 'agldt' | 'bws' | 'proiel' | 'viva', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Exercise>;
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Exercise>>;
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Exercise>>;
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
         if (lang === null || lang === undefined) {
             throw new Error('Required parameter lang was null or undefined when calling mcserverAppApiExerciseListAPIGet.');
         }
@@ -499,10 +502,8 @@ export class DefaultService {
             <any>type, 'type');
         }
         if (solutionIndices) {
-            solutionIndices.forEach((element) => {
-                queryParameters = this.addToHttpParams(queryParameters,
-                  <any>element, 'solution_indices');
-            })
+            queryParameters = this.addToHttpParams(queryParameters,
+                solutionIndices.join(COLLECTION_FORMATS['csv']), 'solution_indices');
         }
 
         let headers = this.defaultHeaders;
@@ -664,6 +665,209 @@ export class DefaultService {
     }
 
     /**
+     * Provides JSON templates for client-side H5P exercise layouts.
+     * @param eid Unique identifier (UUID) for the exercise.
+     * @param lang ISO 639-1 Language Code for the localization of exercise content.
+     * @param solutionIndices Indices for the solutions that should be included in the download.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiH5pAPIGet(eid: string, lang: string, solutionIndices?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<object>;
+    public mcserverAppApiH5pAPIGet(eid: string, lang: string, solutionIndices?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<object>>;
+    public mcserverAppApiH5pAPIGet(eid: string, lang: string, solutionIndices?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<object>>;
+    public mcserverAppApiH5pAPIGet(eid: string, lang: string, solutionIndices?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (eid === null || eid === undefined) {
+            throw new Error('Required parameter eid was null or undefined when calling mcserverAppApiH5pAPIGet.');
+        }
+        if (lang === null || lang === undefined) {
+            throw new Error('Required parameter lang was null or undefined when calling mcserverAppApiH5pAPIGet.');
+        }
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (eid !== undefined && eid !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>eid, 'eid');
+        }
+        if (lang !== undefined && lang !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>lang, 'lang');
+        }
+        if (solutionIndices) {
+            queryParameters = this.addToHttpParams(queryParameters,
+                solutionIndices.join(COLLECTION_FORMATS['csv']), 'solution_indices');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<object>(`${this.configuration.basePath}/h5p`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Provides example contexts for a given phenomenon in a given corpus.
+     * @param searchValues Search queries that were used to build the exercise.
+     * @param urn CTS URN for the text passage from which the KWIC view should be generated.
+     * @param ctxLeft Number of tokens that should be given as context on the left side of a target.
+     * @param ctxRight Number of tokens that should be given as context on the right side of a target.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiKwicAPIPost(searchValues: string, urn: string, ctxLeft: number, ctxRight: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<string>;
+    public mcserverAppApiKwicAPIPost(searchValues: string, urn: string, ctxLeft: number, ctxRight: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<string>>;
+    public mcserverAppApiKwicAPIPost(searchValues: string, urn: string, ctxLeft: number, ctxRight: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<string>>;
+    public mcserverAppApiKwicAPIPost(searchValues: string, urn: string, ctxLeft: number, ctxRight: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (searchValues === null || searchValues === undefined) {
+            throw new Error('Required parameter searchValues was null or undefined when calling mcserverAppApiKwicAPIPost.');
+        }
+        if (urn === null || urn === undefined) {
+            throw new Error('Required parameter urn was null or undefined when calling mcserverAppApiKwicAPIPost.');
+        }
+        if (ctxLeft === null || ctxLeft === undefined) {
+            throw new Error('Required parameter ctxLeft was null or undefined when calling mcserverAppApiKwicAPIPost.');
+        }
+        if (ctxRight === null || ctxRight === undefined) {
+            throw new Error('Required parameter ctxRight was null or undefined when calling mcserverAppApiKwicAPIPost.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/x-www-form-urlencoded'
+        ];
+
+        const canConsumeForm = this.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any; };
+        let useForm = false;
+        let convertFormParamsToString = false;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new HttpParams({encoder: this.encoder});
+        }
+
+        if (searchValues !== undefined) {
+            formParams = formParams.append('search_values', <any>searchValues) as any || formParams;
+        }
+        if (urn !== undefined) {
+            formParams = formParams.append('urn', <any>urn) as any || formParams;
+        }
+        if (ctxLeft !== undefined) {
+            formParams = formParams.append('ctx_left', <any>ctxLeft) as any || formParams;
+        }
+        if (ctxRight !== undefined) {
+            formParams = formParams.append('ctx_right', <any>ctxRight) as any || formParams;
+        }
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.post<string>(`${this.configuration.basePath}/kwic`,
+            convertFormParamsToString ? formParams.toString() : formParams,
+            {
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Provides the raw text for a requested text passage.
+     * @param urn CTS URN for referencing the corpus.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiRawTextAPIGet(urn: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<AnnisResponse>;
+    public mcserverAppApiRawTextAPIGet(urn: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<AnnisResponse>>;
+    public mcserverAppApiRawTextAPIGet(urn: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<AnnisResponse>>;
+    public mcserverAppApiRawTextAPIGet(urn: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (urn === null || urn === undefined) {
+            throw new Error('Required parameter urn was null or undefined when calling mcserverAppApiRawTextAPIGet.');
+        }
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (urn !== undefined && urn !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>urn, 'urn');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<AnnisResponse>(`${this.configuration.basePath}/rawtext`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Returns metadata for static exercises.
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
@@ -694,6 +898,401 @@ export class DefaultService {
         }
 
         return this.httpClient.get<{ [key: string]: StaticExercise; }>(`${this.configuration.basePath}/staticExercises`,
+            {
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Gives users measures of text complexity for a given text.
+     * @param measure The desired measure of text complexity for the given text passage.
+     * @param urn CTS URN for referencing the corpus.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiTextcomplexityAPIGet(measure: string, urn: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<TextComplexity>;
+    public mcserverAppApiTextcomplexityAPIGet(measure: string, urn: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<TextComplexity>>;
+    public mcserverAppApiTextcomplexityAPIGet(measure: string, urn: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<TextComplexity>>;
+    public mcserverAppApiTextcomplexityAPIGet(measure: string, urn: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (measure === null || measure === undefined) {
+            throw new Error('Required parameter measure was null or undefined when calling mcserverAppApiTextcomplexityAPIGet.');
+        }
+        if (urn === null || urn === undefined) {
+            throw new Error('Required parameter urn was null or undefined when calling mcserverAppApiTextcomplexityAPIGet.');
+        }
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (measure !== undefined && measure !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>measure, 'measure');
+        }
+        if (urn !== undefined && urn !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>urn, 'urn');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<TextComplexity>(`${this.configuration.basePath}/textcomplexity`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Gives users all the citable text references for a corpus.
+     * @param urn CTS URN for referencing the corpus.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiValidReffAPIGet(urn: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Array<string>>;
+    public mcserverAppApiValidReffAPIGet(urn: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Array<string>>>;
+    public mcserverAppApiValidReffAPIGet(urn: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Array<string>>>;
+    public mcserverAppApiValidReffAPIGet(urn: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (urn === null || urn === undefined) {
+            throw new Error('Required parameter urn was null or undefined when calling mcserverAppApiValidReffAPIGet.');
+        }
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (urn !== undefined && urn !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>urn, 'urn');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<Array<string>>(`${this.configuration.basePath}/validReff`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Provides network data for the vectors in an AI model.
+     * @param searchRegex Regular expression to determine relevant words in the text.
+     * @param highlightRegex Regular expression to determine words in the text that should be highlighted.
+     * @param minCount Minimum number of occurrences that a word needs to be included in the analysis.
+     * @param nearestNeighborCount Number of nearest neighbors that should be considered for each relevant word.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiVectorNetworkAPIGet(searchRegex: string, highlightRegex?: string, minCount?: number, nearestNeighborCount?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<string>;
+    public mcserverAppApiVectorNetworkAPIGet(searchRegex: string, highlightRegex?: string, minCount?: number, nearestNeighborCount?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<string>>;
+    public mcserverAppApiVectorNetworkAPIGet(searchRegex: string, highlightRegex?: string, minCount?: number, nearestNeighborCount?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<string>>;
+    public mcserverAppApiVectorNetworkAPIGet(searchRegex: string, highlightRegex?: string, minCount?: number, nearestNeighborCount?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (searchRegex === null || searchRegex === undefined) {
+            throw new Error('Required parameter searchRegex was null or undefined when calling mcserverAppApiVectorNetworkAPIGet.');
+        }
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (searchRegex !== undefined && searchRegex !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>searchRegex, 'search_regex');
+        }
+        if (highlightRegex !== undefined && highlightRegex !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>highlightRegex, 'highlight_regex');
+        }
+        if (minCount !== undefined && minCount !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>minCount, 'min_count');
+        }
+        if (nearestNeighborCount !== undefined && nearestNeighborCount !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>nearestNeighborCount, 'nearest_neighbor_count');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<string>(`${this.configuration.basePath}/vectorNetwork`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Provides network data for the vectors in an AI model.
+     * @param searchRegex Regular expression for a textual search.
+     * @param nearestNeighborCount Number of nearest neighbors that should be considered for each target node in a graph analysis.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiVectorNetworkAPIPost(searchRegex: string, nearestNeighborCount?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Array<Array<string>>>;
+    public mcserverAppApiVectorNetworkAPIPost(searchRegex: string, nearestNeighborCount?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Array<Array<string>>>>;
+    public mcserverAppApiVectorNetworkAPIPost(searchRegex: string, nearestNeighborCount?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Array<Array<string>>>>;
+    public mcserverAppApiVectorNetworkAPIPost(searchRegex: string, nearestNeighborCount?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (searchRegex === null || searchRegex === undefined) {
+            throw new Error('Required parameter searchRegex was null or undefined when calling mcserverAppApiVectorNetworkAPIPost.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/x-www-form-urlencoded'
+        ];
+
+        const canConsumeForm = this.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any; };
+        let useForm = false;
+        let convertFormParamsToString = false;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new HttpParams({encoder: this.encoder});
+        }
+
+        if (searchRegex !== undefined) {
+            formParams = formParams.append('search_regex', <any>searchRegex) as any || formParams;
+        }
+        if (nearestNeighborCount !== undefined) {
+            formParams = formParams.append('nearest_neighbor_count', <any>nearestNeighborCount) as any || formParams;
+        }
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.post<Array<Array<string>>>(`${this.configuration.basePath}/vectorNetwork`,
+            convertFormParamsToString ? formParams.toString() : formParams,
+            {
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Shows how well the vocabulary of a text matches a predefined reference vocabulary.
+     * @param frequencyUpperBound Upper bound for reference vocabulary frequency.
+     * @param queryUrn URN for the query corpus.
+     * @param vocabulary Identifier for a reference vocabulary.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiVocabularyAPIGet(frequencyUpperBound: number, queryUrn: string, vocabulary: VocabularyMC, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Array<Sentence>>;
+    public mcserverAppApiVocabularyAPIGet(frequencyUpperBound: number, queryUrn: string, vocabulary: VocabularyMC, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Array<Sentence>>>;
+    public mcserverAppApiVocabularyAPIGet(frequencyUpperBound: number, queryUrn: string, vocabulary: VocabularyMC, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Array<Sentence>>>;
+    public mcserverAppApiVocabularyAPIGet(frequencyUpperBound: number, queryUrn: string, vocabulary: VocabularyMC, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (frequencyUpperBound === null || frequencyUpperBound === undefined) {
+            throw new Error('Required parameter frequencyUpperBound was null or undefined when calling mcserverAppApiVocabularyAPIGet.');
+        }
+        if (queryUrn === null || queryUrn === undefined) {
+            throw new Error('Required parameter queryUrn was null or undefined when calling mcserverAppApiVocabularyAPIGet.');
+        }
+        if (vocabulary === null || vocabulary === undefined) {
+            throw new Error('Required parameter vocabulary was null or undefined when calling mcserverAppApiVocabularyAPIGet.');
+        }
+
+        let queryParameters = new HttpParams({encoder: this.encoder});
+        if (frequencyUpperBound !== undefined && frequencyUpperBound !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>frequencyUpperBound, 'frequency_upper_bound');
+        }
+        if (queryUrn !== undefined && queryUrn !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>queryUrn, 'query_urn');
+        }
+        if (vocabulary !== undefined && vocabulary !== null) {
+          queryParameters = this.addToHttpParams(queryParameters,
+            <any>vocabulary, 'vocabulary');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.get<Array<Sentence>>(`${this.configuration.basePath}/vocabulary`,
+            {
+                params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Shows how well the vocabulary of a text matches a predefined reference vocabulary.
+     * @param frequencyUpperBound Upper bound for reference vocabulary frequency.
+     * @param queryUrn URN for the query corpus.
+     * @param vocabulary 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiVocabularyAPIPost(frequencyUpperBound: number, queryUrn: string, vocabulary: VocabularyMC, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<AnnisResponse>;
+    public mcserverAppApiVocabularyAPIPost(frequencyUpperBound: number, queryUrn: string, vocabulary: VocabularyMC, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<AnnisResponse>>;
+    public mcserverAppApiVocabularyAPIPost(frequencyUpperBound: number, queryUrn: string, vocabulary: VocabularyMC, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<AnnisResponse>>;
+    public mcserverAppApiVocabularyAPIPost(frequencyUpperBound: number, queryUrn: string, vocabulary: VocabularyMC, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+        if (frequencyUpperBound === null || frequencyUpperBound === undefined) {
+            throw new Error('Required parameter frequencyUpperBound was null or undefined when calling mcserverAppApiVocabularyAPIPost.');
+        }
+        if (queryUrn === null || queryUrn === undefined) {
+            throw new Error('Required parameter queryUrn was null or undefined when calling mcserverAppApiVocabularyAPIPost.');
+        }
+        if (vocabulary === null || vocabulary === undefined) {
+            throw new Error('Required parameter vocabulary was null or undefined when calling mcserverAppApiVocabularyAPIPost.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/json'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/x-www-form-urlencoded'
+        ];
+
+        const canConsumeForm = this.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any; };
+        let useForm = false;
+        let convertFormParamsToString = false;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new HttpParams({encoder: this.encoder});
+        }
+
+        if (frequencyUpperBound !== undefined) {
+            formParams = formParams.append('frequency_upper_bound', <any>frequencyUpperBound) as any || formParams;
+        }
+        if (queryUrn !== undefined) {
+            formParams = formParams.append('query_urn', <any>queryUrn) as any || formParams;
+        }
+        if (vocabulary !== undefined) {
+            formParams = formParams.append('vocabulary', <any>vocabulary) as any || formParams;
+        }
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.post<AnnisResponse>(`${this.configuration.basePath}/vocabulary`,
+            convertFormParamsToString ? formParams.toString() : formParams,
             {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,

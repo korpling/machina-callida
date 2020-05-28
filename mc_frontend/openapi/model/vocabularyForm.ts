@@ -9,23 +9,21 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { VocabularyMC } from './vocabularyMC';
 
 
 /**
- * Additional exercise data.
+ * Relevant parameters for comparing a corpus to a reference vocabulary.
  */
-export interface ExerciseFormAllOf { 
+export interface VocabularyForm { 
     /**
-     * Type of exercise, concerning interaction and layout.
+     * Upper bound for reference vocabulary frequency.
      */
-    type: string;
+    frequency_upper_bound: number;
     /**
-     * Localized expression of the exercise type.
+     * URN for the query corpus.
      */
-    type_translation?: string;
-    /**
-     * CTS URN for the text passage from which the exercise was created.
-     */
-    urn: string;
+    query_urn: string;
+    vocabulary: VocabularyMC;
 }
 

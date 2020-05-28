@@ -31,6 +31,10 @@ export interface ExerciseForm {
      */
     instructions: string;
     /**
+     * ISO 639-1 Language Code for the localization of exercise content.
+     */
+    language?: string;
+    /**
      * Feedback for successfully completing certain parts of the exercise.
      */
     partially_correct_feedback?: string;
@@ -57,6 +61,6 @@ export interface ExerciseForm {
     /**
      * CTS URN for the text passage from which the exercise was created.
      */
-    urn?: string;
+    urn: string;
 }
 

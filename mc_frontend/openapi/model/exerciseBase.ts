@@ -32,6 +32,10 @@ export interface ExerciseBase {
      */
     instructions: string;
     /**
+     * ISO 639-1 Language Code for the localization of exercise content.
+     */
+    language?: string;
+    /**
      * Feedback for successfully completing certain parts of the exercise.
      */
     partially_correct_feedback?: string;

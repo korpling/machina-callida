@@ -7,8 +7,8 @@ import {TranslateTestingModule} from './translate-testing/translate-testing.modu
 import {VocabularyCorpus} from './models/enum';
 import {Sentence} from './models/sentence';
 import {HttpErrorResponse} from '@angular/common/http';
-import Spy = jasmine.Spy;
 import {AnnisResponse} from '../../openapi';
+import Spy = jasmine.Spy;
 
 describe('VocabularyService', () => {
     let vocabularyService: VocabularyService;
@@ -32,16 +32,22 @@ describe('VocabularyService', () => {
     });
     it('should get a vocabulary check', (done) => {
         const error: HttpErrorResponse = new HttpErrorResponse({status: 500});
-        const requestSpy: Spy = spyOn(vocabularyService.helperService, 'makeGetRequest')
-            .and.callFake(() => Promise.reject(error));
-        vocabularyService.getVocabularyCheck('', false).then(() => {
+        const getSpy: Spy = spyOn(vocabularyService.helperService, 'makeGetRequest').and.callFake(() => Promise.reject(error));
+        vocabularyService.getMatchingSentences('').then(() => {
         }, async (response: HttpErrorResponse) => {
             expect(response.status).toBe(500);
-            const ar: AnnisResponse = {};
-            requestSpy.and.returnValue(Promise.resolve(ar));
-            const result: AnnisResponse | Sentence[] = await vocabularyService.getVocabularyCheck('', true);
-            expect(result.hasOwnProperty('length')).toBe(false);
-            done();
+            getSpy.and.returnValue(Promise.resolve([]));
+            const sentences: Sentence[] = await vocabularyService.getMatchingSentences('');
+            expect(sentences.length).toBe(0);
+            const postSpy: Spy = spyOn(vocabularyService.helperService, 'makePostRequest').and.returnValue(Promise.resolve({}));
+            const result: AnnisResponse = await vocabularyService.getOOVwords('');
+            expect(result.graph_data).toBeFalsy();
+            postSpy.and.callFake(() => Promise.reject(error));
+            vocabularyService.getOOVwords('').then(() => {
+            }, (resp: HttpErrorResponse) => {
+                expect(resp.status).toBe(500);
+                done();
+            });
         });
     });
 

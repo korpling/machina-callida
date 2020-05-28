@@ -8,7 +8,8 @@ import {HelperService} from 'src/app/helper.service';
 import {TestResultMC} from 'src/app/models/testResultMC';
 import {ToastController} from '@ionic/angular';
 import configMC from '../configMC';
-import {AnnisResponse} from '../../openapi';
+import {AnnisResponse, VocabularyForm} from '../../openapi';
+import {VocabularyMC} from '../../openapi';
 
 @Injectable({
     providedIn: 'root'
@@ -32,6 +33,26 @@ export class VocabularyService implements OnInit {
         return this.refVocMap[this.currentReferenceVocabulary];
     }
 
+    getOOVwords(queryUrn: string): Promise<AnnisResponse> {
+        return new Promise(((resolve, reject) => {
+            const url: string = configMC.backendBaseUrl + configMC.backendApiVocabularyPath;
+            const vf: VocabularyForm = {
+                frequency_upper_bound: this.frequencyUpperBound,
+                query_urn: queryUrn,
+                vocabulary: VocabularyMC[this.currentReferenceVocabulary]
+            };
+            const formData: FormData = new FormData();
+            Object.keys(vf).forEach((key: string) => {
+                formData.append(key, vf[key]);
+            });
+            this.helperService.makePostRequest(this.http, this.toastCtrl, url, formData).then((result: AnnisResponse) => {
+                return resolve(result);
+            }, (error: HttpErrorResponse) => {
+                return reject(error);
+            });
+        }));
+    }
+
     getMean(sentences: Sentence[]): number {
         return sentences.map(x => x.matching_degree).reduce((a, b) => a + b) / sentences.length;
     }
@@ -40,20 +61,24 @@ export class VocabularyService implements OnInit {
         return this.getCurrentReferenceVocabulary().possibleSubcounts[0];
     }
 
-    getVocabularyCheck(queryUrn: string, showOOV: boolean): Promise<AnnisResponse | Sentence[]> {
-        return new Promise(((resolve, reject) => {
+    getMatchingSentences(queryUrn: string): Promise<Sentence[]> {
+        return new Promise((resolve, reject) => {
             const url: string = configMC.backendBaseUrl + configMC.backendApiVocabularyPath;
-            const params: HttpParams = new HttpParams()
-                .set('vocabulary', VocabularyCorpus[this.currentReferenceVocabulary])
-                .set('frequency_upper_bound', this.frequencyUpperBound.toString())
-                .set('query_urn', queryUrn)
-                .set('show_oov', showOOV ? '1' : '0');
-            this.helperService.makeGetRequest(this.http, this.toastCtrl, url, params).then((result: AnnisResponse | Sentence[]) => {
+            const vf: VocabularyForm = {
+                frequency_upper_bound: this.frequencyUpperBound,
+                query_urn: queryUrn,
+                vocabulary: VocabularyMC[this.currentReferenceVocabulary]
+            };
+            let params: HttpParams = new HttpParams();
+            Object.keys(vf).forEach((key: string) => {
+                params = params.set(key, vf[key]);
+            });
+            this.helperService.makeGetRequest(this.http, this.toastCtrl, url, params).then((result: Sentence[]) => {
                 return resolve(result);
             }, (error: HttpErrorResponse) => {
                 return reject(error);
             });
-        }));
+        });
     }
 
     ngOnInit(): void {

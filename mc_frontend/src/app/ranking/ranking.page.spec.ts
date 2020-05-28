@@ -45,12 +45,12 @@ describe('RankingPage', () => {
     it('should show the text', (done) => {
         rankingPage.helperService.isVocabularyCheck = false;
         const ar: AnnisResponse = {graph_data: {nodes: [{id: 'id/id:1-2/id'}], links: []}};
-        const vocCheckSpy: Spy = spyOn(rankingPage.vocService, 'getVocabularyCheck').and.returnValue(Promise.resolve(ar));
+        const oovSpy: Spy = spyOn(rankingPage.vocService, 'getOOVwords').and.returnValue(Promise.resolve(ar));
         spyOn(rankingPage.corpusService, 'processAnnisResponse');
         spyOn(rankingPage.helperService, 'goToShowTextPage').and.returnValue(Promise.resolve(true));
         rankingPage.showText([new Sentence({id: 1})]).then(() => {
             expect(rankingPage.helperService.isVocabularyCheck).toBe(true);
-            vocCheckSpy.and.callFake(() => Promise.reject());
+            oovSpy.and.callFake(() => Promise.reject());
             rankingPage.helperService.isVocabularyCheck = false;
             rankingPage.showText([new Sentence({id: 1})]).then(() => {
             }, () => {

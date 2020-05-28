@@ -15,7 +15,7 @@ class ExerciseFormAllOf(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, type=None, type_translation=None, urn=None):  # noqa: E501
+    def __init__(self, type=None, type_translation='', urn=None):  # noqa: E501
         """ExerciseFormAllOf - a model defined in OpenAPI
 
         :param type: The type of this ExerciseFormAllOf.  # noqa: E501
@@ -120,5 +120,7 @@ class ExerciseFormAllOf(Model):
         :param urn: The urn of this ExerciseFormAllOf.
         :type urn: str
         """
+        if urn is None:
+            raise ValueError("Invalid value for `urn`, must not be `None`")  # noqa: E501
 
         self._urn = urn

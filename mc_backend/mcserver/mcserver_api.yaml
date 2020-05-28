@@ -100,13 +100,7 @@ paths:
               schema:
                 $ref: '../openapi_models.yaml#/components/schemas/AnnisResponse'
       parameters:
-        - name: eid
-          in: query
-          description: Unique identifier (UUID) for the exercise.
-          required: true
-          schema:
-            type: string
-            example: 12345678-1234-5678-1234-567812345678
+        - $ref: '../openapi_models.yaml#/components/parameters/EidParam'
     post:
       summary: Creates a new exercise.
       operationId: mcserver.app.api.exerciseAPI.post
@@ -135,13 +129,7 @@ paths:
               schema:
                 $ref: '../openapi_models.yaml#/components/schemas/Exercise'
       parameters:
-        - name: lang
-          in: query
-          description: ISO 639-1 Language Code for the localization of exercise content.
-          required: true
-          schema:
-            type: string
-            example: en
+        - $ref: '../openapi_models.yaml#/components/parameters/LangParam'
         - name: frequency_upper_bound
           in: query
           description: Upper bound for reference vocabulary frequency.
@@ -163,9 +151,7 @@ paths:
           description: Identifier for a reference vocabulary.
           required: false
           schema:
-            type: string
-            enum: [agldt, bws, proiel, viva]
-            example: agldt
+            $ref: '../openapi_models.yaml#/components/schemas/VocabularyMC'
   /file:
     get:
       summary: Provides the URL to download a specific file.
@@ -191,16 +177,7 @@ paths:
           required: true
           schema:
             $ref: '../openapi_models.yaml#/components/schemas/FileType'
-        - name: solution_indices
-          in: query
-          description: Indices for the solutions that should be included in the download.
-          required: false
-          schema:
-            type: array
-            items:
-              type: integer
-              example: 0
-            default: []
+        - $ref: '../openapi_models.yaml#/components/parameters/SolutionIndicesParam'
     post:
       summary: Serializes and persists learning results or HTML content for later access.
       operationId: mcserver.app.api.fileAPI.post
@@ -235,7 +212,7 @@ paths:
                 urn:
                   type: string
                   description: CTS URN for the text passage from which the HTML content was created.
-                  example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1
+                  example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
   /frequency:
     get:
       summary: Returns results for a frequency query from ANNIS for a given CTS URN.
@@ -251,13 +228,54 @@ paths:
                 items:
                   $ref: "../openapi_models.yaml#/components/schemas/FrequencyItem"
       parameters:
-        - name: urn
-          in: query
-          description: CTS URN for referencing the corpus.
-          required: true
-          schema:
-            type: string
-            example: urn:cts:latinLit:phi1254.phi001.perseus-lat2:5.6.21-5.6.21
+        - $ref: '../openapi_models.yaml#/components/parameters/UrnParam'
+  /h5p:
+    get:
+      summary: Provides JSON templates for client-side H5P exercise layouts.
+      operationId: mcserver.app.api.h5pAPI.get
+      responses:
+        200:
+          description: JSON template for an interactive H5P exercise.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: JSON template for an interactive H5P exercise.
+                example: {}
+      parameters:
+        - $ref: '../openapi_models.yaml#/components/parameters/EidParam'
+        - $ref: '../openapi_models.yaml#/components/parameters/LangParam'
+        - $ref: '../openapi_models.yaml#/components/parameters/SolutionIndicesParam'
+  /kwic:
+    post:
+      summary: Provides example contexts for a given phenomenon in a given corpus.
+      operationId: mcserver.app.api.kwicAPI.post
+      responses:
+        200:
+          description: HTML strings with SVG elements for rendering KWIC images.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '../openapi_models.yaml#/components/schemas/KwicForm'
+  /rawtext:
+    get:
+      summary: Provides the raw text for a requested text passage.
+      operationId: mcserver.app.api.rawTextAPI.get
+      responses:
+        200:
+          description: Graph data for the text passage, including raw text and annotations.
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi_models.yaml#/components/schemas/AnnisResponse'
+      parameters:
+        - $ref: '../openapi_models.yaml#/components/parameters/UrnParam'
   /staticExercises:
     get:
       summary: Returns metadata for static exercises.
@@ -271,3 +289,161 @@ paths:
                 type: object
                 additionalProperties:
                   $ref: '../openapi_models.yaml#/components/schemas/StaticExercise'
+  /textcomplexity:
+    get:
+      summary: Gives users measures of text complexity for a given text.
+      operationId: mcserver.app.api.textcomplexityAPI.get
+      responses:
+        200:
+          description: Text complexity measures for a given text.
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi_models.yaml#/components/schemas/TextComplexity'
+      parameters:
+        - name: measure
+          in: query
+          description: The desired measure of text complexity for the given text passage.
+          required: true
+          schema:
+            type: string
+            example: all
+        - $ref: '../openapi_models.yaml#/components/parameters/UrnParam'
+  /validReff:
+    get:
+      summary: Gives users all the citable text references for a corpus.
+      operationId: mcserver.app.api.validReffAPI.get
+      responses:
+        200:
+          description: Valid references for the desired text.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: urn:custom:latinLit:proiel.caes-gal.lat:1.1.1
+      parameters:
+        - $ref: '../openapi_models.yaml#/components/parameters/UrnParam'
+  /vectorNetwork:
+    get:
+      summary: Provides network data for the vectors in an AI model.
+      operationId: mcserver.app.api.vectorNetworkAPI.get
+      responses:
+        200:
+          description: HTML string with SVG elements for rendering the network graph.
+          content:
+            application/json:
+              schema:
+                type: string
+      parameters:
+        - name: search_regex
+          in: query
+          description: Regular expression to determine relevant words in the text.
+          required: true
+          schema:
+            $ref: '../openapi_models.yaml#/components/schemas/SearchRegex'
+        - name: highlight_regex
+          in: query
+          description: Regular expression to determine words in the text that should be highlighted.
+          required: false
+          schema:
+            type: string
+            example: ver[aoe]
+            default: ""
+        - name: min_count
+          in: query
+          description: Minimum number of occurrences that a word needs to be included in the analysis.
+          required: false
+          schema:
+            type: integer
+            example: 3
+            default: 1
+        - name: nearest_neighbor_count
+          in: query
+          description: Number of nearest neighbors that should be considered for each relevant word.
+          required: false
+          schema:
+            $ref: '../openapi_models.yaml#/components/schemas/NearestNeighborCount'
+    post:
+      summary: Provides network data for the vectors in an AI model.
+      operationId: mcserver.app.api.vectorNetworkAPI.post
+      responses:
+        200:
+          description: Sentences whose content is similar to a given word.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: List of tokenized sentences.
+                items:
+                  type: array
+                  description: Tokenized sentence.
+                  example: [in, vino, veritas]
+                  items:
+                    type: string
+                    description: Token of a sentence.
+                    example: veritas
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '../openapi_models.yaml#/components/schemas/VectorNetworkForm'
+  /vocabulary:
+    get:
+      summary: Shows how well the vocabulary of a text matches a predefined reference vocabulary.
+      operationId: mcserver.app.api.vocabularyAPI.get
+      responses:
+        200:
+          description: Retrieves sentence ID and matching degree for each sentence in the query text.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../openapi_models.yaml#/components/schemas/Sentence'
+      parameters:
+        - name: frequency_upper_bound
+          in: query
+          description: Upper bound for reference vocabulary frequency.
+          required: true
+          schema:
+            type: integer
+            example: 500
+        - name: query_urn
+          in: query
+          description: URN for the query corpus.
+          required: true
+          schema:
+            type: string
+            example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
+        - name: vocabulary
+          in: query
+          description: Identifier for a reference vocabulary.
+          required: true
+          schema:
+            $ref: '../openapi_models.yaml#/components/schemas/VocabularyMC'
+    post:
+      summary: Shows how well the vocabulary of a text matches a predefined reference vocabulary.
+      operationId: mcserver.app.api.vocabularyAPI.post
+      responses:
+        200:
+          description: Indicates for each token of a corpus whether it is covered by a reference vocabulary.
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi_models.yaml#/components/schemas/AnnisResponse'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '../openapi_models.yaml#/components/schemas/VocabularyForm'
+# include this here so the data model gets generated correctly
+components:
+  schemas:
+    TextComplexityForm:
+      type: object
+      allOf:
+        - $ref: '../openapi_models.yaml#/components/schemas/TextComplexityFormBase'

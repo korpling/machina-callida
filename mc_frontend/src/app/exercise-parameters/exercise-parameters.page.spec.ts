@@ -17,7 +17,7 @@ import {QueryMC} from '../models/queryMC';
 import {PhenomenonMapContent} from '../models/phenomenonMap';
 import Spy = jasmine.Spy;
 import MockMC from '../models/mockMC';
-import {Phenomenon} from '../../../openapi/model/phenomenon';
+import {Phenomenon} from '../../../openapi';
 
 describe('ExerciseParametersPage', () => {
     let exerciseParametersPage: ExerciseParametersPage;

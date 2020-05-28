@@ -18,6 +18,47 @@ from mcserver.models_auto import Exercise
 class TextService:
     """ Service for manipulating texts / strings. """
 
+    feedback_template: str = "{0}: @score {1} @total."
+    json_template_drag_text: dict = {
+        "taskDescription": "<p>{0}</p>\n",
+        "checkAnswer": "Prüfen",
+        "tryAgain": "Nochmal",
+        "showSolution": "Lösung",
+        "behaviour": {
+            "enableRetry": True,
+            "enableSolutionsButton": True,
+            "instantFeedback": False,
+            "enableCheckButton": True
+        },
+        "textField": "Blueberries are *blue:Check the name of the berry!*.\nStrawberries are *red*.",
+        "overallFeedback": [{"from": 0, "to": 100, "feedback": "Punkte: @score von @total."}],
+        "dropZoneIndex": "Drop Zone @index.",
+        "empty": "Drop Zone @index is empty.",
+        "contains": "Drop Zone @index contains draggable @draggable.",
+        "draggableIndex": "Draggable @text. @index of @count draggables.",
+        "tipLabel": "Show tip",
+        "correctText": "Correct!",
+        "incorrectText": "Incorrect!",
+        "resetDropTitle": "Reset drop",
+        "resetDropDescription": "Are you sure you want to reset this drop zone?",
+        "grabbed": "Draggable is grabbed.",
+        "cancelledDragging": "Cancelled dragging.",
+        "correctAnswer": "Correct answer:",
+        "feedbackHeader": "Feedback",
+        "scoreBarLabel": "You got :num out of :total points"
+    }
+    json_template_mark_words: dict = {
+        "checkAnswerButton": "Check",
+        "tryAgainButton": "Retry",
+        "showSolutionButton": "Show solution",
+        "behaviour": {
+            "enableRetry": True,
+            "enableSolutionsButton": True
+        },
+        "taskDescription": "<p>Click the various types of berries&nbsp;mentioned&nbsp;in the text below!<\/p>\n",
+        "textField": "*Bilberries*, also known as *blueberries* are edible, nearly black berries found in nutrient-poor soils.<br><br>*Cloudberries* are edible orange berries similar to *raspberries* or *blackberries* found in alpine and arctic tundra. <br><br>*Redcurrants* are red translucent berries with a diameter of 8\u201310 mm, and are closely related to *blackcurrants*.",
+        "overallFeedback": [{"from": 0, "to": 100, "feedback": "You got @score of @total points."}]
+    }
     orthography_map: Dict[str, str] = {"que": "", "u": "v", "U": "V", "v": "u", "V": "U"}
     proper_nouns_set: Set[str]
     sentence_count_ranges: List[range] = [range(0, 2), range(2, 5), range(5, 10), range(10, 20), range(20, 40),

@@ -80,9 +80,13 @@ class Config(object):
     ERROR_MESSAGE_SERVICE_UNAVAILABLE = \
         "The server is currently unable to handle the request due to a temporary overload or scheduled " \
         "maintenance, which will likely be alleviated after some delay."
+    ERROR_MESSAGE_UNPROCESSABLE_ENTITY = \
+        "The server understands the content type of the request entity, and the syntax of the request entity is " \
+        "correct, but it was unable to process the contained instructions."
     ERROR_TITLE_INTERNAL_SERVER_ERROR = "Internal Server Error"
     ERROR_TITLE_NOT_FOUND = "Not found"
     ERROR_TITLE_SERVICE_UNAVAILABLE = "Service Unavailable"
+    ERROR_TITLE_UNPROCESSABLE_ENTITY = "Unprocessable Entity"
     FAVICON_FILE_NAME = "favicon.ico"
     FLASK_MIGRATE = "migrate"
     GRAPHANNIS_DEPENDENCY_LINK = "dep"

@@ -1,25 +1,19 @@
-from flask_restful import Resource, abort
-from flask_restful.reqparse import RequestParser
+from typing import Union
 
-from mcserver.app.models import AnnisResponse, TextComplexityMeasure, GraphData
+import connexion
+from connexion.lifecycle import ConnexionResponse
+from flask import Response
+
+from mcserver import Config
+from mcserver.app.models import AnnisResponse, TextComplexityMeasure
 from mcserver.app.services import CorpusService, NetworkService, TextComplexityService
 
 
-class RawTextAPI(Resource):
-    """The fill the blank API resource. It creates a fill the blank exercise for a given text."""
-
-    def __init__(self):
-        """Initialize possible arguments for calls to the fill the blank REST API."""
-        self.reqparse: RequestParser = NetworkService.base_request_parser.copy()
-        self.reqparse.add_argument("urn", type=str, required=True, default="", help="No URN provided")
-        super(RawTextAPI, self).__init__()
-
-    def get(self):
-        args = self.reqparse.parse_args()
-        urn: str = args["urn"]
-        ar: AnnisResponse = CorpusService.get_corpus(cts_urn=urn, is_csm=False)
-        if not ar.graph_data.nodes:
-            abort(404)
-        ar.text_complexity = TextComplexityService.text_complexity(TextComplexityMeasure.all.name, urn, False,
-                                                                   ar.graph_data).to_dict()
-        return NetworkService.make_json_response(ar.to_dict())
+def get(urn: str) -> Union[Response, ConnexionResponse]:
+    """Provides the raw text for a requested text passage."""
+    ar: AnnisResponse = CorpusService.get_corpus(cts_urn=urn, is_csm=False)
+    if not ar.graph_data.nodes:
+        return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_CORPUS_NOT_FOUND)
+    ar.text_complexity = TextComplexityService.text_complexity(TextComplexityMeasure.all.name, urn, False,
+                                                               ar.graph_data).to_dict()
+    return NetworkService.make_json_response(ar.to_dict())

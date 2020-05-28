@@ -4,16 +4,6 @@ import configMC from '../configMC';
 import {HelperService} from './helper.service';
 import {ExercisePart} from './models/exercisePart';
 
-declare var H5P: any;
-// dirty hack to prevent H5P access errors after resize events
-window.onresize = () => {
-    /* tslint:disable:prefer-const */
-    /* tslint:disable:no-shadowed-variable */
-    let H5P: any;
-    /* tslint:enable:prefer-const */
-    /* tslint:enable:no-shadowed-variable */
-};
-
 @Injectable({
     providedIn: 'root'
 })
@@ -63,7 +53,7 @@ export class ExerciseService {
             // dirty hack to get H5P going without explicit button click on the new page
             setTimeout(() => {
                 // noinspection TypeScriptValidateJSTypes
-                H5P.jQuery(this.h5pContainerString).empty().h5p({
+                this.helperService.getH5P().jQuery(this.h5pContainerString).empty().h5p({
                     frameJs: 'assets/dist/js/h5p-standalone-frame.min.js',
                     frameCss: 'assets/dist/styles/h5p.css',
                     h5pContent: 'assets/h5p/' + exerciseTypePath

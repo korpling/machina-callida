@@ -15,7 +15,7 @@ class ExerciseBase(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, correct_feedback='', general_feedback='', incorrect_feedback='', instructions='', partially_correct_feedback='', search_values='[]', work_author='', work_title=''):  # noqa: E501
+    def __init__(self, correct_feedback='', general_feedback='', incorrect_feedback='', instructions='', language='de', partially_correct_feedback='', search_values='[]', work_author='', work_title=''):  # noqa: E501
         """ExerciseBase - a model defined in OpenAPI
 
         :param correct_feedback: The correct_feedback of this ExerciseBase.  # noqa: E501
@@ -26,6 +26,8 @@ class ExerciseBase(Model):
         :type incorrect_feedback: str
         :param instructions: The instructions of this ExerciseBase.  # noqa: E501
         :type instructions: str
+        :param language: The language of this ExerciseBase.  # noqa: E501
+        :type language: str
         :param partially_correct_feedback: The partially_correct_feedback of this ExerciseBase.  # noqa: E501
         :type partially_correct_feedback: str
         :param search_values: The search_values of this ExerciseBase.  # noqa: E501
@@ -40,6 +42,7 @@ class ExerciseBase(Model):
             'general_feedback': str,
             'incorrect_feedback': str,
             'instructions': str,
+            'language': str,
             'partially_correct_feedback': str,
             'search_values': str,
             'work_author': str,
@@ -51,6 +54,7 @@ class ExerciseBase(Model):
             'general_feedback': 'general_feedback',
             'incorrect_feedback': 'incorrect_feedback',
             'instructions': 'instructions',
+            'language': 'language',
             'partially_correct_feedback': 'partially_correct_feedback',
             'search_values': 'search_values',
             'work_author': 'work_author',
@@ -61,6 +65,7 @@ class ExerciseBase(Model):
         self._general_feedback = general_feedback
         self._incorrect_feedback = incorrect_feedback
         self._instructions = instructions
+        self._language = language
         self._partially_correct_feedback = partially_correct_feedback
         self._search_values = search_values
         self._work_author = work_author
@@ -170,6 +175,29 @@ class ExerciseBase(Model):
             raise ValueError("Invalid value for `instructions`, must not be `None`")  # noqa: E501
 
         self._instructions = instructions
+
+    @property
+    def language(self):
+        """Gets the language of this ExerciseBase.
+
+        ISO 639-1 Language Code for the localization of exercise content.  # noqa: E501
+
+        :return: The language of this ExerciseBase.
+        :rtype: str
+        """
+        return self._language
+
+    @language.setter
+    def language(self, language):
+        """Sets the language of this ExerciseBase.
+
+        ISO 639-1 Language Code for the localization of exercise content.  # noqa: E501
+
+        :param language: The language of this ExerciseBase.
+        :type language: str
+        """
+
+        self._language = language
 
     @property
     def partially_correct_feedback(self):

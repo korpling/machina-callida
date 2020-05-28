@@ -22,10 +22,21 @@ paths:
                 items:
                   $ref: "../openapi_models.yaml#/components/schemas/FrequencyItem"
       parameters:
-        - name: urn
-          in: query
-          description: CTS URN for referencing the corpus.
-          required: true
-          schema:
-            type: string
-            example: urn:cts:latinLit:phi1254.phi001.perseus-lat2:5.6.21-5.6.21
+        - $ref: '../openapi_models.yaml#/components/parameters/UrnParam'
+  /textcomplexity:
+    post:
+      summary: Gives users measures of text complexity for a given text.
+      operationId: csm.app.api.textcomplexityAPI.post
+      responses:
+        200:
+          description: Text complexity measures for a given text.
+          content:
+            application/json:
+              schema:
+                $ref: '../openapi_models.yaml#/components/schemas/TextComplexity'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '../openapi_models.yaml#/components/schemas/TextComplexityFormBase'

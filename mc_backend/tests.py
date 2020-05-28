@@ -38,12 +38,14 @@ from mcserver.app.api.exerciseAPI import map_exercise_data_to_database
 from mcserver.app.models import ResourceType, FileType, ExerciseType, ExerciseData, \
     NodeMC, LinkMC, GraphData, Phenomenon, CustomCorpus, AnnisResponse, Solution, DownloadableFile, Language, \
     VocabularyCorpus, TextComplexityMeasure, CitationLevel, FrequencyItem, TextComplexity, Dependency, PartOfSpeech, \
-    Choice, XapiStatement, ExerciseMC, CorpusMC, make_solution_element_from_salt_id
+    Choice, XapiStatement, ExerciseMC, CorpusMC, make_solution_element_from_salt_id, Sentence
 from mcserver.app.services import AnnotationService, CorpusService, FileService, CustomCorpusService, DatabaseService, \
     XMLservice, TextService, FrequencyService
 from mcserver.config import TestingConfig, Config
 from mcserver.models_auto import Corpus, Exercise, UpdateInfo, LearningResult
 from mocks import Mocks, MockResponse, MockW2V, MockQuery, TestHelper
+from openapi.openapi_server.models import VocabularyForm, VocabularyMC, TextComplexityForm, ExerciseForm, KwicForm, \
+    VectorNetworkForm
 
 
 class McTestCase(unittest.TestCase):
@@ -218,16 +220,16 @@ class McTestCase(unittest.TestCase):
                                                         last_modified_time=1, created_time=1)
         db.session.add(ui_exercises)
         db.session.commit()
-        data_dict: dict = dict(urn=Mocks.exercise.urn, type=ExerciseType.matching.value,
-                               search_values=Mocks.exercise.search_values, instructions='abc')
+        ef: ExerciseForm = ExerciseForm(urn=Mocks.exercise.urn, type=ExerciseType.matching.value,
+                                        search_values=Mocks.exercise.search_values, instructions='abc')
         with patch.object(mcserver.app.api.exerciseAPI.requests, "post", side_effect=post_response):
             response: Response = Mocks.app_dict[self.class_name].client.post(
-                Config.SERVER_URI_EXERCISE, headers=Mocks.headers_form_data, data=data_dict)
+                Config.SERVER_URI_EXERCISE, headers=Mocks.headers_form_data, data=ef.to_dict())
             ar: AnnisResponse = AnnisResponse.from_dict(json.loads(response.get_data(as_text=True)))
             self.assertEqual(len(ar.solutions), 3)
             Config.CORPUS_STORAGE_MANAGER_PORT = f"{Config.CORPUS_STORAGE_MANAGER_PORT}/"
             response: Response = Mocks.app_dict[self.class_name].client.post(
-                Config.SERVER_URI_EXERCISE, headers=Mocks.headers_form_data, data=data_dict)
+                Config.SERVER_URI_EXERCISE, headers=Mocks.headers_form_data, data=ef.to_dict())
             self.assertEqual(response.status_code, 500)
             Config.CORPUS_STORAGE_MANAGER_PORT = int(Config.CORPUS_STORAGE_MANAGER_PORT[:-1])
             Mocks.app_dict[self.class_name].app_context.push()
@@ -295,15 +297,13 @@ class McTestCase(unittest.TestCase):
     def test_api_file_post(self):
         """ Posts exercise data to be saved temporarily or permanently on the server, e.g. for downloading. """
         learning_result: str = Mocks.xapi_json_string
-        data_dict: dict = dict(learning_result=learning_result)
         Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_FILE, headers=Mocks.headers_form_data,
-                                                    data=data_dict)
+                                                    data=dict(learning_result=learning_result))
         lrs: List[LearningResult] = db.session.query(LearningResult).all()
         self.assertEqual(len(lrs), 1)
         data_dict: dict = dict(file_type=FileType.XML, urn=Mocks.urn_custom, html_content="<html></html>")
-        response: Response = Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_FILE,
-                                                                         headers=Mocks.headers_form_data,
-                                                                         data=data_dict)
+        response: Response = Mocks.app_dict[self.class_name].client.post(
+            TestingConfig.SERVER_URI_FILE, headers=Mocks.headers_form_data, data=data_dict)
         file_name = json.loads(response.data.decode("utf-8"))
         self.assertTrue(file_name.endswith(".xml"))
         os.remove(os.path.join(Config.TMP_DIRECTORY, file_name))
@@ -321,7 +321,7 @@ class McTestCase(unittest.TestCase):
 
     def test_api_h5p_get(self):
         """ Requests a H5P JSON file for a given exercise. """
-        args: dict = dict(eid=Mocks.exercise.eid, lang=Language.English.value, solution_indices="[0]")
+        args: dict = dict(eid=Mocks.exercise.eid, lang=Language.English.value, solution_indices=[0])
         response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_H5P, query_string=args)
         self.assertEqual(response.status_code, 404)
         db.session.add(Mocks.exercise)
@@ -355,10 +355,11 @@ class McTestCase(unittest.TestCase):
                 'salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159695tok10'))])
         ed2.graph.nodes = ed2.graph.nodes[42:]
         mr: MockResponse = MockResponse(json.dumps([ed1.serialize(), ed2.serialize()]))
-        data_dict: dict = dict(search_values=Mocks.exercise.search_values, urn=Mocks.urn_custom)
+        kf: KwicForm = KwicForm(ctx_left=5, ctx_right=5, search_values=Mocks.exercise.search_values,
+                                urn=Mocks.urn_custom)
         with patch.object(mcserver.app.services.corpusService.requests, "post", return_value=mr):
             response: Response = Mocks.app_dict[self.class_name].client.post(
-                TestingConfig.SERVER_URI_KWIC, headers=Mocks.headers_form_data, data=data_dict)
+                TestingConfig.SERVER_URI_KWIC, headers=Mocks.headers_form_data, data=kf.to_dict())
             self.assertTrue(response.data.startswith(Mocks.kwic_svg))
 
     def test_api_not_found(self):
@@ -475,7 +476,7 @@ class McTestCase(unittest.TestCase):
                 args: dict = dict(search_regex='ueritas', nearest_neighbor_count=150, min_count=6)
                 response: Response = Mocks.app_dict[self.class_name].client.get(
                     TestingConfig.SERVER_URI_VECTOR_NETWORK, query_string=args)
-                svg_string: str = json.loads(response.data.decode("utf-8"))
+                svg_string: str = json.loads(response.get_data(as_text=True))
                 self.assertGreater(len(svg_string), 6500)
 
     def test_api_vector_network_post(self):
@@ -483,28 +484,33 @@ class McTestCase(unittest.TestCase):
         mock_data: str = "This is a sentence.\nAnd here is yet another one.\n"
         with patch("mcserver.app.api.vectorNetworkAPI.open", mock_open(read_data=mock_data)):
             with patch.object(mcserver.app.api.vectorNetworkAPI.Word2Vec, "load", return_value=MockW2V()):
-                data_dict: dict = dict(search_regex='uera', nearest_neighbor_count=10)
+                vnf: VectorNetworkForm = VectorNetworkForm(search_regex='uera', nearest_neighbor_count=10)
                 response: Response = Mocks.app_dict[self.class_name].client.post(
-                    TestingConfig.SERVER_URI_VECTOR_NETWORK,
-                    headers=Mocks.headers_form_data, data=data_dict)
-                self.assertEqual(len(json.loads(response.data.decode("utf-8"))), 2)
+                    TestingConfig.SERVER_URI_VECTOR_NETWORK, headers=Mocks.headers_form_data, data=vnf.to_dict())
+                self.assertEqual(len(json.loads(response.get_data(as_text=True))), 2)
 
-    @patch('mcserver.app.services.textComplexityService.requests.post', side_effect=mocked_requests_post)
-    def test_api_vocabulary_get(self, mock_post: MagicMock):
-        """ Calculates lexical overlap between a text (specified by URN) and a static vocabulary. """
+    def test_api_vocabulary_get(self):
+        """ Retrieves sentence ID and matching degree for each sentence in the query text. """
         with patch.object(mcserver.app.services.corpusService.requests, "get",
                           return_value=MockResponse(json.dumps(Mocks.annis_response.to_dict()))):
             args: dict = dict(query_urn=Mocks.urn_custom, show_oov=True, vocabulary=VocabularyCorpus.agldt.name,
-                              frequency_upper_bound=500)
-            response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_VOCABULARY,
-                                                                            query_string=args)
-            ar: AnnisResponse = AnnisResponse.from_dict(json.loads(response.get_data(as_text=True)))
-            self.assertTrue(NodeMC.from_dict(ar.graph_data.nodes[3].to_dict()).is_oov)
-            args["show_oov"] = False
-            args["frequency_upper_bound"] = 6000
+                              frequency_upper_bound=6000)
             response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_VOCABULARY,
                                                                   query_string=args)
-            self.assertEqual(json.loads(response.data.decode("utf-8"))[0]["matching_degree"], 90.9090909090909)
+            sentences: List[Sentence] = [Sentence.from_dict(x) for x in json.loads(response.get_data(as_text=True))]
+            self.assertEqual(sentences[0].matching_degree, 90.9090909090909)
+
+    @patch('mcserver.app.services.textComplexityService.requests.post', side_effect=mocked_requests_post)
+    def test_api_vocabulary_post(self, mock_post: MagicMock):
+        """ Indicates for each token of a corpus whether it is covered by a reference vocabulary. """
+        with patch.object(mcserver.app.services.corpusService.requests, "get",
+                          return_value=MockResponse(json.dumps(Mocks.annis_response.to_dict()))):
+            vf: VocabularyForm = VocabularyForm(frequency_upper_bound=500, query_urn=Mocks.urn_custom,
+                                                vocabulary=VocabularyMC.AGLDT)
+            response: Response = Mocks.app_dict[self.class_name].client.post(
+                TestingConfig.SERVER_URI_VOCABULARY, data=vf.to_dict())
+            ar: AnnisResponse = AnnisResponse.from_dict(json.loads(response.get_data(as_text=True)))
+            self.assertTrue(NodeMC.from_dict(ar.graph_data.nodes[3].to_dict()).is_oov)
 
     def test_app_init(self):
         """Creates a CSM app in testing mode."""
@@ -693,16 +699,16 @@ class CsmTestCase(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             AnnotationService.get_single_subgraph("", [])
 
-    def test_api_text_complexity_get(self):
+    def test_api_text_complexity_post(self):
         """ Calculates text complexity measures for a given URN. """
-        args: dict = dict(urn=Mocks.urn_custom, measure=TextComplexityMeasure.all.name)
+        tcf: TextComplexityForm = TextComplexityForm(urn=Mocks.urn_custom, measure=TextComplexityMeasure.all.name)
         response: Response = Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_TEXT_COMPLEXITY,
-                                                                         data=json.dumps(args))
+                                                                         data=tcf.to_dict())
         tc: TextComplexity = TextComplexity.from_dict(json.loads(response.get_data(as_text=True)))
         self.assertEqual(tc.pos, 5)
-        args["measure"] = "n_w"
-        response = Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_TEXT_COMPLEXITY,
-                                                               data=json.dumps(args))
+        tcf.measure = "n_w"
+        response = Mocks.app_dict[self.class_name].client.post(
+            TestingConfig.SERVER_URI_TEXT_COMPLEXITY, data=tcf.to_dict())
         tc = TextComplexity.from_dict(json.loads(response.get_data(as_text=True)))
         self.assertEqual(tc.n_w, 6)
 

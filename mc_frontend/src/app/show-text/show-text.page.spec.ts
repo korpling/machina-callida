@@ -52,7 +52,7 @@ describe('ShowTextPage', () => {
         const requestSpy: Spy = spyOn(showTextPage.helperService, 'makePostRequest').and.returnValue(Promise.resolve('a.b.c'));
         showTextPage.generateDownloadLink('').then(() => {
             let link: HTMLLinkElement = document.querySelector(showTextPage.downloadLinkSelector);
-            expect(link.href.length).toBe(61);
+            expect(link.href.endsWith('id=a&type=b')).toBe(true);
             requestSpy.and.callFake(() => Promise.reject());
             link.style.display = 'none';
             fixture.detectChanges();

@@ -12,6 +12,7 @@ from mcserver.app.models import ExerciseType, Solution, ExerciseData, AnnisRespo
 from mcserver.app.services import AnnotationService, CorpusService, NetworkService, TextComplexityService
 from mcserver.config import Config
 from mcserver.models_auto import Exercise, TExercise, UpdateInfo
+from openapi.openapi_server.models import ExerciseForm
 
 
 def adjust_solutions(exercise_data: ExerciseData, exercise_type: str, solutions: List[Solution]) -> List[Solution]:
@@ -113,19 +114,20 @@ def map_exercise_data_to_database(exercise_data: ExerciseData, exercise_type: st
 
 
 def post(exercise_data: dict) -> Union[Response, ConnexionResponse]:
-    exercise_type: ExerciseType = ExerciseType(exercise_data["type"])
-    search_values_list: List[str] = json.loads(exercise_data["search_values"])
+    ef: ExerciseForm = ExerciseForm.from_dict(exercise_data)
+    ef.urn = ef.urn if ef.urn else ""
+    exercise_type: ExerciseType = ExerciseType(ef.type)
+    search_values_list: List[str] = json.loads(ef.search_values)
     aqls: List[str] = AnnotationService.map_search_values_to_aql(search_values_list=search_values_list,
                                                                  exercise_type=exercise_type)
     search_phenomena: List[Phenomenon] = [Phenomenon().__getattribute__(x.split("=")[0].upper()) for x in
                                           search_values_list]
-    urn: str = exercise_data.get("urn", "")
     # if there is custom text instead of a URN, immediately annotate it
-    conll_string_or_urn: str = urn if CorpusService.is_urn(urn) else AnnotationService.get_udpipe(
-        CorpusService.get_raw_text(urn, False))
+    conll_string_or_urn: str = ef.urn if CorpusService.is_urn(ef.urn) else AnnotationService.get_udpipe(
+        CorpusService.get_raw_text(ef.urn, False))
     try:
         # construct graph from CONLL data
-        response: dict = get_graph_data(title=urn, conll_string_or_urn=conll_string_or_urn, aqls=aqls,
+        response: dict = get_graph_data(title=ef.urn, conll_string_or_urn=conll_string_or_urn, aqls=aqls,
                                         exercise_type=exercise_type, search_phenomena=search_phenomena)
     except ValueError:
         return connexion.problem(500, Config.ERROR_TITLE_INTERNAL_SERVER_ERROR,
@@ -133,12 +135,10 @@ def post(exercise_data: dict) -> Union[Response, ConnexionResponse]:
     solutions_dict_list: List[Dict] = response["solutions"]
     solutions: List[Solution] = [Solution.from_dict(x) for x in solutions_dict_list]
     ar: AnnisResponse = make_new_exercise(
-        conll=response["conll"], correct_feedback=exercise_data.get("correct_feedback", ""),
-        exercise_type=exercise_data["type"], general_feedback=exercise_data.get("general_feedback", ""),
-        graph_data_raw=response["graph_data_raw"], incorrect_feedback=exercise_data.get("incorrect_feedback", ""),
-        instructions=exercise_data["instructions"], language=exercise_data.get("language", "de"),
-        partially_correct_feedback=exercise_data.get("partially_correct_feedback", ""),
-        search_values=exercise_data["search_values"], solutions=solutions,
-        type_translation=exercise_data.get("type_translation", ""), urn=urn,
-        work_author=exercise_data.get("work_author", ""), work_title=exercise_data.get("work_title", ""))
+        conll=response["conll"], correct_feedback=ef.correct_feedback, exercise_type=ef.type,
+        general_feedback=ef.general_feedback, graph_data_raw=response["graph_data_raw"],
+        incorrect_feedback=ef.incorrect_feedback, instructions=ef.instructions, language=ef.language,
+        partially_correct_feedback=ef.partially_correct_feedback, search_values=ef.search_values,
+        solutions=solutions, type_translation=ef.type_translation, urn=ef.urn, work_author=ef.work_author,
+        work_title=ef.work_title)
     return NetworkService.make_json_response(ar.to_dict())

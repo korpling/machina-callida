@@ -5,7 +5,7 @@ import typing
 from mcserver.config import Config
 from mcserver.models_auto import TExercise, Corpus, TCorpus, Exercise, TLearningResult, LearningResult
 from openapi.openapi_server.models import SolutionElement, Solution, Link, NodeMC, TextComplexity, AnnisResponse, \
-    GraphData, StaticExercise, FileType, FrequencyItem, Phenomenon
+    GraphData, StaticExercise, FileType, FrequencyItem, Phenomenon, Sentence
 
 AnnisResponse = AnnisResponse
 FileType = FileType
@@ -14,6 +14,7 @@ GraphData = GraphData
 LinkMC = Link
 NodeMC = NodeMC
 Phenomenon = Phenomenon
+Sentence = Sentence
 SolutionElement = SolutionElement
 StaticExercise = StaticExercise
 TextComplexity = TextComplexity
@@ -455,9 +456,3 @@ class CustomCorpus:
         self.corpus = corpus
         self.file_path = file_path
         self.text_parts: List[TextPart] = [] if text_parts is None else text_parts
-
-
-class Sentence:
-    def __init__(self, id: int, matching_degree: int):
-        self.id = id
-        self.matching_degree = matching_degree
