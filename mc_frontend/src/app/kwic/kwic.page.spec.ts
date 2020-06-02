@@ -9,7 +9,7 @@ import {TranslateTestingModule} from '../translate-testing/translate-testing.mod
 import {APP_BASE_HREF} from '@angular/common';
 
 describe('KwicPage', () => {
-    let component: KwicPage;
+    let kwicPage: KwicPage;
     let fixture: ComponentFixture<KwicPage>;
 
     beforeEach(async(() => {
@@ -31,11 +31,16 @@ describe('KwicPage', () => {
 
     beforeEach(() => {
         fixture = TestBed.createComponent(KwicPage);
-        component = fixture.componentInstance;
+        kwicPage = fixture.componentInstance;
         fixture.detectChanges();
     });
 
     it('should create', () => {
-        expect(component).toBeTruthy();
+        expect(kwicPage).toBeTruthy();
+        const svgElement: SVGElement = document.querySelector(kwicPage.svgElementSelector);
+        expect(svgElement.innerHTML).toBeFalsy();
+        kwicPage.exerciseService.kwicGraphs = '<svg></svg>';
+        kwicPage.initVisualization();
+        expect(svgElement.innerHTML).toBeTruthy();
     });
 });

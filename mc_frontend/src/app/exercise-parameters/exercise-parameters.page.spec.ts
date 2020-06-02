@@ -54,27 +54,26 @@ describe('ExerciseParametersPage', () => {
 
     it('should generate an exercise', (done) => {
         exerciseParametersPage.corpusService.annisResponse = {solutions: []};
-        exerciseParametersPage.corpusService.initCurrentCorpus().then(() => {
+        exerciseParametersPage.corpusService.initCurrentCorpus().then(async () => {
             exerciseParametersPage.corpusService.currentTextRange = new ReplaySubject<TextRange>(1);
             exerciseParametersPage.corpusService.currentTextRange.next(new TextRange({start: [], end: []}));
             const h5pSpy: Spy = spyOn(exerciseParametersPage, 'getH5Pexercise').and.returnValue(Promise.resolve());
+            await exerciseParametersPage.generateExercise();
+            expect(exerciseParametersPage.corpusService.annisResponse.solutions).toBeFalsy();
+            expect(h5pSpy).toHaveBeenCalledTimes(1);
+            configMC.maxTextLength = 1;
+            exerciseParametersPage.corpusService.currentText = 'text';
             exerciseParametersPage.generateExercise().then(() => {
-                expect(exerciseParametersPage.corpusService.annisResponse.solutions).toBeFalsy();
+            }, () => {
                 expect(h5pSpy).toHaveBeenCalledTimes(1);
-                configMC.maxTextLength = 1;
-                exerciseParametersPage.corpusService.currentText = 'text';
+                configMC.maxTextLength = 0;
+                exerciseParametersPage.corpusService.exercise.queryItems[0].phenomenon = Phenomenon.Lemma;
+                exerciseParametersPage.corpusService.exercise.type = ExerciseType.matching;
+                exerciseParametersPage.corpusService.exercise.queryItems.push(new QueryMC({values: []}));
                 exerciseParametersPage.generateExercise().then(() => {
                 }, () => {
                     expect(h5pSpy).toHaveBeenCalledTimes(1);
-                    configMC.maxTextLength = 0;
-                    exerciseParametersPage.corpusService.exercise.queryItems[0].phenomenon = Phenomenon.Lemma;
-                    exerciseParametersPage.corpusService.exercise.type = ExerciseType.matching;
-                    exerciseParametersPage.corpusService.exercise.queryItems.push(new QueryMC({values: []}));
-                    exerciseParametersPage.generateExercise().then(() => {
-                    }, () => {
-                        expect(h5pSpy).toHaveBeenCalledTimes(1);
-                        done();
-                    });
+                    done();
                 });
             });
         });
