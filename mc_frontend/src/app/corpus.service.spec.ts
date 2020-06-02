@@ -23,6 +23,7 @@ import {TextRange} from './models/textRange';
 import Spy = jasmine.Spy;
 import {AnnisResponse, NodeMC} from '../../openapi';
 import {Phenomenon} from '../../openapi';
+import {Subscription} from 'rxjs';
 
 describe('CorpusService', () => {
     let httpClient: HttpClient;
@@ -251,12 +252,17 @@ describe('CorpusService', () => {
     it('should initialize the current corpus', fakeAsync(() => {
         helperService.applicationState.next(new ApplicationState());
         let corpus: CorpusMC = {source_urn: ''};
+        const subscriptions: Subscription[] = [];
 
         function initCorpus(): void {
+            subscriptions.forEach((sub: Subscription, idx: number, subList: Subscription[]) => {
+                sub.unsubscribe();
+                delete subList[idx];
+            });
             corpusService.initCurrentCorpus().then(() => {
-                corpusService.currentCorpus.subscribe((cc: CorpusMC) => {
+                subscriptions.push(corpusService.currentCorpus.subscribe((cc: CorpusMC) => {
                     corpus = cc;
-                });
+                }));
             });
             flushMicrotasks();
         }

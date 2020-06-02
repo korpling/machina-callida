@@ -29,7 +29,7 @@ export default class MockMC {
     };
     static applicationState: ApplicationState = new ApplicationState({
         currentSetup: new TextData({
-            currentCorpus: {citations: {}, source_urn: ''},
+            currentCorpus: {citations: {}, source_urn: 'exampleUrn'},
             currentTextRange: new TextRange({start: ['1', '2'], end: ['1', '2']})
         }),
         mostRecentSetup: new TextData({

@@ -13,6 +13,7 @@ ci_frontend:
   artifacts:
     paths:
       - ci_frontend.log
+    when: always
 ci_backend:
   stage: ci
   script:
@@ -20,6 +21,7 @@ ci_backend:
   artifacts:
     paths:
       - ci_backend.log
+    when: always
 coverage:
   stage: coverage
   script:
@@ -28,4 +30,5 @@ coverage:
   artifacts:
     paths:
       - coverage.log
+    when: always
   coverage: '/Statements.*?(\d+(?:\.\d+)?)%/'
