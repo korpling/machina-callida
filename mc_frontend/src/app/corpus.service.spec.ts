@@ -250,7 +250,7 @@ describe('CorpusService', () => {
 
     it('should initialize the current corpus', fakeAsync(() => {
         helperService.applicationState.next(new ApplicationState());
-        let corpus: CorpusMC;
+        let corpus: CorpusMC = {source_urn: ''};
 
         function initCorpus(): void {
             corpusService.initCurrentCorpus().then(() => {
@@ -262,10 +262,10 @@ describe('CorpusService', () => {
         }
 
         initCorpus();
-        expect(corpus).toBeUndefined();
+        expect(corpus.source_urn).toBeFalsy();
         helperService.applicationState.next(helperService.deepCopy(MockMC.applicationState) as ApplicationState);
         initCorpus();
-        expect(corpus).toBeTruthy();
+        expect(corpus.source_urn).toBeTruthy();
         corpus = undefined;
         initCorpus();
         expect(corpus).toBeTruthy();
@@ -290,7 +290,7 @@ describe('CorpusService', () => {
     it('should load corpora from local storage', (done) => {
         corpusService.availableCorpora = [];
         spyOn(corpusService.storage, 'get').withArgs(configMC.localStorageKeyCorpora).and.returnValue(
-            Promise.resolve(JSON.stringify([new CorpusMC({source_urn: 'urn'})])));
+            Promise.resolve(JSON.stringify([{source_urn: 'urn'}])));
         corpusService.loadCorporaFromLocalStorage().then(() => {
             expect(corpusService.availableCorpora.length).toBe(1);
             done();
@@ -313,12 +313,12 @@ describe('CorpusService', () => {
 
     it('should process corpora', () => {
         const corpusList: CorpusMC[] = [
-            new CorpusMC({author: '', source_urn: 'proiel'}),
-            new CorpusMC({author: 'b', source_urn: 'b', title: 't1'}),
-            new CorpusMC({author: 'b', source_urn: 'b', title: 't1'}),
-            new CorpusMC({author: 'b', source_urn: 'c', title: 't3'}),
-            new CorpusMC({author: 'b', source_urn: 'e', title: 't2'}),
-            new CorpusMC({author: 'a', source_urn: 'd'}),
+            {author: '', source_urn: 'proiel'},
+            {author: 'b', source_urn: 'b', title: 't1'},
+            {author: 'b', source_urn: 'b', title: 't1'},
+            {author: 'b', source_urn: 'c', title: 't3'},
+            {author: 'b', source_urn: 'e', title: 't2'},
+            {author: 'a', source_urn: 'd'},
         ];
         corpusService.availableAuthors = [new Author({name: ' PROIEL', corpora: []})];
         corpusService.processCorpora(corpusList);
@@ -376,7 +376,7 @@ describe('CorpusService', () => {
     it('should save a new corpus', (done) => {
         corpusService.initCurrentTextRange();
         corpusService.initCurrentCorpus().then(() => {
-            corpusService.setCurrentCorpus(new CorpusMC());
+            corpusService.setCurrentCorpus({source_urn: ''});
             corpusService.currentCorpus.pipe(take(1)).subscribe((corpus: CorpusMC) => {
                 expect(corpus).toBeTruthy();
                 done();

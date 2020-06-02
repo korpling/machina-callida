@@ -54,6 +54,7 @@
   "DEPENDENCY_PUNCTUATION": "Punctuation",
   "DEPENDENCY_ROOT": "Root",
   "DEPENDENCY_SUBJECT": "Subject",
+  "DEPENDENCY_UNSPECIFIED": "Unknown",
   "DEPENDENCY_VOCATIVE": "Vocative",
   "DEPENDENT_WORD": "Base word",
   "DOCUMENTATION": "Documentation",

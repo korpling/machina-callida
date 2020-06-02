@@ -7,7 +7,6 @@ import {IonicStorageModule} from '@ionic/storage';
 import {RouterModule} from '@angular/router';
 import {TranslateTestingModule} from '../translate-testing/translate-testing.module';
 import {APP_BASE_HREF} from '@angular/common';
-import {Sentence} from '../models/sentence';
 import Spy = jasmine.Spy;
 import {AnnisResponse} from '../../../openapi';
 
@@ -48,11 +47,11 @@ describe('RankingPage', () => {
         const oovSpy: Spy = spyOn(rankingPage.vocService, 'getOOVwords').and.returnValue(Promise.resolve(ar));
         spyOn(rankingPage.corpusService, 'processAnnisResponse');
         spyOn(rankingPage.helperService, 'goToShowTextPage').and.returnValue(Promise.resolve(true));
-        rankingPage.showText([new Sentence({id: 1})]).then(() => {
+        rankingPage.showText([{id: 1}]).then(() => {
             expect(rankingPage.helperService.isVocabularyCheck).toBe(true);
             oovSpy.and.callFake(() => Promise.reject());
             rankingPage.helperService.isVocabularyCheck = false;
-            rankingPage.showText([new Sentence({id: 1})]).then(() => {
+            rankingPage.showText([{id: 1}]).then(() => {
             }, () => {
                 expect(rankingPage.helperService.isVocabularyCheck).toBe(false);
                 done();

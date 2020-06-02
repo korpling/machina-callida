@@ -23,7 +23,7 @@ class AnnisResponse(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, exercise_id=None, exercise_type=None, frequency_analysis=None, graph_data=None, solutions=None, text_complexity=None, uri=None):  # noqa: E501
+    def __init__(self, exercise_id='', exercise_type='', frequency_analysis=None, graph_data=None, solutions=None, text_complexity=None, uri=''):  # noqa: E501
         """AnnisResponse - a model defined in OpenAPI
 
         :param exercise_id: The exercise_id of this AnnisResponse.  # noqa: E501

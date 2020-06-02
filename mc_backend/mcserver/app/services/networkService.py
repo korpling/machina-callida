@@ -9,7 +9,8 @@ from flask_restful.reqparse import RequestParser
 
 from mcserver import Config
 from mcserver.app.models import StaticExercise
-from mcserver.models_auto import Exercise, TExercise
+from mcserver.models_auto import Exercise
+from openapi.openapi_server.models import MatchingExercise
 
 
 class NetworkService:
@@ -33,12 +34,12 @@ class NetworkService:
         return response
 
     @staticmethod
-    def serialize_exercise(exercise: TExercise, compress: bool) -> dict:
+    def serialize_exercise(exercise: MatchingExercise, compress: bool) -> dict:
         """ Serializes an exercise to JSON format. """
-        ret_val: dict = exercise.to_dict()
-        ret_val["conll"] = "" if compress else exercise.conll
+        exercise.conll = "" if compress else exercise.conll
         # convert the POSIX timestamp to JSON / Javascript, i.e. from seconds to milliseconds
-        ret_val["last_access_time"] = exercise.last_access_time * 1000
+        exercise.last_access_time = exercise.last_access_time * 1000
+        ret_val: dict = exercise.to_dict()
         ret_val["search_values"] = json.loads(exercise.search_values)
-        ret_val["solutions"] = "[]" if compress else json.loads(exercise.solutions)
+        ret_val["solutions"] = [] if compress else json.loads(exercise.solutions)
         return ret_val

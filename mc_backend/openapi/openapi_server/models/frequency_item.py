@@ -17,7 +17,7 @@ class FrequencyItem(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, count=None, phenomena=None, values=None):  # noqa: E501
+    def __init__(self, count=0, phenomena=None, values=None):  # noqa: E501
         """FrequencyItem - a model defined in OpenAPI
 
         :param count: The count of this FrequencyItem.  # noqa: E501

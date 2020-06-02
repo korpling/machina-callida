@@ -5,6 +5,7 @@ import requests
 from mcserver import Config
 from mcserver.app.models import GraphData, TextComplexity, TextComplexityMeasure, AnnisResponse
 from mcserver.app.services import TextService, AnnotationService, CorpusService
+from openapi.openapi_server.models import TextComplexityForm
 
 
 class TextComplexityService:
@@ -183,6 +184,7 @@ class TextComplexityService:
             url: str = f"{Config.INTERNET_PROTOCOL}{Config.HOST_IP_CSM}:" + \
                        f"{Config.CORPUS_STORAGE_MANAGER_PORT}{Config.SERVER_URI_TEXT_COMPLEXITY}"
             ar: AnnisResponse = AnnisResponse(graph_data=gd)
-            response: requests.Response = requests.post(url, data=json.dumps(
-                dict(urn=urn, measure=TextComplexityMeasure.all.name, annis_response=ar.to_dict())))
+            tcf: TextComplexityForm = TextComplexityForm(urn=urn, measure=TextComplexityMeasure.all.name,
+                                                         annis_response=json.dumps(ar.to_dict()))
+            response: requests.Response = requests.post(url, data=tcf.to_dict())
             return TextComplexity.from_dict(json.loads(response.text))

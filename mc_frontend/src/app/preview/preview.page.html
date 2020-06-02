@@ -43,16 +43,16 @@
                 <!-- This is preferable compared to a button click event, because the browser knows from the
 beginning that it is going to be a download (instead of an ordinary link or click). -->
                 <ion-col>
-                    <a href="{{urlBase + FileType[FileType.docx] + solutionIndicesString}}" download>
+                    <a href="{{urlBase + FileType[FileType.Docx] + solutionIndicesString}}" download>
                         {{ 'FILE_TYPE_DOCX' | translate }}</a>
                 </ion-col>
                 <ion-col>
-                    <a href="{{urlBase + FileType[FileType.pdf] + solutionIndicesString}}"
+                    <a href="{{urlBase + FileType[FileType.Pdf] + solutionIndicesString}}"
                        download>{{ 'FILE_TYPE_PDF' | translate }}</a>
                 </ion-col>
                 <!--                TODO: ADD MOODLE SUPPORT FOR MARK WORDS EXERCISES -->
                 <ion-col *ngIf="corpusService.exercise.type !== ExerciseType.markWords">
-                    <a href="{{urlBase + FileType[FileType.xml] + solutionIndicesString}}" download>{{ 'FILE_TYPE_XML' |
+                    <a href="{{urlBase + FileType[FileType.Xml] + solutionIndicesString}}" download>{{ 'FILE_TYPE_XML' |
                         translate }}</a>
                 </ion-col>
                 <ion-col>

@@ -45,7 +45,7 @@ from mcserver.config import TestingConfig, Config
 from mcserver.models_auto import Corpus, Exercise, UpdateInfo, LearningResult
 from mocks import Mocks, MockResponse, MockW2V, MockQuery, TestHelper
 from openapi.openapi_server.models import VocabularyForm, VocabularyMC, TextComplexityForm, ExerciseForm, KwicForm, \
-    VectorNetworkForm
+    VectorNetworkForm, MatchingExercise
 
 
 class McTestCase(unittest.TestCase):
@@ -249,10 +249,11 @@ class McTestCase(unittest.TestCase):
         db.session.add(Mocks.exercise)
         db.session.commit()
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_EXERCISE_LIST, query_string=args)
-        exercises: List[Exercise] = []
-        for exercise_dict in json.loads(response.get_data()):
+        exercises: List[MatchingExercise] = []
+        for exercise_dict in json.loads(response.get_data(as_text=True)):
             exercise_dict["search_values"] = json.dumps(exercise_dict["search_values"])
-            exercises.append(ExerciseMC.from_dict(**exercise_dict))
+            exercise_dict["solutions"] = json.dumps(exercise_dict["solutions"])
+            exercises.append(MatchingExercise.from_dict(exercise_dict))
         self.assertEqual(len(exercises), 1)
         args = dict(lang=Language.English.value, vocabulary=VocabularyCorpus.agldt.name, frequency_upper_bound=500)
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_EXERCISE_LIST, query_string=args)

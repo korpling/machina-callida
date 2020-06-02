@@ -12,9 +12,9 @@
 
 
 /**
- * Data for creating and evaluating interactive exercises.
+ * Additional data for creating and evaluating interactive exercises.
  */
-export interface ExerciseAllOf { 
+export interface ExerciseExtension { 
     /**
      * CONLL-formatted linguistic annotations represented as a single string.
      */
@@ -27,10 +27,6 @@ export interface ExerciseAllOf {
      * Type of exercise, concerning interaction and layout.
      */
     exercise_type?: string;
-    /**
-     * Localized expression of the exercise type.
-     */
-    exercise_type_translation?: string;
     /**
      * When the exercise was last accessed (as POSIX timestamp).
      */

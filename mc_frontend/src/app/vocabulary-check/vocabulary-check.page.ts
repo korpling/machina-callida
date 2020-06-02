@@ -3,7 +3,6 @@ import {Component} from '@angular/core';
 import {VocabularyCorpus, VocabularyCorpusTranslation} from 'src/app/models/enum';
 import {VocabularyService} from 'src/app/vocabulary.service';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {Sentence} from 'src/app/models/sentence';
 import {TranslateService} from '@ngx-translate/core';
 import {HelperService} from '../helper.service';
 import {ExerciseService} from 'src/app/exercise.service';
@@ -11,6 +10,7 @@ import {CorpusService} from 'src/app/corpus.service';
 import {CorpusMC} from '../models/corpusMC';
 import {take} from 'rxjs/operators';
 import {TextRange} from '../models/textRange';
+import {Sentence} from '../../../openapi';
 
 @Component({
     selector: 'app-vocabulary-check',

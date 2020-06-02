@@ -9,16 +9,9 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { TextComplexityForm } from './textComplexityForm';
 
 
-export interface InlineResponse200 { 
-    /**
-     * Solutions for the exercise.
-     */
-    solutions?: Array<Array<string>>;
-    /**
-     * CTS URN for the text passage from which the exercise was created.
-     */
-    urn?: string;
+export interface TextComplexityFormExtension extends TextComplexityForm { 
 }
 

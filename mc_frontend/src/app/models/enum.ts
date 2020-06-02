@@ -52,6 +52,7 @@ export enum DependencyValue {
     root = 'root' as any,
     punctuation = 'punctuation' as any,
     subject = 'subject' as any,
+    unspecified = 'unspecified' as any,
     vocative = 'vocative' as any,
 }
 
@@ -85,6 +86,7 @@ export enum DependencyTranslation {
     punctuation = 'DEPENDENCY_PUNCTUATION' as any,
     root = 'DEPENDENCY_ROOT' as any,
     subject = 'DEPENDENCY_SUBJECT' as any,
+    unspecified = 'DEPENDENCY_UNSPECIFIED' as any,
     vocative = 'DEPENDENCY_VOCATIVE' as any,
 }
 
@@ -100,12 +102,6 @@ export enum ExerciseTypeTranslation {
     kwic = 'EXERCISE_TYPE_KWIC' as any,
     markWords = 'EXERCISE_TYPE_MARK_WORDS' as any,
     matching = 'EXERCISE_TYPE_MATCHING' as any,
-}
-
-export enum FileType {
-    docx = 'docx' as any,
-    pdf = 'pdf' as any,
-    xml = 'xml' as any,
 }
 
 export enum InstructionsTranslation {

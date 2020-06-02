@@ -2,12 +2,9 @@ import ntpath
 import os
 from collections import OrderedDict
 from typing import List, Tuple, Set, Dict
-
 import conllu
 import rapidjson as json
 from conllu import TokenList
-from flask_restful import abort
-
 from mcserver import Config
 from mcserver.app.models import CustomCorpus, CitationLevel, TextPart, Citation, CorpusMC
 from mcserver.app.services import AnnotationService, FileService
@@ -132,7 +129,10 @@ class CustomCorpusService:
         if cts_urn == target_corpus.corpus.source_urn:
             disk_reff = [(":".join([cts_urn, str(x.citation.value)])) for x in target_corpus.text_parts]
         else:
-            disk_reff = CustomCorpusService.get_custom_corpus_sub_reff(cts_urn, target_corpus)
+            try:
+                disk_reff = CustomCorpusService.get_custom_corpus_sub_reff(cts_urn, target_corpus)
+            except ValueError:
+                raise
         with open(os.path.join(Config.REFF_CACHE_DIRECTORY, disk_urn), "w+") as f:
             f.write(json.dumps(disk_reff))
         return disk_reff
@@ -145,7 +145,7 @@ class CustomCorpusService:
         try:
             citation_parts = [int(x) for x in urn_parts[-1].split(".")]
         except ValueError:
-            abort(400)
+            raise
         target_text_parts: List[TextPart] = target_corpus.text_parts
         if len(citation_parts) > 1:
             target_text_parts = next(

@@ -54,8 +54,8 @@
                                 <h2 class="label">{{ 'QUERY_PHENOMENON' | translate }}</h2>
                                 <select [(ngModel)]="query.phenomenon" name="queryPhenomenon"
                                         (change)="corpusService.adjustQueryValue(query, i)">
-                                    <option *ngFor="let phenomenon of ObjectKeys(Phenomenon)" [value]=phenomenon>
-                                        {{ PhenomenonTranslation[phenomenon] | translate }}
+                                    <option *ngFor="let phenomenon of ObjectValues(Phenomenon)" [value]=phenomenon>
+                                        {{ PhenomenonTranslation[phenomenon.toString()] | translate }}
                                     </option>
                                 </select>
                             </label>

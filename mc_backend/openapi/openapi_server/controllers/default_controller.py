@@ -3,9 +3,9 @@ import six
 
 from openapi.openapi_server.models.annis_response import AnnisResponse  # noqa: E501
 from openapi.openapi_server.models.corpus import Corpus  # noqa: E501
-from openapi.openapi_server.models.exercise import Exercise  # noqa: E501
 from openapi.openapi_server.models.file_type import FileType  # noqa: E501
 from openapi.openapi_server.models.frequency_item import FrequencyItem  # noqa: E501
+from openapi.openapi_server.models.matching_exercise import MatchingExercise  # noqa: E501
 from openapi.openapi_server.models.sentence import Sentence  # noqa: E501
 from openapi.openapi_server.models.static_exercise import StaticExercise  # noqa: E501
 from openapi.openapi_server.models.text_complexity import TextComplexity  # noqa: E501
@@ -109,7 +109,7 @@ def mcserver_app_api_exercise_list_api_get(lang, frequency_upper_bound=None, las
     :param vocabulary: Identifier for a reference vocabulary.
     :type vocabulary: dict | bytes
 
-    :rtype: Exercise
+    :rtype: List[MatchingExercise]
     """
     if connexion.request.is_json:
         vocabulary =  VocabularyMC.from_dict(connexion.request.get_json())  # noqa: E501
@@ -128,7 +128,7 @@ def mcserver_app_api_file_api_get(id, type, solution_indices=None):  # noqa: E50
     :param solution_indices: Indices for the solutions that should be included in the download.
     :type solution_indices: List[int]
 
-    :rtype: Exercise
+    :rtype: object
     """
     if connexion.request.is_json:
         type =  FileType.from_dict(connexion.request.get_json())  # noqa: E501

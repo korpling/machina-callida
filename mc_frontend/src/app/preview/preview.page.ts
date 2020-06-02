@@ -1,5 +1,5 @@
 /* tslint:disable:no-string-literal */
-import {ExerciseType, FileType} from 'src/app/models/enum';
+import {ExerciseType} from 'src/app/models/enum';
 import {HelperService} from 'src/app/helper.service';
 import {NavController, ToastController} from '@ionic/angular';
 import {ExerciseService} from 'src/app/exercise.service';
@@ -11,7 +11,7 @@ import {XAPIevent} from 'src/app/models/xAPIevent';
 import {TestResultMC} from 'src/app/models/testResultMC';
 import configMC from '../../configMC';
 import {Storage} from '@ionic/storage';
-import {AnnisResponse, Solution} from '../../../openapi';
+import {AnnisResponse, Solution, FileType} from '../../../openapi';
 
 @Component({
     selector: 'app-preview',

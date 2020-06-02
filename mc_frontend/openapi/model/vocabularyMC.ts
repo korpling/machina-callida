@@ -12,7 +12,7 @@
 
 
 /**
- * Reference vocabularies: Ancient Greek and Latin Dependency Treebank, Bamberger Wortschatz, PROIEL treeban, VIVA textbook
+ * Reference vocabularies: Ancient Greek and Latin Dependency Treebank, Bamberger Wortschatz, PROIEL treebank, VIVA textbook
  */
 export type VocabularyMC = 'agldt' | 'bws' | 'proiel' | 'viva';
 

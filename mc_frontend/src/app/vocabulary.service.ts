@@ -3,12 +3,11 @@ import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {Injectable, OnInit} from '@angular/core';
 import {VocabularyCorpus} from 'src/app/models/enum';
 import {Vocabulary} from 'src/app/models/vocabulary';
-import {Sentence} from 'src/app/models/sentence';
 import {HelperService} from 'src/app/helper.service';
 import {TestResultMC} from 'src/app/models/testResultMC';
 import {ToastController} from '@ionic/angular';
 import configMC from '../configMC';
-import {AnnisResponse, VocabularyForm} from '../../openapi';
+import {AnnisResponse, Sentence, VocabularyForm} from '../../openapi';
 import {VocabularyMC} from '../../openapi';
 
 @Injectable({
@@ -42,9 +41,7 @@ export class VocabularyService implements OnInit {
                 vocabulary: VocabularyMC[this.currentReferenceVocabulary]
             };
             const formData: FormData = new FormData();
-            Object.keys(vf).forEach((key: string) => {
-                formData.append(key, vf[key]);
-            });
+            Object.keys(vf).forEach((key: string) => formData.append(key, vf[key]));
             this.helperService.makePostRequest(this.http, this.toastCtrl, url, formData).then((result: AnnisResponse) => {
                 return resolve(result);
             }, (error: HttpErrorResponse) => {

@@ -5,9 +5,8 @@ import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {IonicStorageModule} from '@ionic/storage';
 import {TranslateTestingModule} from './translate-testing/translate-testing.module';
 import {VocabularyCorpus} from './models/enum';
-import {Sentence} from './models/sentence';
 import {HttpErrorResponse} from '@angular/common/http';
-import {AnnisResponse} from '../../openapi';
+import {AnnisResponse, Sentence} from '../../openapi';
 import Spy = jasmine.Spy;
 
 describe('VocabularyService', () => {
@@ -27,7 +26,7 @@ describe('VocabularyService', () => {
 
     it('should be created', () => {
         expect(vocabularyService).toBeTruthy();
-        const sentences: Sentence[] = [new Sentence({matching_degree: 3}), new Sentence({matching_degree: 7})];
+        const sentences: Sentence[] = [{matching_degree: 3}, {matching_degree: 7}];
         expect(vocabularyService.getMean(sentences)).toBe(5);
     });
     it('should get a vocabulary check', (done) => {

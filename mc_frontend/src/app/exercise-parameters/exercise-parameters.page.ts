@@ -20,6 +20,7 @@ import {take} from 'rxjs/operators';
 import {TextRange} from '../models/textRange';
 import configMC from '../../configMC';
 import {AnnisResponse, FrequencyItem, Phenomenon} from '../../../openapi';
+import {KwicForm} from '../../../openapi';
 
 @Component({
     selector: 'app-exercise-parameters',
@@ -32,6 +33,7 @@ export class ExerciseParametersPage implements OnInit {
     public leftContextSize = 5;
     public Math = Math;
     ObjectKeys = Object.keys;
+    ObjectValues = Object.values;
     Phenomenon = Phenomenon;
     PhenomenonTranslation = PhenomenonTranslation;
     public rightContextSize = 5;
@@ -89,12 +91,9 @@ export class ExerciseParametersPage implements OnInit {
         return new Promise<void>(resolve => {
             const searchValues: string[] = this.corpusService.exercise.queryItems.map(
                 query => query.phenomenon + '=' + query.values.join('|'));
-            const formData = new FormData();
-            formData.append('urn', this.corpusService.currentUrn);
-            formData.append('search_values', JSON.stringify(searchValues));
             let instructions: string = this.corpusService.exercise.instructionsTranslation;
             if (this.corpusService.exercise.type === ExerciseType.kwic) {
-                this.getKwicExercise(formData).then();
+                this.getKwicExercise(JSON.stringify(searchValues)).then();
                 return resolve();
             } else if (this.corpusService.exercise.type === ExerciseType.markWords) {
                 const phenomenon: Phenomenon = this.corpusService.exercise.queryItems[0].phenomenon;
@@ -106,6 +105,9 @@ export class ExerciseParametersPage implements OnInit {
                 this.corpusService.currentTextRange.pipe(take(1)).subscribe((tr: TextRange) => {
                     // TODO: change the corpus title to something meaningful, e.g. concatenate user ID and wanted exercise title
                     const workTitle: string = cc.title + ', ' + tr.start.filter(x => x).join('.') + '-' + tr.end.filter(x => x).join('.');
+                    const formData = new FormData();
+                    formData.append('urn', this.corpusService.currentUrn);
+                    formData.append('search_values', JSON.stringify(searchValues));
                     formData.append('correct_feedback', this.corpusService.exercise.feedback.correct);
                     formData.append('instructions', instructions);
                     formData.append('general_feedback', this.corpusService.exercise.feedback.general);
@@ -145,10 +147,18 @@ export class ExerciseParametersPage implements OnInit {
         });
     }
 
-    getKwicExercise(formData: FormData): Promise<void> {
+    getKwicExercise(searchValues: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            formData.append('ctx_left', (Math.max(Math.round(this.leftContextSize), 1)).toString());
-            formData.append('ctx_right', (Math.max(Math.round(this.rightContextSize), 1)).toString());
+            const kf: KwicForm = {
+                ctx_left: (Math.max(Math.round(this.leftContextSize), 1)),
+                ctx_right: Math.max(Math.round(this.rightContextSize), 1),
+                search_values: searchValues,
+                urn: this.corpusService.currentUrn
+            };
+            const formData = new FormData();
+            Object.keys(kf).forEach((key: string) => {
+                formData.append(key, kf[key]);
+            });
             const kwicUrl: string = configMC.backendBaseUrl + configMC.backendApiKwicPath;
             this.helperService.makePostRequest(this.http, this.toastCtrl, kwicUrl, formData).then((svgString: string) => {
                 this.exerciseService.kwicGraphs = svgString;

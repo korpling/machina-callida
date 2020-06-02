@@ -167,10 +167,10 @@ class ExerciseDict(_ExerciseDictBase, total=False):
     work_title: str
     conll: str
     exercise_type: str
-    exercise_type_translation: str
     solutions: str
     text_complexity: float
     urn: str
+    exercise_type_translation: str
 
 
 class TExercise(typing.Protocol):
@@ -197,13 +197,13 @@ class TExercise(typing.Protocol):
             string.
         eid: Unique identifier (UUID) for the exercise.
         exercise_type: Type of exercise, concerning interaction and layout.
-        exercise_type_translation: Localized expression of the exercise type.
         last_access_time: When the exercise was last accessed (as POSIX
             timestamp).
         solutions: Correct solutions for the exercise.
         text_complexity: Overall text complexity as measured by the software's
             internal language analysis.
         urn: CTS URN for the text passage from which the exercise was created.
+        exercise_type_translation: Localized expression of the exercise type.
 
     """
 
@@ -225,11 +225,11 @@ class TExercise(typing.Protocol):
     conll: str
     eid: str
     exercise_type: str
-    exercise_type_translation: str
     last_access_time: float
     solutions: str
     text_complexity: float
     urn: str
+    exercise_type_translation: str
 
     def __init__(
         self,
@@ -246,10 +246,10 @@ class TExercise(typing.Protocol):
         work_title: str = "",
         conll: str = "",
         exercise_type: str = "",
-        exercise_type_translation: str = "",
         solutions: str = "[]",
         text_complexity: float = 0,
         urn: str = "",
+        exercise_type_translation: str = "",
     ) -> None:
         """
         Construct.
@@ -273,8 +273,6 @@ class TExercise(typing.Protocol):
                 single string.
             eid: Unique identifier (UUID) for the exercise.
             exercise_type: Type of exercise, concerning interaction and layout.
-            exercise_type_translation: Localized expression of the exercise
-                type.
             last_access_time: When the exercise was last accessed (as POSIX
                 timestamp).
             solutions: Correct solutions for the exercise.
@@ -282,6 +280,8 @@ class TExercise(typing.Protocol):
                 software's internal language analysis.
             urn: CTS URN for the text passage from which the exercise was
                 created.
+            exercise_type_translation: Localized expression of the exercise
+                type.
 
         """
         ...
@@ -302,10 +302,10 @@ class TExercise(typing.Protocol):
         work_title: str = "",
         conll: str = "",
         exercise_type: str = "",
-        exercise_type_translation: str = "",
         solutions: str = "[]",
         text_complexity: float = 0,
         urn: str = "",
+        exercise_type_translation: str = "",
     ) -> "TExercise":
         """
         Construct from a dictionary (eg. a POST payload).
@@ -329,8 +329,6 @@ class TExercise(typing.Protocol):
                 single string.
             eid: Unique identifier (UUID) for the exercise.
             exercise_type: Type of exercise, concerning interaction and layout.
-            exercise_type_translation: Localized expression of the exercise
-                type.
             last_access_time: When the exercise was last accessed (as POSIX
                 timestamp).
             solutions: Correct solutions for the exercise.
@@ -338,6 +336,8 @@ class TExercise(typing.Protocol):
                 software's internal language analysis.
             urn: CTS URN for the text passage from which the exercise was
                 created.
+            exercise_type_translation: Localized expression of the exercise
+                type.
 
         Returns:
             Model instance based on the dictionary.

@@ -73,6 +73,9 @@ class Config(object):
     DEBUG = False
     DOCKER_SERVICE_NAME_CSM = "csm"
     DOCKER_SERVICE_NAME_MCSERVER = "mcserver"
+    ERROR_MESSAGE_BAD_REQUEST = \
+        "The server cannot or will not process the request due to something that is perceived to be a client " \
+        "error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing)."
     ERROR_MESSAGE_CORPUS_NOT_FOUND = "A corpus with the specified ID was not found!"
     ERROR_MESSAGE_EXERCISE_NOT_FOUND = "An exercise with the specified ID was not found!"
     ERROR_MESSAGE_INTERNAL_SERVER_ERROR = \
@@ -83,6 +86,7 @@ class Config(object):
     ERROR_MESSAGE_UNPROCESSABLE_ENTITY = \
         "The server understands the content type of the request entity, and the syntax of the request entity is " \
         "correct, but it was unable to process the contained instructions."
+    ERROR_TITLE_BAD_REQUEST = "Bad Request"
     ERROR_TITLE_INTERNAL_SERVER_ERROR = "Internal Server Error"
     ERROR_TITLE_NOT_FOUND = "Not found"
     ERROR_TITLE_SERVICE_UNAVAILABLE = "Service Unavailable"

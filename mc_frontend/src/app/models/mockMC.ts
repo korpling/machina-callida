@@ -12,11 +12,11 @@ import {AnnisResponse, FrequencyItem} from '../../../openapi';
 import {Phenomenon} from '../../../openapi';
 
 export default class MockMC {
-    static apiResponseCorporaGet: CorpusMC[] = [new CorpusMC({
+    static apiResponseCorporaGet: CorpusMC[] = [{
         author: 'author',
         source_urn: 'urn',
         title: 'title',
-    })];
+    }];
     static apiResponseFrequencyAnalysisGet: FrequencyItem[] = [{
         phenomena: [Phenomenon.Upostag],
         values: [PartOfSpeechValue.adjective.toString()]
@@ -29,7 +29,7 @@ export default class MockMC {
     };
     static applicationState: ApplicationState = new ApplicationState({
         currentSetup: new TextData({
-            currentCorpus: new CorpusMC({citations: {}}),
+            currentCorpus: {citations: {}, source_urn: ''},
             currentTextRange: new TextRange({start: ['1', '2'], end: ['1', '2']})
         }),
         mostRecentSetup: new TextData({

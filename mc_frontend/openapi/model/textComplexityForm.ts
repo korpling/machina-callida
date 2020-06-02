@@ -9,10 +9,23 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { AnnisResponse } from './annisResponse';
-import { TextComplexityFormBase } from './textComplexityFormBase';
 
 
-export interface TextComplexityForm extends TextComplexityFormBase { 
+/**
+ * Relevant parameters for measuring the text complexity of a text passage.
+ */
+export interface TextComplexityForm { 
+    /**
+     * Label of the desired measure for text complexity.
+     */
+    measure: string;
+    /**
+     * CTS URN for the text passage from which the text complexity should be calculated.
+     */
+    urn: string;
+    /**
+     * Serialized ANNIS response.
+     */
+    annis_response?: string;
 }
 

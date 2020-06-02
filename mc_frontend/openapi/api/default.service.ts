@@ -19,9 +19,9 @@ import { Observable }                                        from 'rxjs';
 
 import { AnnisResponse } from '../model/models';
 import { Corpus } from '../model/models';
-import { Exercise } from '../model/models';
 import { FileType } from '../model/models';
 import { FrequencyItem } from '../model/models';
+import { MatchingExercise } from '../model/models';
 import { Sentence } from '../model/models';
 import { StaticExercise } from '../model/models';
 import { TextComplexity } from '../model/models';
@@ -415,9 +415,9 @@ export class DefaultService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Exercise>;
-    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Exercise>>;
-    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Exercise>>;
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Array<MatchingExercise>>;
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Array<MatchingExercise>>>;
+    public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Array<MatchingExercise>>>;
     public mcserverAppApiExerciseListAPIGet(lang: string, frequencyUpperBound?: number, lastUpdateTime?: number, vocabulary?: VocabularyMC, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
         if (lang === null || lang === undefined) {
             throw new Error('Required parameter lang was null or undefined when calling mcserverAppApiExerciseListAPIGet.');
@@ -461,7 +461,7 @@ export class DefaultService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<Exercise>(`${this.configuration.basePath}/exerciseList`,
+        return this.httpClient.get<Array<MatchingExercise>>(`${this.configuration.basePath}/exerciseList`,
             {
                 params: queryParameters,
                 responseType: <any>responseType,
@@ -481,10 +481,10 @@ export class DefaultService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<Exercise>;
-    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpResponse<Exercise>>;
-    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json'}): Observable<HttpEvent<Exercise>>;
-    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json'}): Observable<any> {
+    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/pdf' | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' | 'application/xml'}): Observable<object>;
+    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/pdf' | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' | 'application/xml'}): Observable<HttpResponse<object>>;
+    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/pdf' | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' | 'application/xml'}): Observable<HttpEvent<object>>;
+    public mcserverAppApiFileAPIGet(id: string, type: FileType, solutionIndices?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/pdf' | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' | 'application/xml'}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling mcserverAppApiFileAPIGet.');
         }
@@ -512,7 +512,9 @@ export class DefaultService {
         if (httpHeaderAcceptSelected === undefined) {
             // to determine the Accept header
             const httpHeaderAccepts: string[] = [
-                'application/json'
+                'application/pdf',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/xml'
             ];
             httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
         }
@@ -526,7 +528,7 @@ export class DefaultService {
             responseType = 'text';
         }
 
-        return this.httpClient.get<Exercise>(`${this.configuration.basePath}/file`,
+        return this.httpClient.get<object>(`${this.configuration.basePath}/file`,
             {
                 params: queryParameters,
                 responseType: <any>responseType,

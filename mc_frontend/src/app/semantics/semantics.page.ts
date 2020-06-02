@@ -5,6 +5,7 @@ import configMC from '../../configMC';
 import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {ActivatedRoute} from '@angular/router';
 import {CorpusService} from '../corpus.service';
+import {VectorNetworkForm} from '../../../openapi';
 
 @Component({
     selector: 'app-semantics',
@@ -38,9 +39,12 @@ export class SemanticsPage implements AfterViewInit {
 
     getSimilarContexts(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
+            const vnf: VectorNetworkForm = {
+                search_regex: this.searchRegex,
+                nearest_neighbor_count: Math.max(Math.round(this.nearestNeighborCount), 1)
+            };
             const formData: FormData = new FormData();
-            formData.append('search_regex', this.searchRegex);
-            formData.append('nearest_neighbor_count', (Math.max(Math.round(this.nearestNeighborCount), 1)).toString());
+            Object.keys(vnf).forEach((key: string) => formData.append(key, vnf[key]));
             const semanticsUrl: string = configMC.backendBaseUrl + configMC.backendApiVectorNetworkPath;
             this.similarContexts = [];
             this.helperService.makePostRequest(this.http, this.toastCtrl, semanticsUrl, formData).then((contexts: string[][]) => {

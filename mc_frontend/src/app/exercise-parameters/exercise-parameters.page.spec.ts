@@ -142,11 +142,11 @@ describe('ExerciseParametersPage', () => {
     it('should get a KWIC exercise', (done) => {
         const navSpy: Spy = spyOn(exerciseParametersPage.helperService, 'goToKwicPage').and.returnValue(Promise.resolve(true));
         const requestSpy: Spy = spyOn(exerciseParametersPage.helperService, 'makePostRequest').and.returnValue(Promise.resolve('svg'));
-        exerciseParametersPage.getKwicExercise(new FormData()).then(() => {
+        exerciseParametersPage.getKwicExercise('').then(() => {
             expect(exerciseParametersPage.exerciseService.kwicGraphs.length).toBe(3);
             expect(navSpy).toHaveBeenCalledTimes(1);
             requestSpy.and.callFake(() => Promise.reject());
-            exerciseParametersPage.getKwicExercise(new FormData()).then(() => {
+            exerciseParametersPage.getKwicExercise('').then(() => {
             }, () => {
                 expect(navSpy).toHaveBeenCalledTimes(1);
                 done();

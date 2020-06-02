@@ -4,15 +4,10 @@ import os
 import uuid
 from datetime import datetime
 from typing import List, Union
-
 import connexion
-import flask
 from connexion.lifecycle import ConnexionResponse
 from flask import send_from_directory, Response
-from flask_restful import Resource, abort
-from flask_restful.reqparse import RequestParser
 from werkzeug.wrappers import ETagResponseMixin
-
 from mcserver.app import db
 from mcserver.app.models import FileType, ResourceType, DownloadableFile, MimeType, XapiStatement, LearningResultMC
 from mcserver.app.services import FileService, NetworkService

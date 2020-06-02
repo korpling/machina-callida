@@ -51,12 +51,13 @@ describe('TextRangePage', () => {
 
     it('should add level 3 references', (done) => {
         const addReferencesSpy: Spy = spyOn(textRangePage, 'addReferences').and.returnValue(Promise.resolve());
-        textRangePage.addLevel3References([], new CorpusMC()).then(() => {
+        textRangePage.addLevel3References([], {source_urn: ''}).then(() => {
             expect(addReferencesSpy).toHaveBeenCalledTimes(0);
             textRangePage.currentInputId = 2;
-            const corpus: CorpusMC = new CorpusMC({
+            const corpus: CorpusMC = {
+                source_urn: '',
                 citations: {1: new Citation({subcitations: {2: new Citation({subcitations: {3: new Citation()}})}})}
-            });
+            };
             textRangePage.addLevel3References(['1', '2'], corpus).then(() => {
                 expect(addReferencesSpy).toHaveBeenCalledTimes(0);
                 corpus.citations['1'].subcitations['2'].subcitations = {};
@@ -80,7 +81,7 @@ describe('TextRangePage', () => {
         }
 
         textRangePage.corpusService.currentCorpus = new ReplaySubject<CorpusMC>(1);
-        textRangePage.corpusService.currentCorpus.next(new CorpusMC({citations: {4: new Citation()}}));
+        textRangePage.corpusService.currentCorpus.next({citations: {4: new Citation()}, source_urn: ''});
         resetCitationValues();
         const citationLabels: string[] = ['1'];
         textRangePage.addMissingCitations(citationLabels, citationLabels).then(() => {
@@ -106,7 +107,7 @@ describe('TextRangePage', () => {
     });
 
     it('should add references', (done) => {
-        const corpus: CorpusMC = new CorpusMC({citations: {0: new Citation({subcitations: {}, label: ''})}});
+        const corpus: CorpusMC = {citations: {0: new Citation({subcitations: {}, label: ''})}, source_urn: ''};
         textRangePage.corpusService.currentCorpus = new ReplaySubject<CorpusMC>(1);
         textRangePage.corpusService.currentCorpus.next(corpus);
         const validReffSpy: Spy = spyOn(textRangePage.corpusService, 'getCTSvalidReff').and.callFake(() => Promise.reject());
@@ -147,13 +148,14 @@ describe('TextRangePage', () => {
         textRangePage.corpusService.initCurrentTextRange();
         textRangePage.helperService.applicationState.next(textRangePage.helperService.deepCopy(MockMC.applicationState));
         textRangePage.corpusService.currentCorpus = new ReplaySubject<CorpusMC>(1);
-        textRangePage.corpusService.currentCorpus.next(new CorpusMC({citations: {4: new Citation()}}));
+        textRangePage.corpusService.currentCorpus.next({citations: {4: new Citation()}, source_urn: ''});
         textRangePage.checkInputDisabled().then(() => {
             textRangePage.isInputDisabled[0].pipe(take(1)).subscribe((isDisabled: boolean) => {
                 expect(isDisabled).toBe(true);
-                textRangePage.corpusService.currentCorpus.next(new CorpusMC({
+                textRangePage.corpusService.currentCorpus.next({
+                    source_urn: '',
                     citations: {1: new Citation({subcitations: {2: new Citation()}})}
-                }));
+                });
                 textRangePage.checkInputDisabled().then(() => {
                     textRangePage.isInputDisabled[0].pipe(take(1)).subscribe((isDisabled2: boolean) => {
                         expect(isDisabled2).toBe(false);
@@ -172,11 +174,12 @@ describe('TextRangePage', () => {
             }));
         }
 
-        const corpus: CorpusMC = new CorpusMC({
+        const corpus: CorpusMC = {
+            source_urn: '',
             citations: {4: new Citation()},
             citation_level_2: CitationLevel.default.toString(),
             citation_level_3: CitationLevel.default.toString(),
-        });
+        };
         textRangePage.corpusService.currentCorpus = new ReplaySubject<CorpusMC>(1);
         textRangePage.corpusService.currentCorpus.next(corpus);
         const citationLabels: string[] = ['1', '2', '3'];
@@ -246,10 +249,11 @@ describe('TextRangePage', () => {
         expectNavigationCalled(checkSpy, 0).then(async () => {
             textRangePage.isTextRangeCheckRunning = false;
             textRangePage.corpusService.currentCorpus = new ReplaySubject<CorpusMC>(1);
-            textRangePage.corpusService.currentCorpus.next(new CorpusMC({
+            textRangePage.corpusService.currentCorpus.next({
+                source_urn: '',
                 citations: {4: new Citation()},
                 citation_level_2: CitationLevel.default.toString()
-            }));
+            });
             textRangePage.corpusService.initCurrentTextRange();
             textRangePage.helperService.applicationState.next(textRangePage.helperService.deepCopy(MockMC.applicationState));
             const getTextSpy: Spy = spyOn(textRangePage.corpusService, 'getText').and.callFake(() => Promise.reject());
@@ -274,10 +278,10 @@ describe('TextRangePage', () => {
     it('should initialize the page', (done) => {
         textRangePage.corpusService.initCurrentTextRange();
         textRangePage.helperService.applicationState.next(textRangePage.helperService.deepCopy(MockMC.applicationState));
-        textRangePage.initPage(new CorpusMC({
-            citation_level_2: CitationLevel.default.toString(),
+        textRangePage.initPage({
+            source_urn: '', citation_level_2: CitationLevel.default.toString(),
             citations: {1: new Citation({label: '1'})}
-        })).then(() => {
+        }).then(() => {
             textRangePage.corpusService.currentTextRange.pipe(take(1)).subscribe((tr: TextRange) => {
                 expect(tr.start[0]).toBe('1');
                 done();
@@ -296,7 +300,7 @@ describe('TextRangePage', () => {
             });
         }
 
-        const corpus: CorpusMC = new CorpusMC({citations: {4: new Citation({subcitations: {}, value: 4})}});
+        const corpus: CorpusMC = {citations: {4: new Citation({subcitations: {}, value: 4})}, source_urn: ''};
         textRangePage.corpusService.currentCorpus = new ReplaySubject<CorpusMC>(1);
         textRangePage.corpusService.currentCorpus.next(corpus);
         const valueList: number[] = [];
@@ -340,13 +344,13 @@ describe('TextRangePage', () => {
         const addReferencesSpy: Spy = spyOn(textRangePage, 'addReferences').and.callFake(() => Promise.reject());
         const initPageSpy: Spy = spyOn(textRangePage, 'initPage').and.returnValue(Promise.resolve());
         textRangePage.corpusService.currentCorpus = new ReplaySubject<CorpusMC>(1);
-        textRangePage.corpusService.currentCorpus.next(new CorpusMC({citations: {}}));
+        textRangePage.corpusService.currentCorpus.next({citations: {}, source_urn: ''});
         textRangePage.ngOnInit().then(async () => {
             expect(initPageSpy).toHaveBeenCalledTimes(0);
             addReferencesSpy.and.returnValue(Promise.resolve());
             await textRangePage.ngOnInit();
             expect(initPageSpy).toHaveBeenCalledTimes(1);
-            textRangePage.corpusService.currentCorpus.next(new CorpusMC({citations: {1: new Citation()}}));
+            textRangePage.corpusService.currentCorpus.next({citations: {1: new Citation()}, source_urn: ''});
             await textRangePage.ngOnInit();
             expect(initPageSpy).toHaveBeenCalledTimes(2);
             done();
@@ -369,7 +373,7 @@ describe('TextRangePage', () => {
         textRangePage.corpusService.initCurrentTextRange();
         textRangePage.helperService.applicationState.next(textRangePage.helperService.deepCopy(MockMC.applicationState));
         textRangePage.corpusService.currentCorpus = new ReplaySubject<CorpusMC>(1);
-        textRangePage.corpusService.currentCorpus.next(new CorpusMC({citations: {1: new Citation()}}));
+        textRangePage.corpusService.currentCorpus.next({citations: {1: new Citation()}, source_urn: ''});
         textRangePage.resetCitations().then(() => {
             textRangePage.corpusService.currentTextRange.pipe(take(1)).subscribe((tr: TextRange) => {
                 expect(tr.start[1]).toBeTruthy();
@@ -402,19 +406,19 @@ describe('TextRangePage', () => {
         textRangePage.corpusService.initCurrentTextRange();
         textRangePage.helperService.applicationState.next(textRangePage.helperService.deepCopy(MockMC.applicationState));
         textRangePage.corpusService.currentCorpus = new ReplaySubject<CorpusMC>(1);
-        textRangePage.corpusService.currentCorpus.next(new CorpusMC({
-            citations: {2: new Citation({subcitations: {2: new Citation()}})}
-        }));
+        textRangePage.corpusService.currentCorpus.next({
+            citations: {2: new Citation({subcitations: {2: new Citation()}})}, source_urn: ''
+        });
         textRangePage.showFurtherReferences(true).then(async () => {
             expect(addReferencesSpy).toHaveBeenCalledTimes(1);
             textRangePage.corpusService.setCurrentTextRange(0, null, new TextRange({end: [''], start: ['']}));
             await textRangePage.showFurtherReferences(false);
             expect(addLvl3Spy).toHaveBeenCalledTimes(1);
             textRangePage.corpusService.setCurrentTextRange(0, null, new TextRange({end: ['2'], start: ['2']}));
-            textRangePage.corpusService.currentCorpus.next(new CorpusMC({
+            textRangePage.corpusService.currentCorpus.next({
                 citations: {2: new Citation({subcitations: {}})},
-                citation_level_2: CitationLevel.default.toString()
-            }));
+                citation_level_2: CitationLevel.default.toString(), source_urn: ''
+            });
             await textRangePage.showFurtherReferences(false);
             expect(addReferencesSpy).toHaveBeenCalledTimes(1);
             expect(addLvl3Spy).toHaveBeenCalledTimes(2);

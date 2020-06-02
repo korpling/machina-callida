@@ -12,7 +12,7 @@ paths:
       summary: Returns a list of corpora.
       operationId: mcserver.app.api.corpusListAPI.get
       responses:
-        200:
+        "200":
           description: Corpus list
           content:
             application/json:
@@ -39,7 +39,7 @@ paths:
       summary: Deletes a single corpus by ID.
       operationId: mcserver.app.api.corpusAPI.delete
       responses:
-        200:
+        "200":
           description: Indication of success
           content:
             application/json:
@@ -50,7 +50,7 @@ paths:
       summary: Returns a single corpus by ID.
       operationId: mcserver.app.api.corpusAPI.get
       responses:
-        200:
+        "200":
           description: Corpus object
           content:
             application/json:
@@ -60,7 +60,7 @@ paths:
       summary: Updates a single corpus by ID.
       operationId: mcserver.app.api.corpusAPI.patch
       responses:
-        200:
+        "200":
           description: Corpus object
           content:
             application/json:
@@ -93,7 +93,7 @@ paths:
       summary: Returns exercise data by ID.
       operationId: mcserver.app.api.exerciseAPI.get
       responses:
-        200:
+        "200":
           description: Exercise data object, including a graph model for linguistic annotations.
           content:
             application/json:
@@ -105,7 +105,7 @@ paths:
       summary: Creates a new exercise.
       operationId: mcserver.app.api.exerciseAPI.post
       responses:
-        200:
+        "200":
           description: Exercise data object
           content:
             application/json:
@@ -122,12 +122,14 @@ paths:
       summary: Provides metadata for all available exercises.
       operationId: mcserver.app.api.exerciseListAPI.get
       responses:
-        200:
+        "200":
           description: Data for interactive exercises, excluding the linguistic details.
           content:
             application/json:
               schema:
-                $ref: '../openapi_models.yaml#/components/schemas/Exercise'
+                type: array
+                items:
+                  $ref: '../openapi_models.yaml#/components/schemas/MatchingExercise'
       parameters:
         - $ref: '../openapi_models.yaml#/components/parameters/LangParam'
         - name: frequency_upper_bound
@@ -157,12 +159,18 @@ paths:
       summary: Provides the URL to download a specific file.
       operationId: mcserver.app.api.fileAPI.get
       responses:
-        200:
+        "200":
           description: Data for interactive exercises, excluding the linguistic details.
           content:
-            application/json:
+            application/pdf:
               schema:
-                $ref: '../openapi_models.yaml#/components/schemas/Exercise'
+                type: object
+            application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+              schema:
+                type: object
+            application/xml:
+              schema:
+                type: object
       parameters:
         - name: id
           in: query
@@ -182,7 +190,7 @@ paths:
       summary: Serializes and persists learning results or HTML content for later access.
       operationId: mcserver.app.api.fileAPI.post
       responses:
-        200:
+        "200":
           description: Indication of success, possibly a reference to the resulting file.
           content:
             application/json:
@@ -218,7 +226,7 @@ paths:
       summary: Returns results for a frequency query from ANNIS for a given CTS URN.
       operationId: mcserver.app.api.frequencyAPI.get
       responses:
-        200:
+        "200":
           description: Frequency analysis, i.e. a list of frequency items.
           content:
             application/json:
@@ -234,7 +242,7 @@ paths:
       summary: Provides JSON templates for client-side H5P exercise layouts.
       operationId: mcserver.app.api.h5pAPI.get
       responses:
-        200:
+        "200":
           description: JSON template for an interactive H5P exercise.
           content:
             application/json:
@@ -251,7 +259,7 @@ paths:
       summary: Provides example contexts for a given phenomenon in a given corpus.
       operationId: mcserver.app.api.kwicAPI.post
       responses:
-        200:
+        "200":
           description: HTML strings with SVG elements for rendering KWIC images.
           content:
             application/json:
@@ -268,7 +276,7 @@ paths:
       summary: Provides the raw text for a requested text passage.
       operationId: mcserver.app.api.rawTextAPI.get
       responses:
-        200:
+        "200":
           description: Graph data for the text passage, including raw text and annotations.
           content:
             application/json:
@@ -281,7 +289,7 @@ paths:
       summary: Returns metadata for static exercises.
       operationId: mcserver.app.api.staticExercisesAPI.get
       responses:
-        200:
+        "200":
           description: Metadata for static exercises, mapped to their respective URIs in the frontend.
           content:
             application/json:
@@ -294,7 +302,7 @@ paths:
       summary: Gives users measures of text complexity for a given text.
       operationId: mcserver.app.api.textcomplexityAPI.get
       responses:
-        200:
+        "200":
           description: Text complexity measures for a given text.
           content:
             application/json:
@@ -314,7 +322,7 @@ paths:
       summary: Gives users all the citable text references for a corpus.
       operationId: mcserver.app.api.validReffAPI.get
       responses:
-        200:
+        "200":
           description: Valid references for the desired text.
           content:
             application/json:
@@ -330,7 +338,7 @@ paths:
       summary: Provides network data for the vectors in an AI model.
       operationId: mcserver.app.api.vectorNetworkAPI.get
       responses:
-        200:
+        "200":
           description: HTML string with SVG elements for rendering the network graph.
           content:
             application/json:
@@ -369,7 +377,7 @@ paths:
       summary: Provides network data for the vectors in an AI model.
       operationId: mcserver.app.api.vectorNetworkAPI.post
       responses:
-        200:
+        "200":
           description: Sentences whose content is similar to a given word.
           content:
             application/json:
@@ -395,7 +403,7 @@ paths:
       summary: Shows how well the vocabulary of a text matches a predefined reference vocabulary.
       operationId: mcserver.app.api.vocabularyAPI.get
       responses:
-        200:
+        "200":
           description: Retrieves sentence ID and matching degree for each sentence in the query text.
           content:
             application/json:
@@ -428,7 +436,7 @@ paths:
       summary: Shows how well the vocabulary of a text matches a predefined reference vocabulary.
       operationId: mcserver.app.api.vocabularyAPI.post
       responses:
-        200:
+        "200":
           description: Indicates for each token of a corpus whether it is covered by a reference vocabulary.
           content:
             application/json:
@@ -443,7 +451,7 @@ paths:
 # include this here so the data model gets generated correctly
 components:
   schemas:
-    TextComplexityForm:
+    TextComplexityFormExtension:
       type: object
       allOf:
-        - $ref: '../openapi_models.yaml#/components/schemas/TextComplexityFormBase'
+        - $ref: '../openapi_models.yaml#/components/schemas/TextComplexityForm'

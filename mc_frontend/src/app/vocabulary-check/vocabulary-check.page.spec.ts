@@ -10,7 +10,7 @@ import {FormsModule} from '@angular/forms';
 import {APP_BASE_HREF} from '@angular/common';
 import MockMC from '../models/mockMC';
 import Spy = jasmine.Spy;
-import {Sentence} from '../models/sentence';
+import {Sentence} from '../../../openapi';
 
 describe('VocabularyCheckPage', () => {
     let vocabularyCheckPage: VocabularyCheckPage;
@@ -76,7 +76,7 @@ describe('VocabularyCheckPage', () => {
 
     it('should process sentences', () => {
         vocabularyCheckPage.currentRankingUnits = [];
-        const sentences: Sentence[] = Array(50).fill(null).map(x => new Sentence({matching_degree: 40}));
+        const sentences: Sentence[] = Array(50).fill(null).map(x => ({matching_degree: 40}));
         sentences[0].matching_degree = 49;
         sentences[10].matching_degree = 50;
         sentences[14].matching_degree = 80;

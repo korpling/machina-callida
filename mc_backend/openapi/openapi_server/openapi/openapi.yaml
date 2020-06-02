@@ -201,7 +201,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Exercise'
+                items:
+                  $ref: '#/components/schemas/MatchingExercise'
+                type: array
           description: Data for interactive exercises, excluding the linguistic details.
       summary: Provides metadata for all available exercises.
       x-openapi-router-controller: openapi_server.controllers.default_controller
@@ -239,9 +241,15 @@ paths:
       responses:
         "200":
           content:
-            application/json:
+            application/pdf:
               schema:
-                $ref: '#/components/schemas/Exercise'
+                type: object
+            application/vnd.openxmlformats-officedocument.wordprocessingml.document:
+              schema:
+                type: object
+            application/xml:
+              schema:
+                type: object
           description: Data for interactive exercises, excluding the linguistic details.
       summary: Provides the URL to download a specific file.
       x-openapi-router-controller: openapi_server.controllers.default_controller
@@ -604,9 +612,9 @@ components:
             $ref: '#/components/schemas/inline_object'
       required: true
   schemas:
-    TextComplexityForm:
+    TextComplexityFormExtension:
       allOf:
-      - $ref: '#/components/schemas/TextComplexityFormBase'
+      - $ref: '#/components/schemas/TextComplexityForm'
       type: object
     Corpus:
       description: Collection of texts.
@@ -760,14 +768,17 @@ components:
         exercise_type: ddwtos
       properties:
         exercise_id:
+          default: ""
           description: Unique identifier (UUID) for the exercise.
           example: 12345678-1234-5678-1234-567812345678
           type: string
         exercise_type:
+          default: ""
           description: Type of exercise, concerning interaction and layout.
           example: ddwtos
           type: string
         frequency_analysis:
+          default: []
           description: List of items with frequency data for linguistic phenomena.
           items:
             $ref: '#/components/schemas/FrequencyItem'
@@ -775,6 +786,7 @@ components:
         graph_data:
           $ref: '#/components/schemas/GraphData'
         solutions:
+          default: []
           description: Correct solutions for this exercise.
           items:
             $ref: '#/components/schemas/Solution'
@@ -782,6 +794,7 @@ components:
         text_complexity:
           $ref: '#/components/schemas/TextComplexity'
         uri:
+          default: ""
           description: URI for accessing the exercise in this API.
           example: /mc/api/v1.0/file/fd97630c-1f5a-4102-af56-20eb0babdfee
           type: string
@@ -797,16 +810,19 @@ components:
         - upostag
       properties:
         count:
+          default: 0
           description: How often the given combination of values occurred.
           example: 1
           type: integer
         phenomena:
+          default: []
           description: Labels for the linguistic phenomena described in this frequency
             entry.
           items:
             $ref: '#/components/schemas/Phenomenon'
           type: array
         values:
+          default: []
           description: Values for the phenomena described in this frequency entry.
           items:
             type: string
@@ -1170,7 +1186,7 @@ components:
       type: object
     VocabularyMC:
       description: 'Reference vocabularies: Ancient Greek and Latin Dependency Treebank,
-        Bamberger Wortschatz, PROIEL treeban, VIVA textbook'
+        Bamberger Wortschatz, PROIEL treebank, VIVA textbook'
       enum:
       - agldt
       - bws
@@ -1178,10 +1194,64 @@ components:
       - viva
       example: agldt
       type: string
-    Exercise:
+    MatchingExercise:
       allOf:
       - $ref: '#/components/schemas/ExerciseBase'
-      - $ref: '#/components/schemas/Exercise_allOf'
+      - $ref: '#/components/schemas/ExerciseExtension'
+      - $ref: '#/components/schemas/MatchingExercise_allOf'
+    ExerciseExtension:
+      description: Additional data for creating and evaluating interactive exercises.
+      properties:
+        conll:
+          default: ""
+          description: CONLL-formatted linguistic annotations represented as a single
+            string.
+          example: \# newdoc id = ...\n# sent_id = 1\n# text = Caesar fortis est.\n1\tCaesar\tCaeso\tVERB
+            ...
+          nullable: false
+          type: string
+        eid:
+          description: Unique identifier (UUID) for the exercise.
+          example: 12345678-1234-5678-1234-567812345678
+          type: string
+          x-primary-key: true
+        exercise_type:
+          default: ""
+          description: Type of exercise, concerning interaction and layout.
+          example: markWords
+          nullable: false
+          type: string
+        last_access_time:
+          description: When the exercise was last accessed (as POSIX timestamp).
+          example: 1234567.789
+          format: float
+          type: number
+          x-index: true
+        solutions:
+          default: '[]'
+          description: Correct solutions for the exercise.
+          example: '[{''target'': {''sentence_id'': 1, ''token_id'': 7, ''salt_id'':
+            ''salt:/urn:...'', ''content'': ''eo''}, ''value'': {''sentence_id'':
+            0, ''token_id'': 0, ''content'': None, ''salt_id'': ''salt:/urn:...''}}]'
+          nullable: false
+          type: string
+        text_complexity:
+          default: 0
+          description: Overall text complexity as measured by the software's internal
+            language analysis.
+          example: 54.53
+          format: float
+          type: number
+        urn:
+          default: ""
+          description: CTS URN for the text passage from which the exercise was created.
+          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
+          nullable: false
+          type: string
+      required:
+      - eid
+      - last_access_time
+      type: object
     FileType:
       description: File format for the requested serialization.
       enum:
@@ -1304,7 +1374,7 @@ components:
       - vocabulary
       type: object
       x-body-name: vocabulary_data
-    TextComplexityFormBase:
+    TextComplexityForm:
       description: Relevant parameters for measuring the text complexity of a text
         passage.
       discriminator:
@@ -1320,7 +1390,9 @@ components:
           example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
           type: string
         annis_response:
-          $ref: '#/components/schemas/AnnisResponse'
+          description: Serialized ANNIS response.
+          example: '{}'
+          type: string
       required:
       - measure
       - urn
@@ -1365,60 +1437,16 @@ components:
       required:
       - type
       - urn
-    Exercise_allOf:
-      description: Data for creating and evaluating interactive exercises.
+    MatchingExercise_allOf:
+      description: Extra data for comparison with a reference vocabulary.
       properties:
-        conll:
-          default: ""
-          description: CONLL-formatted linguistic annotations represented as a single
-            string.
-          example: \# newdoc id = ...\n# sent_id = 1\n# text = Caesar fortis est.\n1\tCaesar\tCaeso\tVERB
-            ...
-          nullable: false
-          type: string
-        eid:
-          description: Unique identifier (UUID) for the exercise.
-          example: 12345678-1234-5678-1234-567812345678
-          type: string
-          x-primary-key: true
-        exercise_type:
-          default: ""
-          description: Type of exercise, concerning interaction and layout.
-          example: markWords
-          nullable: false
-          type: string
         exercise_type_translation:
-          default: ""
           description: Localized expression of the exercise type.
           example: Cloze
           type: string
-        last_access_time:
-          description: When the exercise was last accessed (as POSIX timestamp).
-          example: 1234567.789
+        matching_degree:
+          description: Percentage of words in the exercise that match a reference
+            vocabulary.
+          example: 76.34
           format: float
           type: number
-          x-index: true
-        solutions:
-          default: '[]'
-          description: Correct solutions for the exercise.
-          example: '[{''target'': {''sentence_id'': 1, ''token_id'': 7, ''salt_id'':
-            ''salt:/urn:...'', ''content'': ''eo''}, ''value'': {''sentence_id'':
-            0, ''token_id'': 0, ''content'': None, ''salt_id'': ''salt:/urn:...''}}]'
-          nullable: false
-          type: string
-        text_complexity:
-          default: 0
-          description: Overall text complexity as measured by the software's internal
-            language analysis.
-          example: 54.53
-          format: float
-          type: number
-        urn:
-          default: ""
-          description: CTS URN for the text passage from which the exercise was created.
-          example: urn:cts:latinLit:phi0448.phi001.perseus-lat2:1.1.1-1.1.1
-          nullable: false
-          type: string
-      required:
-      - eid
-      - last_access_time

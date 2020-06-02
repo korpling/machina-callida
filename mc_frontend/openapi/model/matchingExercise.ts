@@ -9,11 +9,12 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { ExerciseAllOf } from './exerciseAllOf';
+import { MatchingExerciseAllOf } from './matchingExerciseAllOf';
+import { ExerciseExtension } from './exerciseExtension';
 import { ExerciseBase } from './exerciseBase';
 
 
-export interface Exercise { 
+export interface MatchingExercise { 
     /**
      * Feedback for successful completion of the exercise.
      */
@@ -63,10 +64,6 @@ export interface Exercise {
      */
     exercise_type?: string;
     /**
-     * Localized expression of the exercise type.
-     */
-    exercise_type_translation?: string;
-    /**
      * When the exercise was last accessed (as POSIX timestamp).
      */
     last_access_time: number;
@@ -82,5 +79,13 @@ export interface Exercise {
      * CTS URN for the text passage from which the exercise was created.
      */
     urn?: string;
+    /**
+     * Localized expression of the exercise type.
+     */
+    exercise_type_translation?: string;
+    /**
+     * Percentage of words in the exercise that match a reference vocabulary.
+     */
+    matching_degree?: number;
 }
 

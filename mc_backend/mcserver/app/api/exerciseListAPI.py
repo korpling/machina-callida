@@ -7,6 +7,7 @@ from mcserver.app import db
 from mcserver.app.models import Language, VocabularyCorpus, ResourceType
 from mcserver.app.services import NetworkService, FileService
 from mcserver.models_auto import Exercise, UpdateInfo
+from openapi.openapi_server.models import MatchingExercise
 
 
 def get(lang: str, frequency_upper_bound: int, last_update_time: int, vocabulary: str = ""):
@@ -29,13 +30,11 @@ def get(lang: str, frequency_upper_bound: int, last_update_time: int, vocabulary
         lang = Language.English
     exercises: List[Exercise] = db.session.query(Exercise).filter_by(language=lang.value)
     db.session.commit()
-    ret_val: List[dict] = [NetworkService.serialize_exercise(x, compress=True) for x in exercises]
-    matching_degrees: List[float] = []
+    matching_exercises: List[MatchingExercise] = [MatchingExercise.from_dict(x.to_dict()) for x in exercises]
     if len(vocabulary_set):
-        for exercise in exercises:
+        for exercise in matching_exercises:
             conll: List[TokenList] = conllu.parse(exercise.conll)
             lemmata: List[str] = [tok["lemma"] for sent in conll for tok in sent.tokens]
-            matching_degrees.append(sum((1 if x in vocabulary_set else 0) for x in lemmata) / len(lemmata) * 100)
-        for i in range(len(ret_val)):
-            ret_val[i]["matching_degree"] = matching_degrees[i]
+            exercise.matching_degree = sum((1 if x in vocabulary_set else 0) for x in lemmata) / len(lemmata) * 100
+    ret_val: List[dict] = [NetworkService.serialize_exercise(x, compress=True) for x in matching_exercises]
     return NetworkService.make_json_response(ret_val)

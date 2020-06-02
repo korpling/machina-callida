@@ -5,8 +5,7 @@ import {HelperService} from 'src/app/helper.service';
 import {NavController, ToastController} from '@ionic/angular';
 import {CorpusService} from 'src/app/corpus.service';
 import {HttpErrorResponse} from '@angular/common/http';
-import {Sentence} from 'src/app/models/sentence';
-import {AnnisResponse} from '../../../openapi';
+import {AnnisResponse, Sentence} from '../../../openapi';
 
 @Component({
     selector: 'app-ranking',

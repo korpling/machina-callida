@@ -1,6 +1,5 @@
 import {CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
-import {async, ComponentFixture, inject, TestBed} from '@angular/core/testing';
-
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 import {AuthorDetailPage} from './author-detail.page';
 import {RouterModule} from '@angular/router';
 import {IonicStorageModule} from '@ionic/storage';
@@ -8,7 +7,6 @@ import {TranslateTestingModule} from '../translate-testing/translate-testing.mod
 import {APP_BASE_HREF} from '@angular/common';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import Spy = jasmine.Spy;
-import {CorpusMC} from '../models/corpusMC';
 
 describe('AuthorDetailPage', () => {
     let authorDetailPage: AuthorDetailPage;
@@ -44,7 +42,7 @@ describe('AuthorDetailPage', () => {
     it('should show possible references', () => {
         const currentCorpusSpy: Spy = spyOn(authorDetailPage.corpusService, 'setCurrentCorpus');
         const textRangeSpy: Spy = spyOn(authorDetailPage.helperService, 'goToTextRangePage').and.returnValue(Promise.resolve(true));
-        authorDetailPage.showPossibleReferences(new CorpusMC());
+        authorDetailPage.showPossibleReferences({source_urn: ''});
         expect(currentCorpusSpy).toHaveBeenCalledTimes(1);
         expect(textRangeSpy).toHaveBeenCalledTimes(1);
     });

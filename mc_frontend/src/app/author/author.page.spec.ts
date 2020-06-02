@@ -9,7 +9,6 @@ import {IonicStorageModule} from '@ionic/storage';
 import {TranslateTestingModule} from '../translate-testing/translate-testing.module';
 import {APP_BASE_HREF} from '@angular/common';
 import {Author} from '../models/author';
-import {CorpusMC} from '../models/corpusMC';
 import Spy = jasmine.Spy;
 import MockMC from '../models/mockMC';
 
@@ -66,7 +65,7 @@ describe('AuthorPage', () => {
 
     it('should be initialized', () => {
         authorPage.corpusService.availableAuthors = [new Author({
-            corpora: [new CorpusMC({source_urn: 'proiel'})],
+            corpora: [{source_urn: 'proiel'}],
             name: 'name'
         })];
         authorPage.ngOnInit();
