@@ -28,24 +28,27 @@ class TextComplexityService:
     @staticmethod
     def calculate_overall_complexity(tc: TextComplexity) -> float:
         """ Combines all the single elements of text complexity into one measure with a scale from 0 to 100. """
-        # the overall scale for all the separate measures should be from 0 to 100
         tc_measure_overall: List[float] = []
         wcrs: List[range] = TextService.word_count_ranges
-        # each range/index is separated evenly across the scale
+        # each range/index is separated evenly across the scale; adjust the index so it is between 1 and 10
         wcr_idx: int = next(i for i in range(len(wcrs)) if tc.n_w in wcrs[i]) + 1
+        # the overall scale for all the separate measures should be from 0 to 100
         tc_measure_overall.append(wcr_idx / len(wcrs) * 100)
         # need to take care of empty text (0 POS); there are 17 different POS tags overall
         tc_measure_overall.append((tc.pos + 1) * (100 / 16))
         scrs: List[range] = TextService.sentence_count_ranges
-        # each range/index is separated evenly across the scale
+        # each range/index is separated evenly across the scale; adjust the index so it is between 1 and 10
         scr_idx: int = next(i for i in range(len(scrs)) if tc.n_w in scrs[i]) + 1
         tc_measure_overall.append(scr_idx / len(scrs) * 100)
+        # arbitrary maximum value as a reference to calculate a percentage; input texts must not exceed it
         max_w_per_sent: int = 700
         tc_measure_overall.append(tc.avg_w_per_sent / max_w_per_sent * 100)
+        # arbitrary maximum value as a reference to calculate a percentage; input texts must not exceed it
         max_w_len: int = 50
         tc_measure_overall.append(tc.avg_w_len / max_w_len * 100)
-        # we do not use the punctuation count because it needs to differentiated into various categories, e.g.
-        # whether it represents a subclause or an enumeration; we already calculate subclauses separately
+        # do not use the punctuation count (tc.n_punct) because it needs to be differentiated into various categories,
+        # e.g. whether it represents a subclause or an enumeration; subclauses are calculated separately
+        # tc_measure_overall.append(tc.n_punct / tc.n_w * 100)
         tc_measure_overall.append(tc.n_types / tc.n_w * 100)
         tc_measure_overall.append(tc.lex_den * 100)
         # all the other measures need to be normalized for text length, e.g. word/sentence/clause count
