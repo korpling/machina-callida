@@ -4,9 +4,8 @@ import {VocabularyService} from './vocabulary.service';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {IonicStorageModule} from '@ionic/storage';
 import {TranslateTestingModule} from './translate-testing/translate-testing.module';
-import {VocabularyCorpus} from './models/enum';
-import {HttpErrorResponse} from '@angular/common/http';
-import {AnnisResponse, Sentence} from '../../openapi';
+import {HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {AnnisResponse, Sentence, VocabularyForm, VocabularyMC} from '../../openapi';
 import Spy = jasmine.Spy;
 
 describe('VocabularyService', () => {
@@ -38,6 +37,11 @@ describe('VocabularyService', () => {
             getSpy.and.returnValue(Promise.resolve([]));
             const sentences: Sentence[] = await vocabularyService.getMatchingSentences('');
             expect(sentences.length).toBe(0);
+            const params: HttpParams = getSpy.calls.argsFor(0)[3];
+            const vfObj: object = {};
+            params.keys().forEach((key: string) => vfObj[key] = params.get(key));
+            const vf: VocabularyForm = vfObj as VocabularyForm;
+            expect(vf.vocabulary).toBe(VocabularyMC.Bws);
             const postSpy: Spy = spyOn(vocabularyService.helperService, 'makePostRequest').and.returnValue(Promise.resolve({}));
             const result: AnnisResponse = await vocabularyService.getOOVwords('');
             expect(result.graph_data).toBeFalsy();
@@ -60,10 +64,10 @@ describe('VocabularyService', () => {
     it('should update the reference range', () => {
         vocabularyService.frequencyUpperBound = 0;
         vocabularyService.ngOnInit();
-        vocabularyService.currentReferenceVocabulary = VocabularyCorpus.agldt;
+        vocabularyService.currentReferenceVocabulary = VocabularyMC.Agldt;
         vocabularyService.updateReferenceRange();
         expect(vocabularyService.frequencyUpperBound).toBe(500);
-        vocabularyService.currentReferenceVocabulary = VocabularyCorpus.viva;
+        vocabularyService.currentReferenceVocabulary = VocabularyMC.Viva;
         vocabularyService.updateReferenceRange();
         expect(vocabularyService.frequencyUpperBound).toBe(1164);
     });

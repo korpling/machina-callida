@@ -9,7 +9,6 @@ import {
     ExerciseTypeTranslation,
     MoodleExerciseType,
     SortingCategory,
-    VocabularyCorpus,
     VocabularyCorpusTranslation
 } from '../models/enum';
 import {TranslateService} from '@ngx-translate/core';
@@ -20,7 +19,7 @@ import configMC from '../../configMC';
 import {UpdateInfo} from '../models/updateInfo';
 import {take} from 'rxjs/operators';
 import {ApplicationState} from '../models/applicationState';
-import {AnnisResponse} from '../../../openapi';
+import {AnnisResponse, VocabularyMC} from '../../../openapi';
 
 @Component({
     selector: 'app-exercise-list',
@@ -55,7 +54,6 @@ export class ExerciseListPage implements OnInit {
         [SortingCategory.vocDesc]: 'matching_degree',
     };
     public sortingCategoriesVocCheck: Set<SortingCategory> = new Set([SortingCategory.vocAsc, SortingCategory.vocDesc]);
-    public VocabularyCorpus = VocabularyCorpus;
     public VocabularyCorpusTranslation = VocabularyCorpusTranslation;
 
     constructor(public navCtrl: NavController,
@@ -97,7 +95,7 @@ export class ExerciseListPage implements OnInit {
                     const lastUpdateTime: number = force ? 0 : (state.exerciseList.length ? updateInfo.exerciseList : 0);
                     params = params.set('last_update_time', lastUpdateTime.toString());
                     if (this.vocService.currentReferenceVocabulary) {
-                        params = params.set('vocabulary', VocabularyCorpus[this.vocService.currentReferenceVocabulary]);
+                        params = params.set('vocabulary', this.vocService.currentReferenceVocabulary);
                         params = params.set('frequency_upper_bound', this.vocService.frequencyUpperBound.toString());
                     }
                     this.helperService.makeGetRequest(this.http, this.toastCtrl, url, params).then((exercises: ExerciseMC[]) => {
@@ -175,7 +173,7 @@ export class ExerciseListPage implements OnInit {
     toggleVocCorpus(): void {
         this.showVocabularyCorpus = !this.showVocabularyCorpus;
         if (this.showVocabularyCorpus && !this.vocService.currentReferenceVocabulary) {
-            this.vocService.currentReferenceVocabulary = VocabularyCorpus.bws;
+            this.vocService.currentReferenceVocabulary = VocabularyMC.Bws;
             this.hasVocChanged = true;
         }
         const iRowElement: HTMLIonRowElement = document.querySelector('#vocCorpus');

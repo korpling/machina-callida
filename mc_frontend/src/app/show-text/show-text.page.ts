@@ -6,12 +6,11 @@ import {VocabularyService} from 'src/app/vocabulary.service';
 import {ExerciseService} from 'src/app/exercise.service';
 import {HelperService} from 'src/app/helper.service';
 import {TranslateService} from '@ngx-translate/core';
-import {VocabularyCorpus} from '../models/enum';
 import {HttpClient} from '@angular/common/http';
 import {CorpusMC} from '../models/corpusMC';
 import {take} from 'rxjs/operators';
 import configMC from '../../configMC';
-import { FileType } from 'openapi';
+import {FileType, VocabularyMC} from 'openapi';
 
 @Component({
     selector: 'app-show-text',
@@ -98,6 +97,6 @@ export class ShowTextPage implements OnInit {
 
     ngOnInit(): void {
         this.urlBase = configMC.backendBaseUrl + configMC.backendApiFilePath;
-        this.vocService.currentReferenceVocabulary = this.vocService.currentReferenceVocabulary || VocabularyCorpus.bws;
+        this.vocService.currentReferenceVocabulary = this.vocService.currentReferenceVocabulary || VocabularyMC.Bws;
     }
 }

@@ -1,6 +1,6 @@
 import {NavController, ToastController} from '@ionic/angular';
 import {Component} from '@angular/core';
-import {VocabularyCorpus, VocabularyCorpusTranslation} from 'src/app/models/enum';
+import {VocabularyCorpusTranslation} from 'src/app/models/enum';
 import {VocabularyService} from 'src/app/vocabulary.service';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {TranslateService} from '@ngx-translate/core';
@@ -19,7 +19,6 @@ import {Sentence} from '../../../openapi';
 })
 export class VocabularyCheckPage {
     ObjectKeys = Object.keys;
-    VocabularyCorpus = VocabularyCorpus;
     VocabularyCorpusTranslation = VocabularyCorpusTranslation;
     public adaptPassages = true;
     public currentRankingUnits: Sentence[][];

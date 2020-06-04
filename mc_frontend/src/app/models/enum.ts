@@ -185,13 +185,6 @@ export enum TestType {
     list = 'list' as any,
 }
 
-export enum VocabularyCorpus {
-    agldt = 'agldt' as any,
-    bws = 'bws' as any,
-    proiel = 'proiel' as any,
-    viva = 'viva' as any,
-}
-
 export enum VocabularyCorpusTranslation {
     agldt = 'VOCABULARY_REFERENCE_CORPUS_AGLDT' as any,
     bws = 'VOCABULARY_REFERENCE_CORPUS_BWS' as any,

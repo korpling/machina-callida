@@ -9,13 +9,14 @@ import {TranslateTestingModule} from '../translate-testing/translate-testing.mod
 import {FormsModule} from '@angular/forms';
 import {IonicModule} from '@ionic/angular';
 import {APP_BASE_HREF} from '@angular/common';
-import {ExerciseType, MoodleExerciseType, SortingCategory, VocabularyCorpus} from '../models/enum';
+import {ExerciseType, MoodleExerciseType, SortingCategory} from '../models/enum';
 import MockMC from '../models/mockMC';
 import {ApplicationState} from '../models/applicationState';
 import {ExerciseMC} from '../models/exerciseMC';
 import Spy = jasmine.Spy;
 import configMC from '../../configMC';
 import {UpdateInfo} from '../models/updateInfo';
+import {VocabularyMC} from '../../../openapi';
 
 describe('ExerciseListPage', () => {
     let exerciseListPage: ExerciseListPage;
@@ -73,7 +74,7 @@ describe('ExerciseListPage', () => {
         exerciseListPage.getExerciseList().then(() => {
         }, () => {
             expect(requestSpy).toHaveBeenCalledTimes(1);
-            exerciseListPage.vocService.currentReferenceVocabulary = VocabularyCorpus.agldt;
+            exerciseListPage.vocService.currentReferenceVocabulary = VocabularyMC.Agldt;
             exerciseListPage.helperService.applicationState.next(new ApplicationState({exerciseList: []}));
             requestSpy.and.returnValue(Promise.resolve([]));
             exerciseListPage.getExerciseList().then(() => {

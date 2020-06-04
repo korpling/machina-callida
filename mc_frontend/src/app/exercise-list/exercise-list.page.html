@@ -66,8 +66,7 @@
                                 <select [(ngModel)]="vocService.currentReferenceVocabulary"
                                         name="currentReferenceVocabulary"
                                         (change)="vocService.updateReferenceRange(); hasVocChanged = true">
-                                    <option *ngFor="let key of ObjectKeys(vocService.refVocMap)"
-                                            [value]=VocabularyCorpus[key]>
+                                    <option *ngFor="let key of ObjectKeys(vocService.refVocMap)" [value]=key>
                                         {{ VocabularyCorpusTranslation[key] | translate}}
                                         ({{vocService.refVocMap[key].totalCount}}
                                         {{'VOCABULARY_ITEMS' | translate}})

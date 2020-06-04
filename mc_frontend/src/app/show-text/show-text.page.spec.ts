@@ -8,9 +8,9 @@ import {RouterModule} from '@angular/router';
 import {TranslateTestingModule} from '../translate-testing/translate-testing.module';
 import {FormsModule} from '@angular/forms';
 import {APP_BASE_HREF} from '@angular/common';
-import {VocabularyCorpus} from '../models/enum';
 import Spy = jasmine.Spy;
 import MockMC from '../models/mockMC';
+import {VocabularyMC} from '../../../openapi';
 
 describe('ShowTextPage', () => {
     let showTextPage: ShowTextPage;
@@ -80,6 +80,6 @@ describe('ShowTextPage', () => {
     it('should be initialized', () => {
         showTextPage.vocService.currentReferenceVocabulary = null;
         showTextPage.ngOnInit();
-        expect(showTextPage.vocService.currentReferenceVocabulary).toBe(VocabularyCorpus.bws);
+        expect(showTextPage.vocService.currentReferenceVocabulary).toBe(VocabularyMC.Bws);
     });
 });
