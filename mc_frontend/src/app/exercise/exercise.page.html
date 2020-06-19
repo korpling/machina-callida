@@ -1,14 +1,19 @@
 <ion-header>
     <ion-toolbar>
-        <div class="toolbar-left">
-            <ion-title>{{ 'EXERCISE' | translate }}</ion-title>
-        </div>
-        <div class="toolbar-right">
-            <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
-            <button (click)="helperService.goToHomePage(navCtrl)">
-                <ion-icon name="home"></ion-icon>
-            </button>
-        </div>
+        <ion-buttons slot="start">
+            <div class="home-logo">
+                <a (click)="helperService.goToHomePage(navCtrl)">
+                    <img src="assets/imgs/logo.png" width="32px" height="32px" alt="CALLIDUS Logo">
+                </a>
+            </div>
+        </ion-buttons>
+        <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
+        <ion-title>{{ 'EXERCISE' | translate }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-menu-button autoHide="false">
+                <ion-icon name="menu"></ion-icon>
+            </ion-menu-button>
+        </ion-buttons>
     </ion-toolbar>
 </ion-header>
 

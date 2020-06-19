@@ -973,7 +973,7 @@ class CommonTestCase(unittest.TestCase):
 
     def test_get_solutions_by_index(self):
         """ If available, makes use of the solution indices to return only the wanted solutions. """
-        solutions: List[Solution] = TextService.get_solutions_by_index(Mocks.exercise)
+        solutions: List[Solution] = TextService.get_solutions_by_index(Mocks.exercise, [])
         self.assertEqual(len(solutions), 1)
 
     def test_get_treebank_annotations(self):

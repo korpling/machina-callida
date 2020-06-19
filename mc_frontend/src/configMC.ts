@@ -18,7 +18,6 @@ export default {
     developerMailTo: 'mailto:sulzkons@hu-berlin.de',
     excerciseTypePathMarkWords: 'mark_words',
     frontendExercisePage: 'exercise',
-    h5pAssetFilePath: 'assets/dist/js/h5p-standalone-main.min.js',
     intervalCorporaUpdate: 1209600000,
     localStorageKeyApplicationState: 'mc/applicationState',
     localStorageKeyCorpora: 'mc/corpora',

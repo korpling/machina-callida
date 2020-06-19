@@ -49,9 +49,13 @@ describe('ExerciseListPage', () => {
         fixture.detectChanges();
     });
 
-    it('should create', () => {
+    it('should create', (done) => {
         expect(exerciseListPage).toBeTruthy();
         expect(exerciseListPage.getExerciseList).toHaveBeenCalled();
+        getExerciseListSpy.and.callFake(() => Promise.reject());
+        exerciseListPage.ngOnInit().then(() => {}, () => {
+            done();
+        });
     });
 
     it('should filter exercises', () => {
@@ -72,20 +76,21 @@ describe('ExerciseListPage', () => {
         spyOn(exerciseListPage.storage, 'get').withArgs(configMC.localStorageKeyUpdateInfo).and.returnValue(
             Promise.resolve(JSON.stringify(new UpdateInfo({exerciseList: 0}))));
         exerciseListPage.getExerciseList().then(() => {
-        }, () => {
+        }, async () => {
             expect(requestSpy).toHaveBeenCalledTimes(1);
             exerciseListPage.vocService.currentReferenceVocabulary = VocabularyMC.Agldt;
             exerciseListPage.helperService.applicationState.next(new ApplicationState({exerciseList: []}));
             requestSpy.and.returnValue(Promise.resolve([]));
-            exerciseListPage.getExerciseList().then(() => {
-                expect(exerciseListPage.availableExercises.length).toBe(0);
-                exerciseListPage.helperService.applicationState.next(exerciseListPage.helperService.deepCopy(MockMC.applicationState));
-                requestSpy.and.returnValue(Promise.resolve([new ExerciseMC()]));
-                exerciseListPage.getExerciseList().then(() => {
-                    expect(exerciseListPage.availableExercises.length).toBe(1);
-                    done();
-                });
-            });
+            await exerciseListPage.getExerciseList();
+            expect(exerciseListPage.availableExercises.length).toBe(0);
+            exerciseListPage.helperService.applicationState.next(exerciseListPage.helperService.deepCopy(MockMC.applicationState));
+            requestSpy.and.returnValue(Promise.resolve([new ExerciseMC()]));
+            await exerciseListPage.getExerciseList();
+            expect(exerciseListPage.availableExercises.length).toBe(1);
+            exerciseListPage.availableExercises = [];
+            await exerciseListPage.getExerciseList(true);
+            expect(exerciseListPage.availableExercises.length).toBe(1);
+            done();
         });
     });
 

@@ -51,7 +51,7 @@ export default class MockMC {
 
     static addIframe(h5pIframeString: string, buttonClass: string = null): HTMLIFrameElement {
         const iframe: HTMLIFrameElement = document.createElement('iframe');
-        iframe.setAttribute('id', h5pIframeString.slice(1));
+        iframe.classList.add(h5pIframeString.slice(1));
         document.body.appendChild(iframe);
         if (buttonClass) {
             const button: HTMLButtonElement = iframe.contentWindow.document.createElement('button');

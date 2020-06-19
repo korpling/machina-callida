@@ -10,13 +10,16 @@ import {FormsModule} from '@angular/forms';
 import {APP_BASE_HREF} from '@angular/common';
 import {ToastController} from '@ionic/angular';
 import MockMC from '../models/mockMC';
-import {ExerciseType} from '../models/enum';
+import {EventMC, ExerciseType} from '../models/enum';
 import Spy = jasmine.Spy;
 import {TestResultMC} from '../models/testResultMC';
-import H5PeventDispatcherMock from '../models/h5pEventDispatcherMock';
+import EventRegistry from '../models/eventRegistry';
 import Result from '../models/xAPI/Result';
 import configMC from '../../configMC';
 import {AnnisResponse, Solution} from '../../../openapi';
+import {XAPIevent} from '../models/xAPIevent';
+import StatementBase from '../models/xAPI/StatementBase';
+import Verb from '../models/xAPI/Verb';
 
 describe('PreviewPage', () => {
     let previewPage: PreviewPage;
@@ -83,15 +86,22 @@ describe('PreviewPage', () => {
     it('should be initialized', (done) => {
         const body: HTMLBodyElement = document.querySelector('body');
         let iframe: HTMLIFrameElement = document.createElement('iframe');
-        iframe.setAttribute('id', previewPage.exerciseService.h5pIframeString.slice(1));
+        iframe.classList.add(previewPage.exerciseService.h5pIframeString.slice(1));
         body.appendChild(iframe);
         spyOn(previewPage, 'sendData').and.returnValue(Promise.resolve());
         previewPage.ngOnDestroy();
-        const newDispatcher: H5PeventDispatcherMock = new H5PeventDispatcherMock();
+        const newDispatcher: EventRegistry = new EventRegistry();
         spyOn(previewPage.helperService, 'getH5P').and.returnValue({externalDispatcher: newDispatcher});
         xapiSpy.and.callThrough();
         previewPage.ngOnInit().then(() => {
-            newDispatcher.triggerXAPI(configMC.xAPIverbIDanswered, new Result());
+            newDispatcher.trigger(EventMC.xAPI, new XAPIevent({
+                data: {
+                    statement: new StatementBase({
+                        result: new Result(),
+                        verb: new Verb({id: configMC.xAPIverbIDanswered})
+                    })
+                }
+            }));
             checkAnnisResponseSpy.and.returnValue(Promise.resolve());
             spyOn(previewPage, 'initH5P');
             spyOn(previewPage, 'processAnnisResponse');

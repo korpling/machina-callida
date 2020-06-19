@@ -19,5 +19,5 @@ Use the `--host 0.0.0.0 --disable-host-check` flag for `ng serve` if you want to
 ## Other
 For all other kinds of configuration, use `src/configMC.ts`.
 # Testing
-To test the application and check the code coverage, run `npm run test`.
+To test the application and check the code coverage, run `npm run test-ci`.
 To write new tests or debug existing ones, use `npm run test-debug`.

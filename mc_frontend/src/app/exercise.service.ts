@@ -3,6 +3,10 @@ import {Injectable} from '@angular/core';
 import configMC from '../configMC';
 import {HelperService} from './helper.service';
 import {ExercisePart} from './models/exercisePart';
+import {Options} from './models/h5p-standalone.class';
+import {EventMC} from './models/enum';
+
+declare var H5PStandalone: any;
 
 @Injectable({
     providedIn: 'root'
@@ -17,11 +21,12 @@ export class ExerciseService {
     set currentExerciseIndex(value: number) {
         this._currentExerciseIndex = value;
         this.currentExercisePartIndex = [...Array(this.currentExerciseParts.length).keys()].find(
-            i => this.currentExerciseParts[i].startIndex <= this.currentExerciseIndex && (!this.currentExerciseParts[i + 1]
-                || this.currentExerciseParts[i + 1].startIndex > this.currentExerciseIndex));
+            i => this.currentExerciseParts[i].startIndex <= this.currentExerciseIndex &&
+                (!this.currentExerciseParts[i + 1] || this.currentExerciseParts[i + 1].startIndex > this.currentExerciseIndex));
         const cepi: number = this.currentExercisePartIndex;
         this.currentExerciseName = this.currentExercisePartIndex ?
-            this.currentExerciseParts[cepi].exercises[this.currentExerciseIndex - this.currentExerciseParts[cepi].startIndex] : '';
+            this.currentExerciseParts[cepi].exercises[this.currentExerciseIndex - this.currentExerciseParts[cepi].startIndex] :
+            '';
     }
 
     public currentExerciseName: string;
@@ -30,7 +35,7 @@ export class ExerciseService {
     public excludeOOV = false;
     public fillBlanksString = 'fill_blanks';
     public h5pContainerString = '.h5p-container';
-    public h5pIframeString = '#h5p-iframe-1';
+    public h5pIframeString = '.h5p-iframe';
     public kwicGraphs: string;
     public vocListString = 'voc_list';
 
@@ -48,18 +53,26 @@ export class ExerciseService {
             s4() + '-' + s4() + s4() + s4();
     }
 
+    createH5Pstandalone(el: HTMLElement, h5pLocation: string): Promise<void> {
+        return new H5PStandalone.H5P(el, h5pLocation);
+    }
+
     initH5P(exerciseTypePath: string): Promise<void> {
-        return new Promise(resolve => {
-            // dirty hack to get H5P going without explicit button click on the new page
-            setTimeout(() => {
-                // noinspection TypeScriptValidateJSTypes
-                this.helperService.getH5P().jQuery(this.h5pContainerString).empty().h5p({
-                    frameJs: 'assets/dist/js/h5p-standalone-frame.min.js',
-                    frameCss: 'assets/dist/styles/h5p.css',
-                    h5pContent: 'assets/h5p/' + exerciseTypePath
-                });
-                return resolve();
-            }, 50);
+        return new Promise((resolve, reject) => {
+            const el: HTMLDivElement = document.querySelector(this.h5pContainerString);
+            const h5pLocation = 'assets/h5p/' + exerciseTypePath;
+            const options: Options = {
+                frameCss: 'assets/h5p-standalone-master/dist/styles/h5p.css',
+                frameJs: 'assets/h5p-standalone-master/dist/frame.bundle.js',
+                preventH5PInit: false
+            };
+            this.createH5Pstandalone(el, h5pLocation).then(() => {
+                // dirty hack to wait for all the H5P elements being added to the DOM
+                setTimeout(() => {
+                    this.helperService.events.trigger(EventMC.h5pCreated, {data: {library: exerciseTypePath}});
+                    return resolve();
+                }, 150);
+            });
         });
     }
 

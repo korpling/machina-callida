@@ -11,11 +11,10 @@ import {TestResultMC} from '../models/testResultMC';
 import StatementBase from '../models/xAPI/StatementBase';
 import Result from '../models/xAPI/Result';
 import Score from '../models/xAPI/Score';
-import {TestModuleState} from '../models/enum';
+import {EventMC, TestModuleState} from '../models/enum';
 import MockMC from '../models/mockMC';
 import {XAPIevent} from '../models/xAPIevent';
-import Spy = jasmine.Spy;
-import H5PeventDispatcherMock from '../models/h5pEventDispatcherMock';
+import EventRegistry from '../models/eventRegistry';
 import Verb from '../models/xAPI/Verb';
 import configMC from '../../configMC';
 import Context from '../models/xAPI/Context';
@@ -24,10 +23,13 @@ import Activity from '../models/xAPI/Activity';
 import Definition from '../models/xAPI/Definition';
 import {HttpClientModule} from '@angular/common/http';
 import {By} from '@angular/platform-browser';
+import Spy = jasmine.Spy;
 
 describe('TestPage', () => {
     let testPage: TestPage;
     let fixture: ComponentFixture<TestPage>;
+    let newDispatcher: EventRegistry;
+    let getH5Pspy: Spy;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -49,7 +51,13 @@ describe('TestPage', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(TestPage);
         testPage = fixture.componentInstance;
+        newDispatcher = new EventRegistry();
+        getH5Pspy = spyOn(testPage.helperService, 'getH5P').and.returnValue({externalDispatcher: newDispatcher});
         fixture.detectChanges();
+    });
+
+    afterEach(() => {
+        fixture.destroy();
     });
 
     it('should create', () => {
@@ -179,31 +187,27 @@ describe('TestPage', () => {
 
     it('should set H5P event handlers', () => {
         const finishSpy: Spy = spyOn(testPage, 'finishCurrentExercise').and.returnValue(Promise.resolve());
-        const newDispatcher: H5PeventDispatcherMock = new H5PeventDispatcherMock();
-        const h5p: any = {externalDispatcher: {on: newDispatcher.on.bind(newDispatcher)}};
-        spyOn(testPage.helperService, 'getH5P').and.returnValue(h5p);
-        testPage.setH5PeventHandlers();
         testPage.currentState = TestModuleState.showResults;
         const xapiEvent: XAPIevent = new XAPIevent({
             data: {
                 statement: new StatementBase({result: new Result(), verb: new Verb({id: configMC.xAPIverbIDanswered})})
             }
         });
-        newDispatcher.trigger('xAPI', xapiEvent);
+        newDispatcher.trigger(EventMC.xAPI, xapiEvent);
         expect(finishSpy).toHaveBeenCalledTimes(0);
         testPage.currentState = TestModuleState.inProgress;
-        newDispatcher.trigger('xAPI', xapiEvent);
+        newDispatcher.trigger(EventMC.xAPI, xapiEvent);
         expect(finishSpy).toHaveBeenCalledTimes(1);
         const inputEventSpy: Spy = spyOn(testPage, 'setInputEventHandler');
         const solutionsEventSpy: Spy = spyOn(testPage, 'triggerSolutionsEventHandler');
         testPage.currentState = TestModuleState.inProgress;
-        const domChangedEvent: any = {data: {library: testPage.h5pBlanksString}};
+        const domChangedEvent: any = {data: {library: testPage.fillBlanksString}};
         testPage.areEventHandlersSet = false;
-        newDispatcher.trigger('domChanged', domChangedEvent);
+        testPage.helperService.events.trigger(EventMC.h5pCreated, domChangedEvent);
         expect(inputEventSpy).toHaveBeenCalledTimes(1);
         testPage.currentState = TestModuleState.showSolutions;
         testPage.areEventHandlersSet = false;
-        newDispatcher.trigger('domChanged', domChangedEvent);
+        testPage.helperService.events.trigger(EventMC.h5pCreated, domChangedEvent);
         expect(solutionsEventSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -221,16 +225,16 @@ describe('TestPage', () => {
         const previousExercises: number[] = testPage.exerciseService.currentExerciseParts.slice(0, targetExercisePartIndex)
             .map(x => x.exercises.length);
         testPage.exerciseService.currentExerciseIndex = previousExercises.reduce((a, b) => a + b);
-        let wasH5Prendered = false;
-        testPage.helperService.getH5P().externalDispatcher.on('domChanged', async (event: any) => {
-            wasH5Prendered = !wasH5Prendered;
-            if (wasH5Prendered) {
+        let callCount = 0;
+        testPage.helperService.events.on(EventMC.h5pCreated, async (event: any) => {
+            callCount += 1;
+            if (callCount === 1) {
                 const url: string = window.localStorage.getItem(configMC.localStorageKeyH5P);
                 const result: any = await testPage.http.get(url).toPromise();
                 const iframe2: HTMLIFrameElement = document.querySelector(testPage.exerciseService.h5pIframeString);
                 const parEl: HTMLParagraphElement = iframe2.contentWindow.document.querySelector('p');
                 expect(result.text).toContain(parEl.textContent);
-                testPage.helperService.getH5P().externalDispatcher.off('domChanged');
+                testPage.helperService.events.off(EventMC.h5pCreated);
                 testPage.vocService.currentTestResults[2] = new TestResultMC({
                     statement: new StatementBase({
                         context: new Context({

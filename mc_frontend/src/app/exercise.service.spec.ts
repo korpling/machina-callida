@@ -33,21 +33,10 @@ describe('ExerciseService', () => {
 
     it('should initialize H5P', (done) => {
         let h5pCalled = false;
-        const h5p = {
-            jQuery: () => {
-                h5pCalled = true;
-                return {
-                    empty: () => {
-                        return {
-                            h5p: (selector: string) => {
-                            }
-                        };
-                    }
-                };
-            }, off: () => {
-            }
-        };
-        spyOn(exerciseService.helperService, 'getH5P').and.returnValue(h5p);
+        spyOn(exerciseService, 'createH5Pstandalone').and.callFake(() => new Promise(resolve => {
+            h5pCalled = true;
+            return resolve();
+        }));
         exerciseService.initH5P('').then(() => {
             expect(h5pCalled).toBe(true);
             done();

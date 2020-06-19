@@ -90,6 +90,11 @@ export enum DependencyTranslation {
     vocative = 'DEPENDENCY_VOCATIVE' as any,
 }
 
+export enum EventMC {
+    h5pCreated = 'h5pCreated' as any,
+    xAPI = 'xAPI' as any,
+}
+
 export enum ExerciseType {
     cloze = 'cloze' as any,
     kwic = 'kwic' as any,

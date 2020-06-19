@@ -9,7 +9,7 @@
     "test.ts",
     "**/*.spec.ts",
     "app/translate-testing/translate-testing.module.ts",
-    "app/models/h5pEventDispatcherMock.ts",
+    "app/models/eventRegistry.ts",
     "app/models/mockMC.ts",
     "environments/environment.prod.ts",
     "app/models/xAPI/IdFormattedSubStatement.ts",

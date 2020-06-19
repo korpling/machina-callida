@@ -11,6 +11,7 @@ import {Language} from 'src/app/models/language';
 import {ReplaySubject} from 'rxjs';
 import {TextData} from './models/textData';
 import configMC from '../configMC';
+import EventRegistry from './models/eventRegistry';
 
 declare var H5P: any;
 // dirty hack to prevent H5P access errors after resize events
@@ -85,6 +86,7 @@ export class HelperService {
         vocative: DependencyValue.vocative,
         xcomp: DependencyValue.clausalComplement,
     };
+    public events: EventRegistry = new EventRegistry();
     public isIE11: boolean = !!(window as any).MSInputMethodContext && !!(document as any).documentMode;
     public isDevMode = ['localhost'].indexOf(window.location.hostname) > -1; // set this to "false" for simulated production mode
     public isVocabularyCheck = false;

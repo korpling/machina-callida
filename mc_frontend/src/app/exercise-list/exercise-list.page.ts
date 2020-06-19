@@ -120,9 +120,15 @@ export class ExerciseListPage implements OnInit {
         return exercise.matching_degree ? Math.round(exercise.matching_degree).toString() : '';
     }
 
-    ngOnInit(): void {
-        this.vocService.currentReferenceVocabulary = null;
-        this.getExerciseList().then();
+    ngOnInit(): Promise<void> {
+        return new Promise<void>(((resolve, reject) => {
+            this.vocService.currentReferenceVocabulary = null;
+            this.getExerciseList().then(() => {
+                return resolve();
+            }, () => {
+                return reject();
+            });
+        }));
     }
 
     public processExercises(): void {

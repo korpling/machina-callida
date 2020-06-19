@@ -5,7 +5,7 @@ import {HelperService} from '../helper.service';
 import {XAPIevent} from 'src/app/models/xAPIevent';
 import {TranslateService} from '@ngx-translate/core';
 import {VocabularyService} from 'src/app/vocabulary.service';
-import {TestModuleState, TestType} from 'src/app/models/enum';
+import {EventMC, TestModuleState, TestType} from 'src/app/models/enum';
 import {ConfirmCancelPage} from 'src/app/confirm-cancel/confirm-cancel.page';
 import {ExercisePart} from 'src/app/models/exercisePart';
 import Activity from 'src/app/models/xAPI/Activity';
@@ -78,6 +78,7 @@ export class TestPage implements OnDestroy, OnInit {
     public currentState: TestModuleState = TestModuleState.inProgress;
     public didTimeRunOut = false;
     public exerciseIndices: number[];
+    public fillBlanksString = 'fill_blanks';
     public finishExerciseTimeout = 200;
     public h5pAnswerClassString = '.h5p-answer';
     public h5pBlanksString = 'H5P.Blanks';
@@ -261,8 +262,8 @@ export class TestPage implements OnDestroy, OnInit {
 
     ngOnDestroy(): void {
         this.removeTimer(false);
-        this.helperService.getH5P().externalDispatcher.off('xAPI');
-        this.helperService.getH5P().externalDispatcher.off('domChanged');
+        this.helperService.getH5P().externalDispatcher.off(EventMC.xAPI);
+        this.helperService.events.off(EventMC.h5pCreated);
     }
 
     ngOnInit(): void {
@@ -348,7 +349,7 @@ export class TestPage implements OnDestroy, OnInit {
     }
 
     setH5PeventHandlers(): void {
-        this.helperService.getH5P().externalDispatcher.on('xAPI', (event: XAPIevent) => {
+        this.helperService.getH5P().externalDispatcher.on(EventMC.xAPI, (event: XAPIevent) => {
             if (this.currentState !== TestModuleState.inProgress) {
                 return;
             }
@@ -357,10 +358,10 @@ export class TestPage implements OnDestroy, OnInit {
                 this.finishCurrentExercise(event).then();
             }
         });
-        this.helperService.getH5P().externalDispatcher.on('domChanged', (event: any) => {
+        this.helperService.events.on(EventMC.h5pCreated, (event: any) => {
             // dirty hack because domChanged events are triggered twice for every new H5P exercise
             if (!this.areEventHandlersSet) {
-                if (this.currentState === TestModuleState.inProgress && event.data.library === this.h5pBlanksString) {
+                if (this.currentState === TestModuleState.inProgress && event.data.library === this.fillBlanksString) {
                     this.setInputEventHandler();
                 } else if (this.currentState === TestModuleState.showSolutions) {
                     this.triggerSolutionsEventHandler();
@@ -403,7 +404,7 @@ export class TestPage implements OnDestroy, OnInit {
                 if (newIndex ===
                     this.exerciseService.currentExerciseParts[this.exerciseService.currentExerciseParts.length - 1].startIndex) {
                     this.analyzeResults();
-                    this.helperService.getH5P().externalDispatcher.off('xAPI');
+                    this.helperService.getH5P().externalDispatcher.off(EventMC.xAPI);
                 }
                 return resolve();
             }

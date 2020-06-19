@@ -1,5 +1,5 @@
 /* tslint:disable:no-string-literal */
-import {ExerciseType} from 'src/app/models/enum';
+import {EventMC, ExerciseType} from 'src/app/models/enum';
 import {HelperService} from 'src/app/helper.service';
 import {NavController, ToastController} from '@ionic/angular';
 import {ExerciseService} from 'src/app/exercise.service';
@@ -68,7 +68,7 @@ export class PreviewPage implements OnDestroy, OnInit {
     }
 
     ngOnDestroy(): void {
-        this.helperService.getH5P().externalDispatcher.off('xAPI');
+        this.helperService.getH5P().externalDispatcher.off(EventMC.xAPI);
     }
 
     ngOnInit(): Promise<void> {
@@ -138,7 +138,7 @@ export class PreviewPage implements OnDestroy, OnInit {
     }
 
     setXAPIeventHandler() {
-        this.helperService.getH5P().externalDispatcher.on('xAPI', (event: XAPIevent) => {
+        this.helperService.getH5P().externalDispatcher.on(EventMC.xAPI, (event: XAPIevent) => {
             // results are only available when a task has been completed/answered, not in the "attempted" or "interacted" stages
             if (event.data.statement.verb.id === configMC.xAPIverbIDanswered && event.data.statement.result) {
                 const iframe: HTMLIFrameElement = document.querySelector(this.exerciseService.h5pIframeString);

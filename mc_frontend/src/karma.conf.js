@@ -21,8 +21,7 @@ module.exports = function (config) {
             fixWebpackSourcePaths: true
         },
         files: [
-            // "./assets/dist/js/h5p-standalone-main.js"
-            "./assets/dist/js/h5p-standalone-main.min.js"
+            "./assets/h5p-standalone-master/dist/main.bundle.js"
         ],
         mime: {'text/x-typescript': ['ts', 'tsx']},
         reporters: ['progress', 'kjhtml'],
