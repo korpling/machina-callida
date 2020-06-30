@@ -9,7 +9,8 @@ from flask import Response
 from mcserver.app import db
 from mcserver.app.models import ExerciseType, Solution, ExerciseData, AnnisResponse, Phenomenon, TextComplexity, \
     TextComplexityMeasure, ResourceType, ExerciseMC, GraphData
-from mcserver.app.services import AnnotationService, CorpusService, NetworkService, TextComplexityService
+from mcserver.app.services import AnnotationService, CorpusService, NetworkService, TextComplexityService, \
+    DatabaseService
 from mcserver.config import Config
 from mcserver.models_auto import Exercise, TExercise, UpdateInfo
 from openapi.openapi_server.models import ExerciseForm
@@ -28,14 +29,14 @@ def adjust_solutions(exercise_data: ExerciseData, exercise_type: str, solutions:
 
 def get(eid: str) -> Union[Response, ConnexionResponse]:
     exercise: TExercise = db.session.query(Exercise).filter_by(eid=eid).first()
-    db.session.commit()
+    DatabaseService.commit()
     if exercise is None:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_EXERCISE_NOT_FOUND)
     ar: AnnisResponse = CorpusService.get_corpus(cts_urn=exercise.urn, is_csm=False)
     if not ar.graph_data.nodes:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_CORPUS_NOT_FOUND)
     exercise.last_access_time = datetime.utcnow().timestamp()
-    db.session.commit()
+    DatabaseService.commit()
     exercise_type: ExerciseType = ExerciseType(exercise.exercise_type)
     ar.solutions = json.loads(exercise.solutions)
     ar.uri = NetworkService.get_exercise_uri(exercise)
@@ -109,7 +110,7 @@ def map_exercise_data_to_database(exercise_data: ExerciseData, exercise_type: st
     ui_exercises: UpdateInfo = db.session.query(UpdateInfo).filter_by(
         resource_type=ResourceType.exercise_list.name).first()
     ui_exercises.last_modified_time = datetime.utcnow().timestamp()
-    db.session.commit()
+    DatabaseService.commit()
     return new_exercise
 
 

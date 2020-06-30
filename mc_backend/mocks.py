@@ -15,39 +15,44 @@ from gensim.models import Word2Vec
 from gensim.models.keyedvectors import Vocab
 from networkx import Graph
 from numpy.core.multiarray import ndarray
-from sqlalchemy.exc import OperationalError
 
 from mcserver import Config, TestingConfig
 from mcserver.app import db, shutdown_session
 from mcserver.app.models import Phenomenon, PartOfSpeech, CitationLevel, ExerciseData, GraphData, \
     LinkMC, NodeMC, Language, Dependency, Case, AnnisResponse, Solution, TextPart, Citation, ExerciseMC, CorpusMC, \
     SolutionElement
-from mcserver.app.services import AnnotationService, CustomCorpusService, TextService
+from mcserver.app.services import AnnotationService, CustomCorpusService, TextService, DatabaseService
 from mcserver.models_auto import Corpus, Exercise, UpdateInfo
 
 
 class MockFilterBy:
-    def __init__(self, do_raise: bool = False, ui: UpdateInfo = None):
-        self.do_raise: bool = do_raise
+    def __init__(self, ui: UpdateInfo = None):
         self.ui: UpdateInfo = ui
 
     def first(self):
-        if self.do_raise:
-            raise OperationalError("error", [], "")
-        else:
-            return self.ui
+        return self.ui
 
 
 class MockQuery:
-    def __init__(self, do_raise: bool = False, ui: UpdateInfo = None):
-        self.do_raise: bool = do_raise
+    def __init__(self, ui: UpdateInfo = None):
         self.ui: UpdateInfo = ui
 
     def all(self):
         return db.session.query(Corpus).all()
 
     def filter_by(self, **kwargs):
-        return MockFilterBy(self.do_raise, self.ui)
+        return MockFilterBy(self.ui)
+
+
+class MockResponse:
+    def __init__(self, text: str, ok: bool = True, content: bytes = b""):
+        self.content: bytes = content
+        self.encoding: str = "utf-8"
+        self.ok: bool = ok
+        self.text: str = text
+
+    def raise_for_status(self) -> None:
+        pass
 
 
 class MockWV:
@@ -64,17 +69,6 @@ class MockWV:
 class MockW2V:
     def __init__(self):
         self.wv = MockWV()
-
-
-class MockResponse:
-    def __init__(self, text: str, ok: bool = True, content: bytes = b""):
-        self.content: bytes = content
-        self.encoding: str = "utf-8"
-        self.ok: bool = ok
-        self.text: str = text
-
-    def raise_for_status(self) -> None:
-        pass
 
 
 class TestHelper:
@@ -100,7 +94,7 @@ class TestHelper:
                 Mocks.app_dict[class_name] = TestHelper(app_factory(TestingConfig))
             Mocks.app_dict[class_name].app.logger.setLevel(logging.WARNING)
             Mocks.app_dict[class_name].app.testing = True
-        db.session.commit()
+        DatabaseService.commit()
 
 
 class Mocks:

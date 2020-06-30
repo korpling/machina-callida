@@ -7,7 +7,7 @@ from flask import Response
 
 from mcserver import Config
 from mcserver.app import db
-from mcserver.app.services import NetworkService
+from mcserver.app.services import NetworkService, DatabaseService
 from mcserver.models_auto import Corpus
 
 
@@ -17,7 +17,7 @@ def delete(cid: int) -> Union[Response, ConnexionResponse]:
     if corpus is None:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_CORPUS_NOT_FOUND)
     db.session.delete(corpus)
-    db.session.commit()
+    DatabaseService.commit()
     return NetworkService.make_json_response(True)
 
 
@@ -37,5 +37,5 @@ def patch(cid: int, **kwargs) -> Union[Response, ConnexionResponse]:
     for k, v in kwargs.items():
         if v is not None:
             setattr(corpus, k, v)
-    db.session.commit()
+    DatabaseService.commit()
     return NetworkService.make_json_response(corpus.to_dict())

@@ -5,7 +5,7 @@ import conllu
 from conllu import TokenList
 from mcserver.app import db
 from mcserver.app.models import Language, VocabularyCorpus, ResourceType
-from mcserver.app.services import NetworkService, FileService
+from mcserver.app.services import NetworkService, FileService, DatabaseService
 from mcserver.models_auto import Exercise, UpdateInfo
 from openapi.openapi_server.models import MatchingExercise
 
@@ -15,7 +15,7 @@ def get(lang: str, frequency_upper_bound: int, last_update_time: int, vocabulary
     vocabulary_set: Set[str]
     ui_exercises: UpdateInfo = db.session.query(UpdateInfo).filter_by(
         resource_type=ResourceType.exercise_list.name).first()
-    db.session.commit()
+    DatabaseService.commit()
     if ui_exercises.last_modified_time < last_update_time / 1000:
         return NetworkService.make_json_response([])
     try:
@@ -29,7 +29,7 @@ def get(lang: str, frequency_upper_bound: int, last_update_time: int, vocabulary
     except ValueError:
         lang = Language.English
     exercises: List[Exercise] = db.session.query(Exercise).filter_by(language=lang.value)
-    db.session.commit()
+    DatabaseService.commit()
     matching_exercises: List[MatchingExercise] = [MatchingExercise.from_dict(x.to_dict()) for x in exercises]
     if len(vocabulary_set):
         for exercise in matching_exercises:

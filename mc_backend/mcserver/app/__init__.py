@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 from logging.handlers import RotatingFileHandler
-from pathlib import Path
 from threading import Thread
 from time import strftime
 from typing import Type

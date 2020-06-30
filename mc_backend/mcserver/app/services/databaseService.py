@@ -4,11 +4,10 @@ from typing import List, Dict
 from flask import Flask
 from flask_migrate import stamp, upgrade
 import rapidjson as json
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, InvalidRequestError
 
 from mcserver.app import db
-from mcserver.app.models import CitationLevel, ResourceType, TextComplexityMeasure, AnnisResponse, GraphData, \
-    TextComplexity
+from mcserver.app.models import CitationLevel, ResourceType, TextComplexityMeasure, AnnisResponse, TextComplexity
 from mcserver.app.services import CorpusService, CustomCorpusService, TextComplexityService
 from mcserver.config import Config
 from mcserver.models_auto import Corpus, Exercise, UpdateInfo
@@ -21,7 +20,7 @@ class DatabaseService:
         """ Checks whether the corpus list needs to be updated. If yes, it performs the update. """
         app.logger.info("Corpus update started.")
         ui_cts: UpdateInfo = db.session.query(UpdateInfo).filter_by(resource_type=ResourceType.cts_data.name).first()
-        db.session.commit()
+        DatabaseService.commit()
         if ui_cts is None:
             app.logger.info("UpdateInfo not available!")
             return
@@ -30,8 +29,17 @@ class DatabaseService:
             if (datetime.utcnow() - ui_datetime).total_seconds() > Config.INTERVAL_CORPUS_UPDATE:
                 CorpusService.update_corpora()
                 ui_cts.last_modified_time = datetime.utcnow().timestamp()
-                db.session.commit()
+                DatabaseService.commit()
                 app.logger.info("Corpus update completed.")
+
+    @staticmethod
+    def commit():
+        """Commits the last action to the database and, if it fails, rolls back the current session."""
+        try:
+            db.session.commit()
+        except (OperationalError, InvalidRequestError):
+            db.session.rollback()
+            raise
 
     @staticmethod
     def init_db_alembic() -> None:
@@ -45,7 +53,7 @@ class DatabaseService:
         """Initializes the corpus list if it is not already there and up to date."""
         if db.engine.dialect.has_table(db.engine, Config.DATABASE_TABLE_CORPUS):
             CorpusService.existing_corpora = db.session.query(Corpus).all()
-            db.session.commit()
+            DatabaseService.commit()
             urn_dict: Dict[str, int] = {v.source_urn: i for i, v in enumerate(CorpusService.existing_corpora)}
             for cc in CustomCorpusService.custom_corpora:
                 if cc.corpus.source_urn in urn_dict:
@@ -62,7 +70,7 @@ class DatabaseService:
                                              group_name_value=cc.corpus.author,
                                              citation_levels=citation_levels)
             CorpusService.existing_corpora = db.session.query(Corpus).all()
-            db.session.commit()
+            DatabaseService.commit()
 
     @staticmethod
     def init_db_update_info() -> None:
@@ -74,7 +82,7 @@ class DatabaseService:
                     ui_cts = UpdateInfo.from_dict(resource_type=rt.name, last_modified_time=1,
                                                   created_time=datetime.utcnow().timestamp())
                     db.session.add(ui_cts)
-                    db.session.commit()
+                    DatabaseService.commit()
 
     @staticmethod
     def init_updater(app: Flask) -> None:
@@ -104,11 +112,11 @@ class DatabaseService:
                 if (now - exercise_datetime).total_seconds() > Config.INTERVAL_EXERCISE_DELETE or \
                         not exercise.urn or not json.loads(exercise.solutions):
                     db.session.delete(exercise)
-                    db.session.commit()
+                    DatabaseService.commit()
                 # manually add text complexity measures for old exercises
                 elif not exercise.text_complexity:
                     ar: AnnisResponse = CorpusService.get_corpus(exercise.urn, is_csm=is_csm)
                     tc: TextComplexity = TextComplexityService.text_complexity(TextComplexityMeasure.all.name,
                                                                                exercise.urn, is_csm, ar.graph_data)
                     exercise.text_complexity = tc.all
-                    db.session.commit()
+                    DatabaseService.commit()

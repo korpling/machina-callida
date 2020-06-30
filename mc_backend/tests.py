@@ -88,7 +88,7 @@ class McTestCase(unittest.TestCase):
         ui_cts: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.cts_data.name,
                                                   last_modified_time=datetime.utcnow().timestamp(), created_time=1)
         db.session.add(ui_cts)
-        db.session.commit()
+        DatabaseService.commit()
 
     @staticmethod
     def clear_folder(folder_path: str):
@@ -135,11 +135,11 @@ class McTestCase(unittest.TestCase):
     def test_api_corpus_list_get(self):
         """Adds multiple texts to the database and queries them all."""
 
-        def expect_result(self: McTestCase, mock: MagicMock, do_raise: bool, lut: str, result: Any,
+        def expect_result(self: McTestCase, mock: MagicMock, lut: str, result: Any,
                           lmt: datetime = datetime.utcnow()):
             ui: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.cts_data.name,
                                                   last_modified_time=lmt.timestamp(), created_time=1)
-            mock.session.query.return_value = MockQuery(do_raise, ui)
+            mock.session.query.return_value = MockQuery(ui)
             response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_CORPORA,
                                                                             query_string=dict(last_update_time=lut))
             data_json = json.loads(response.get_data())
@@ -148,12 +148,11 @@ class McTestCase(unittest.TestCase):
             self.assertEqual(data_json, result)
 
         with patch.object(mcserver.app.api.corpusListAPI, "db") as mock_db:
-            expect_result(self, mock_db, True, "0", None)
-            expect_result(self, mock_db, False, str(int(datetime.utcnow().timestamp() * 1000)), None,
+            expect_result(self, mock_db, str(int(datetime.utcnow().timestamp() * 1000)), None,
                           datetime.fromtimestamp(0))
             db.session.add_all(Mocks.corpora)
-            db.session.commit()
-            expect_result(self, mock_db, False, "0", Mocks.corpora, datetime.fromtimestamp(time.time()))
+            DatabaseService.commit()
+            expect_result(self, mock_db, "0", Mocks.corpora, datetime.fromtimestamp(time.time()))
         db.session.query(Corpus).delete()
         db.session.query(UpdateInfo).delete()
         # dirty hack so we can reuse it in other tests
@@ -187,14 +186,14 @@ class McTestCase(unittest.TestCase):
         old_urn: str = Mocks.exercise.urn
         Mocks.exercise.urn = ""
         db.session.add(Mocks.exercise)
-        db.session.commit()
+        DatabaseService.commit()
         ar: AnnisResponse = AnnisResponse(solutions=[], graph_data=GraphData(links=[], nodes=[]))
         with patch.object(CorpusService, "get_corpus", side_effect=[ar, Mocks.annis_response]):
             response = Mocks.app_dict[self.class_name].client.get(Config.SERVER_URI_EXERCISE,
                                                                   query_string=dict(eid=Mocks.exercise.eid))
             self.assertEqual(response.status_code, 404)
             Mocks.exercise.urn = old_urn
-            db.session.commit()
+            DatabaseService.commit()
             response = Mocks.app_dict[self.class_name].client.get(Config.SERVER_URI_EXERCISE,
                                                                   query_string=dict(eid=Mocks.exercise.eid))
             graph_dict: dict = json.loads(response.get_data(as_text=True))
@@ -219,7 +218,7 @@ class McTestCase(unittest.TestCase):
         ui_exercises: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.exercise_list.name,
                                                         last_modified_time=1, created_time=1)
         db.session.add(ui_exercises)
-        db.session.commit()
+        DatabaseService.commit()
         ef: ExerciseForm = ExerciseForm(urn=Mocks.exercise.urn, type=ExerciseType.matching.value,
                                         search_values=Mocks.exercise.search_values, instructions='abc')
         with patch.object(mcserver.app.api.exerciseAPI.requests, "post", side_effect=post_response):
@@ -240,14 +239,14 @@ class McTestCase(unittest.TestCase):
         ui_exercises: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.exercise_list.name,
                                                         last_modified_time=1, created_time=1)
         db.session.add(ui_exercises)
-        db.session.commit()
+        DatabaseService.commit()
         args: dict = dict(lang="fr", last_update_time=int(time.time()))
         response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_EXERCISE_LIST,
                                                                         query_string=args)
         self.assertEqual(json.loads(response.get_data()), [])
         args["last_update_time"] = 0
         db.session.add(Mocks.exercise)
-        db.session.commit()
+        DatabaseService.commit()
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_EXERCISE_LIST, query_string=args)
         exercises: List[MatchingExercise] = []
         for exercise_dict in json.loads(response.get_data(as_text=True)):
@@ -268,7 +267,7 @@ class McTestCase(unittest.TestCase):
         ui_file: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.file_api_clean.name,
                                                    last_modified_time=1, created_time=1)
         db.session.add(ui_file)
-        db.session.commit()
+        DatabaseService.commit()
         # create a fake old file, to be deleted on the next GET request
         FileService.create_tmp_file(FileType.XML, "old")
         args: dict = dict(type=FileType.XML, id=Mocks.exercise.eid, solution_indices=[0])
@@ -280,14 +279,14 @@ class McTestCase(unittest.TestCase):
         with open(file_path, "w+") as f:
             f.write(file_content)
         ui_file.last_modified_time = datetime.utcnow().timestamp()
-        db.session.commit()
+        DatabaseService.commit()
         del ui_file
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_FILE, query_string=args)
         os.remove(file_path)
         self.assertEqual(response.data.decode("utf-8"), file_content)
         # add the mapped exercise to the database
         db.session.add(Mocks.exercise)
-        db.session.commit()
+        DatabaseService.commit()
         args["type"] = FileType.PDF
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_FILE, query_string=args)
         # the PDFs are not deterministically reproducible because the creation date etc. is written into them
@@ -326,15 +325,15 @@ class McTestCase(unittest.TestCase):
         response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_H5P, query_string=args)
         self.assertEqual(response.status_code, 404)
         db.session.add(Mocks.exercise)
-        db.session.commit()
+        DatabaseService.commit()
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_H5P, query_string=args)
         self.assertIn(Mocks.h5p_json_cloze[1:-1], response.data.decode("utf-8"))
         Mocks.exercise.exercise_type = ExerciseType.kwic.value
-        db.session.commit()
+        DatabaseService.commit()
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_H5P, query_string=args)
         self.assertEqual(response.status_code, 422)
         Mocks.exercise.exercise_type = ExerciseType.matching.value
-        db.session.commit()
+        DatabaseService.commit()
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_H5P, query_string=args)
         self.assertIn(Mocks.h5p_json_matching[1:-1], response.data.decode("utf-8"))
         Mocks.exercise.exercise_type = ExerciseType.cloze.value
@@ -530,6 +529,20 @@ class McTestCase(unittest.TestCase):
         Mocks.app_dict[self.class_name].app_context.push()
         db.session.query(Corpus).delete()
 
+    def test_commit(self):
+        """Commits the last action to the database and, if it fails, rolls back the current session."""
+
+        def commit():
+            raise OperationalError("", [], "")
+
+        with patch.object(mcserver.app.services.databaseService, "db") as mock_db:
+            mock_db.session.commit.side_effect = commit
+            with self.assertRaises(OperationalError):
+                McTestCase.add_corpus(Mocks.corpora[0])
+        db.session.query(Corpus).delete()
+        db.session.query(UpdateInfo).delete()
+        session.make_transient(Mocks.corpora[0])
+
     def test_create_app(self):
         """Creates a new Flask application and configures it. Initializes the application and the database."""
         with patch.object(sys, "argv", [None, None, Config.FLASK_MIGRATE]):
@@ -554,7 +567,7 @@ class McTestCase(unittest.TestCase):
         ui_cts: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.cts_data.name,
                                                   last_modified_time=datetime.utcnow().timestamp(), created_time=1)
         db.session.add(ui_cts)
-        db.session.commit()
+        DatabaseService.commit()
         csm_process: Process
         with patch.object(sys, 'argv', Mocks.test_args):
             os.environ[Config.COVERAGE_ENVIRONMENT_VARIABLE] = Config.COVERAGE_CONFIGURATION_FILE_NAME
@@ -573,7 +586,7 @@ class McTestCase(unittest.TestCase):
         ui_exercises: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.exercise_list.name,
                                                         last_modified_time=1, created_time=1)
         db.session.add(ui_exercises)
-        db.session.commit()
+        DatabaseService.commit()
         exercise_expected: Exercise = Mocks.exercise
         exercise: Exercise = map_exercise_data_to_database(
             solutions=[Solution.from_dict(x) for x in json.loads(exercise_expected.solutions)],
@@ -609,7 +622,7 @@ class McTestCase(unittest.TestCase):
         self.assertEqual(len(CorpusService.existing_corpora), 1)
         ec: Corpus = CorpusService.existing_corpora[0]
         ec.title = ""
-        db.session.commit()
+        DatabaseService.commit()
         McTestCase.add_corpus(CorpusMC.from_dict(source_urn="123"))
         cls: List[CitationLevel] = [ec.citation_level_1, ec.citation_level_2, ec.citation_level_3]
         CorpusService.update_corpus(ec.title, ec.source_urn, ec.author, cls, ec)
@@ -720,7 +733,7 @@ class CsmTestCase(unittest.TestCase):
         ui_cts: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.cts_data.name,
                                                   last_modified_time=1, created_time=1)
         db.session.add(ui_cts)
-        db.session.commit()
+        DatabaseService.commit()
         utc_now: datetime = datetime.utcnow()
         DatabaseService.check_corpus_list_age(Mocks.app_dict[self.class_name].app)
         ui_cts: UpdateInfo = db.session.query(UpdateInfo).filter_by(resource_type=ResourceType.cts_data.name).first()
@@ -806,7 +819,7 @@ class CsmTestCase(unittest.TestCase):
             ui_cts: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.cts_data.name,
                                                       last_modified_time=1, created_time=1)
             db.session.add(ui_cts)
-            db.session.commit()
+            DatabaseService.commit()
             with patch.object(CorpusService, 'update_corpora') as update_mock:
                 t: Thread = start_updater(Mocks.app_dict[self.class_name].app)
                 self.assertIsInstance(t, Thread)
@@ -866,7 +879,7 @@ class CommonTestCase(unittest.TestCase):
         from mcserver.app.api.vectorNetworkAPI import add_edges
         w2v: Word2Vec = Word2Vec([x.split() for x in Mocks.raw_text.split(". ")], min_count=1, sample=0)
         graph: Graph = Graph()
-        add_edges(["fortis"], w2v, 2, 1, graph)
+        add_edges(["fortis"], w2v, 4, 1, graph)
         self.assertGreater(len(graph.edges), 1)
 
     def test_add_urn_to_sentences(self):
@@ -1180,7 +1193,7 @@ class CommonTestCase(unittest.TestCase):
             ExerciseMC.from_dict(last_access_time=datetime.utcnow().timestamp(), urn="urn",
                                  solutions=json.dumps([Solution().to_dict()]), text_complexity=0, eid="eid2")]
         db.session.add_all(exercises)
-        db.session.commit()
+        DatabaseService.commit()
 
         with patch.object(mcserver.app.services.textComplexityService.requests, "post",
                           return_value=MockResponse(Mocks.text_complexity_json_string)):

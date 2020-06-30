@@ -5,7 +5,7 @@ from flask import Response
 from mcserver import Config
 from mcserver.app import db
 from mcserver.app.models import Language, ExerciseType, Solution
-from mcserver.app.services import TextService, NetworkService
+from mcserver.app.services import TextService, NetworkService, DatabaseService
 from mcserver.models_auto import Exercise
 
 
@@ -17,7 +17,7 @@ def get(eid: str, lang: str, solution_indices: List[int]) -> Union[Response, Con
     except ValueError:
         language = Language.English
     exercise: Exercise = db.session.query(Exercise).filter_by(eid=eid).first()
-    db.session.commit()
+    DatabaseService.commit()
     if exercise is None:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_EXERCISE_NOT_FOUND)
     text_field_content: str = ""

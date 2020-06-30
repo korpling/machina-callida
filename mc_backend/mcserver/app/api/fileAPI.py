@@ -10,7 +10,7 @@ from flask import send_from_directory, Response
 from werkzeug.wrappers import ETagResponseMixin
 from mcserver.app import db
 from mcserver.app.models import FileType, ResourceType, DownloadableFile, MimeType, XapiStatement, LearningResultMC
-from mcserver.app.services import FileService, NetworkService
+from mcserver.app.services import FileService, NetworkService, DatabaseService
 from mcserver.config import Config
 from mcserver.models_auto import Exercise, UpdateInfo, LearningResult
 
@@ -29,14 +29,14 @@ def clean_tmp_folder():
                 FileService.downloadable_files.remove(file_to_delete)
             os.remove(os.path.join(Config.TMP_DIRECTORY, file))
             ui_file.last_modified_time = datetime.utcnow().timestamp()
-            db.session.commit()
+            DatabaseService.commit()
 
 
 def get(id: str, type: FileType, solution_indices: List[int]) -> Union[ETagResponseMixin, ConnexionResponse]:
     """The GET method for the file REST API. It provides the URL to download a specific file."""
     clean_tmp_folder()
     exercise: Exercise = db.session.query(Exercise).filter_by(eid=id).first()
-    db.session.commit()
+    DatabaseService.commit()
     file_name: str = id + "." + str(type)
     mime_type: str = MimeType[type].value
     if exercise is None:
@@ -45,7 +45,7 @@ def get(id: str, type: FileType, solution_indices: List[int]) -> Union[ETagRespo
             return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_EXERCISE_NOT_FOUND)
         return send_from_directory(Config.TMP_DIRECTORY, file_name, mimetype=mime_type, as_attachment=True)
     exercise.last_access_time = datetime.utcnow().timestamp()
-    db.session.commit()
+    DatabaseService.commit()
     if solution_indices:
         file_name = id + "-" + str(uuid.uuid4()) + "." + str(type)
     existing_file: DownloadableFile = next(
@@ -101,5 +101,5 @@ def save_learning_result(xapi_statement: XapiStatement) -> LearningResult:
         verb_display=xapi_statement.verb.display.en_us
     )
     db.session.add(learning_result)
-    db.session.commit()
+    DatabaseService.commit()
     return learning_result
