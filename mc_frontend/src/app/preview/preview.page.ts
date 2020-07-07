@@ -62,7 +62,8 @@ export class PreviewPage implements OnDestroy, OnInit {
         const url: string = `${configMC.backendBaseUrl + configMC.backendApiH5pPath}` +
             `?eid=${this.corpusService.annisResponse.exercise_id}&lang=${this.translateService.currentLang + solutionIndicesString}`;
         this.exerciseService.setH5Purl(url);
-        const exerciseTypePath: string = this.corpusService.exercise.type === ExerciseType.markWords ? 'mark_words' : 'drag_text';
+        const exerciseTypePath: string = this.corpusService.exercise.type === ExerciseType.markWords ?
+            configMC.excerciseTypePathMarkWords : configMC.exerciseTypePathDragText;
         this.exerciseService.initH5P(exerciseTypePath).then();
         this.updateFileUrl();
     }

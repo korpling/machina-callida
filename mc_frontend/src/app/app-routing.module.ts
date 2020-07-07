@@ -26,7 +26,11 @@ export const routes: Routes = [
   {
     path: 'semantics',
     loadChildren: () => import('./semantics/semantics.module').then( m => m.SemanticsPageModule)
+  },  {
+    path: 'embed',
+    loadChildren: () => import('./embed/embed.module').then( m => m.EmbedPageModule)
   },
+
 
 
 

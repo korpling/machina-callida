@@ -231,8 +231,7 @@ describe('TestPage', () => {
             if (callCount === 1) {
                 const url: string = window.localStorage.getItem(configMC.localStorageKeyH5P);
                 const result: any = await testPage.http.get(url).toPromise();
-                const iframe2: HTMLIFrameElement = document.querySelector(testPage.exerciseService.h5pIframeString);
-                const parEl: HTMLParagraphElement = iframe2.contentWindow.document.querySelector('p');
+                const parEl: HTMLParagraphElement = testPage.exerciseService.getH5Pelements('p');
                 expect(result.text).toContain(parEl.textContent);
                 testPage.helperService.events.off(EventMC.h5pCreated);
                 testPage.vocService.currentTestResults[2] = new TestResultMC({

@@ -24,6 +24,7 @@ import MockMC from './models/mockMC';
 import {LoadChildrenCallback, Route} from '@angular/router';
 import configMC from '../configMC';
 import {SemanticsPageModule} from './semantics/semantics.module';
+import {EmbedPageModule} from './embed/embed.module';
 
 describe('AppComponent', () => {
     let statusBarSpy, splashScreenSpy, platformReadySpy, fixture: ComponentFixture<AppComponent>,
@@ -101,11 +102,23 @@ describe('AppComponent', () => {
     });
 
     it('should test routing', (done) => {
-        const semanticsRoute: Route = routes.find(x => x.path === configMC.pageUrlSemantics.slice(1));
-        const lcb: LoadChildrenCallback = semanticsRoute.loadChildren as LoadChildrenCallback;
-        const promise: Promise<any> = lcb() as Promise<any>;
-        promise.then((result: any) => {
-            expect(result).toBe(SemanticsPageModule);
+        const urls: string[] = [configMC.pageUrlEmbed.slice(1), configMC.pageUrlSemantics.slice(1)];
+        const modules: any[] = [EmbedPageModule, SemanticsPageModule];
+        let doneCount = 0;
+        new Promise(resolve => {
+            urls.forEach((url, index) => {
+                const route: Route = routes.find(x => x.path === url);
+                const lcb: LoadChildrenCallback = route.loadChildren as LoadChildrenCallback;
+                const promise: Promise<any> = lcb() as Promise<any>;
+                promise.then((result: any) => {
+                    expect(result).toBe(modules[index]);
+                    doneCount++;
+                    if (doneCount === urls.length) {
+                        resolve();
+                    }
+                });
+            });
+        }).then(() => {
             done();
         });
     });

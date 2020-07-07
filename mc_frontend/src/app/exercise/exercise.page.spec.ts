@@ -7,18 +7,13 @@ import {ActivatedRoute, RouterModule} from '@angular/router';
 import {TranslateTestingModule} from '../translate-testing/translate-testing.module';
 import {APP_BASE_HREF} from '@angular/common';
 import {of} from 'rxjs';
-import {ExerciseType, MoodleExerciseType} from '../models/enum';
 import Spy = jasmine.Spy;
-import configMC from '../../configMC';
-import MockMC from '../models/mockMC';
 
 describe('ExercisePage', () => {
     let exercisePage: ExercisePage;
     let fixture: ComponentFixture<ExercisePage>;
     let checkSpy: Spy;
-    const activatedRouteMock: any = {queryParams: of({eid: 'eid', type: ExerciseType.cloze.toString()})};
-    let getRequestSpy: Spy;
-    let h5pSpy: Spy;
+    let loadExerciseSpy: Spy;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -31,7 +26,7 @@ describe('ExercisePage', () => {
             ],
             providers: [
                 {provide: APP_BASE_HREF, useValue: '/'},
-                {provide: ActivatedRoute, useValue: activatedRouteMock}
+                {provide: ActivatedRoute, useValue: {queryParams: of({})}},
             ],
             schemas: [CUSTOM_ELEMENTS_SCHEMA],
         })
@@ -41,52 +36,32 @@ describe('ExercisePage', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(ExercisePage);
         exercisePage = fixture.componentInstance;
-        h5pSpy = spyOn(exercisePage.exerciseService, 'initH5P').and.returnValue(Promise.resolve());
-        checkSpy = spyOn(exercisePage.corpusService, 'checkAnnisResponse').and.callFake(() => Promise.reject());
-        getRequestSpy = spyOn(exercisePage.helperService, 'makeGetRequest').and.returnValue(Promise.resolve(
-            {exercise_type: MoodleExerciseType.cloze.toString()}));
+        checkSpy = spyOn(exercisePage.corpusService, 'checkAnnisResponse').and.returnValue(Promise.resolve());
+        loadExerciseSpy = spyOn(exercisePage.exerciseService, 'loadExercise').and.returnValue(Promise.resolve());
         fixture.detectChanges();
     });
 
-    it('should create', () => {
+    it('should create', (done) => {
         expect(exercisePage).toBeTruthy();
-    });
-
-    it('should be initialized', (done) => {
-        const loadExerciseSpy: Spy = spyOn(exercisePage, 'loadExercise').and.returnValue(Promise.resolve());
-        checkSpy.and.callFake(() => Promise.reject());
+        loadExerciseSpy.and.callFake(() => Promise.reject());
         exercisePage.ngOnInit().then(() => {
-            expect(loadExerciseSpy).toHaveBeenCalledTimes(0);
-            checkSpy.and.returnValue(Promise.resolve());
+            expect(loadExerciseSpy).toHaveBeenCalledTimes(2);
+            checkSpy.and.callFake(() => Promise.reject());
             exercisePage.ngOnInit().then(() => {
+                expect(loadExerciseSpy).toHaveBeenCalledTimes(2);
                 done();
             });
         });
     });
 
-    it('should load the exercise', (done) => {
-        exercisePage.helperService.applicationState.next(exercisePage.helperService.deepCopy(MockMC.applicationState));
-        exercisePage.loadExercise().then(() => {
-            expect(exercisePage.corpusService.exercise.type).toBe(ExerciseType.cloze);
-            getRequestSpy.and.returnValue(Promise.resolve({exercise_type: MoodleExerciseType.markWords.toString()}));
-            exercisePage.loadExercise().then(() => {
-                expect(h5pSpy).toHaveBeenCalledWith(configMC.excerciseTypePathMarkWords);
-                getRequestSpy.and.callFake(() => Promise.reject());
-                exercisePage.loadExercise().then(() => {
-                }, () => {
-                    activatedRouteMock.queryParams = of({eid: '', type: ExerciseType.matching.toString()});
-                    exercisePage.loadExercise().then(() => {
-                        expect(h5pSpy).toHaveBeenCalledWith(ExerciseType.matching.toString());
-                        activatedRouteMock.queryParams = of({
-                            eid: '',
-                            type: exercisePage.exerciseService.vocListString
-                        });
-                        exercisePage.loadExercise().then(() => {
-                            expect(h5pSpy).toHaveBeenCalledWith(exercisePage.exerciseService.fillBlanksString);
-                            done();
-                        });
-                    });
-                });
+    it('should load an exercise', (done) => {
+        loadExerciseSpy.and.returnValue(Promise.resolve());
+        exercisePage.initExercise().then(() => {
+            loadExerciseSpy.and.callFake(() => Promise.reject());
+            exercisePage.initExercise().then(() => {
+            }, () => {
+                expect(loadExerciseSpy).toHaveBeenCalledTimes(3);
+                done();
             });
         });
     });

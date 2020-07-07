@@ -244,10 +244,8 @@ export class TestPage implements OnDestroy, OnInit {
     }
 
     hideRetryButton(): void {
-        const iframe: HTMLIFrameElement = document.querySelector(this.exerciseService.h5pIframeString);
-        const iframeDoc: Document = iframe.contentWindow.document;
         // hide the retry button during review
-        const retryButton: HTMLButtonElement = iframeDoc.documentElement.querySelector(this.h5pRetryClassString);
+        const retryButton: HTMLButtonElement = this.exerciseService.getH5Pelements(this.h5pRetryClassString);
         if (retryButton) {
             retryButton.style.display = 'none';
         }
@@ -372,16 +370,14 @@ export class TestPage implements OnDestroy, OnInit {
     }
 
     setInputEventHandler(): void {
-        const iframe: HTMLIFrameElement = document.querySelector(this.exerciseService.h5pIframeString);
-        if (iframe) {
-            const inputs: NodeList = iframe.contentWindow.document.querySelectorAll(this.h5pTextInputClassString);
+        const inputs: NodeList = this.exerciseService.getH5Pelements(this.h5pTextInputClassString, true);
+        if (inputs) {
             inputs.forEach((input: HTMLInputElement) => {
                 input.addEventListener('keydown', (event: KeyboardEvent) => {
                     if (event.key === 'Enter') {
                         // Cancel the default action, if needed
                         event.preventDefault();
-                        const checkButton: HTMLButtonElement = iframe.contentWindow.document.body.querySelector(
-                            this.h5pCheckButtonClassString);
+                        const checkButton: HTMLButtonElement = this.exerciseService.getH5Pelements(this.h5pCheckButtonClassString);
                         if (checkButton && !this.didTimeRunOut) {
                             // prevent the check button from jumping to the next exercise
                             checkButton.click();
@@ -430,7 +426,7 @@ export class TestPage implements OnDestroy, OnInit {
             if (exerciseType.startsWith(this.exerciseService.vocListString)) {
                 exerciseType = this.exerciseService.fillBlanksString;
             }
-            this.exerciseService.initH5P(exerciseType).then(() => {
+            this.exerciseService.initH5P(exerciseType, false).then(() => {
                 return resolve();
             });
         });
@@ -491,18 +487,15 @@ export class TestPage implements OnDestroy, OnInit {
         // If the count down is over, write some text
         if (distance < 0) {
             this.removeTimer(false);
-            const iframe: HTMLIFrameElement = document.querySelector(this.exerciseService.h5pIframeString);
-            if (iframe) {
-                const checkButton: HTMLButtonElement = iframe.contentWindow.document.body.querySelector(this.h5pCheckButtonClassString);
-                if (checkButton) {
-                    // prevent the check button from jumping to the next exercise
-                    this.didTimeRunOut = true;
-                    checkButton.click();
-                    // dirty hack to wait for the XAPI handlers
-                    setTimeout(() => {
-                        this.didTimeRunOut = false;
-                    }, this.finishExerciseTimeout);
-                }
+            const checkButton: HTMLButtonElement = this.exerciseService.getH5Pelements(this.h5pCheckButtonClassString);
+            if (checkButton) {
+                // prevent the check button from jumping to the next exercise
+                this.didTimeRunOut = true;
+                checkButton.click();
+                // dirty hack to wait for the XAPI handlers
+                setTimeout(() => {
+                    this.didTimeRunOut = false;
+                }, this.finishExerciseTimeout);
             }
             const newIndex: number = this.exerciseService.currentExerciseParts[this.exerciseService.currentExercisePartIndex + 1]
                 .startIndex;

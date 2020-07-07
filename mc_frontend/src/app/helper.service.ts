@@ -314,6 +314,9 @@ export class HelperService {
             const part1: string = location.protocol.concat('//').concat(window.location.host);
             configMC.backendBaseUrl = part1.concat(configMC.backendBaseApiPath).concat('/');
         }
+        if (!configMC.frontendBaseUrl) {
+            configMC.frontendBaseUrl = location.protocol.concat('//').concat(window.location.host);
+        }
     }
 
     initLanguage(): void {

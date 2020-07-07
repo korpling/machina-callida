@@ -3,6 +3,15 @@ import Toposort from 'toposort-class';
 declare var H5P: any;
 declare var H5PIntegration: any;
 
+export interface DisplayOptions {
+    frame: boolean;
+    copyright: boolean;
+    embed: boolean;
+    download: boolean;
+    icon: boolean;
+    export: boolean;
+}
+
 export interface Options {
     id?: string;
     frameCss: string;
