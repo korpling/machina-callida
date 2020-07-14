@@ -315,7 +315,7 @@ export class HelperService {
             configMC.backendBaseUrl = part1.concat(configMC.backendBaseApiPath).concat('/');
         }
         if (!configMC.frontendBaseUrl) {
-            configMC.frontendBaseUrl = location.protocol.concat('//').concat(window.location.host);
+            configMC.frontendBaseUrl = location.href.slice(0, -configMC.pageUrlHome.length);
         }
     }
 

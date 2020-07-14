@@ -18,7 +18,8 @@ from flask_sqlalchemy import SQLAlchemy
 from open_alchemy import init_yaml
 from mcserver.config import Config
 
-db: SQLAlchemy = SQLAlchemy()  # session_options={"autocommit": True}
+# remove stale connections from the connection pool after 1 hour
+db: SQLAlchemy = SQLAlchemy(session_options={"pool_recycle": 3600})  # session_options={"autocommit": True}
 migrate: Migrate = Migrate(directory=Config.MIGRATIONS_DIRECTORY)
 if not hasattr(open_alchemy.models, Config.DATABASE_TABLE_CORPUS):
     # do this _BEFORE_ you add any APIs to your application
