@@ -68,10 +68,8 @@ export class PreviewPage implements AfterContentInit, OnDestroy, OnInit {
     }
 
     ngAfterContentInit(): Promise<void> {
-        console.log('INIT');
         return new Promise<void>(resolve => {
             this.corpusService.checkAnnisResponse().then(() => {
-                console.log('CHECK RESOLVED');
                 this.processAnnisResponse(this.corpusService.annisResponse);
                 this.initH5P();
                 return resolve();

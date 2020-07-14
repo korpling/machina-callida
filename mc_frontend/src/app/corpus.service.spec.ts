@@ -233,6 +233,7 @@ describe('CorpusService', () => {
     it('should initialize the corpus service', (done) => {
         const restoreSpy: Spy = spyOn(corpusService, 'restoreLastCorpus').and.returnValue(Promise.resolve());
         const updateInfoSpy: Spy = spyOn(corpusService, 'initUpdateInfo').and.callFake(() => Promise.reject());
+        helperService.applicationState.next(helperService.deepCopy(MockMC.applicationState) as ApplicationState);
         corpusService.initCorpusService().then(() => {
         }, () => {
             corpusService.translate.onLangChange.next();
