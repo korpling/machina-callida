@@ -354,6 +354,7 @@
   "UNIT_MODUS_LEARNING": "Beim Lernmodus erarbeitest Du Dir zunächst wichtige Wörter und den Hauptinhalt des Cicero-Texts. Danach entscheidet ein Zufallsmodus, ob Du mit einem lateinischen Lückentext oder mit einer Vokabelliste diese wichtigen Wörter des Cicero-Textes übst. Zum Schluss gibt es einen Test über die geübten Wörter, damit Du siehst, wieviel Du über diese Wörter weißt. Nach jeder Übung erhältst Du sofort ein Feedback, ob Du alles richtig gemacht hast bzw. wie die richtige Lösung lautet.",
   "UNIT_MODUS_TEST": "Der Testmodus unterscheidet sich vor allem in zwei Dingen vom Lernmodus: Erstens wirst Du schon vor dem Originaltext zu den Wörtern des Textes (nur Grundwortschatz) 'geprüft', damit Du nach dem Üben mit der Software vergleichen kannst, ob Du inzwischen mehr über die geübten Wörter weißt. Zweitens werden alle Übungen durch einen Timer zeitlich begrenzt und Du erhältst zunächst kein Feedback zu Deinen Antworten (wie bei den Tests in der Schule). Erst nach der Auswertung kannst Du Dir alle Deine Antworten noch einmal anschauen.",
   "UNIT_TEST_TITLE": "Abschlusstest",
+  "VERSION": "Version",
   "VOCABULARY_CHECK": "Vokabular vergleichen",
   "VOCABULARY_CHECK_ADAPT_PASSAGES": "Intelligente Textpassagenauswahl",
   "VOCABULARY_CHECK_ADAPT_PASSAGES_OPTION": "(Haken entfernen für alle Optionen)",

@@ -18,6 +18,7 @@ from requests import Response
 from mcserver.app.models import StaticExercise
 from mcserver.app.services import NetworkService, AnnotationService
 from mcserver.config import Config
+from openapi.openapi_server.models import ExerciseTypePath
 
 
 def get() -> Union[Response, ConnexionResponse]:
@@ -46,18 +47,18 @@ def get_relevant_strings(response: Response):
             content: dict = json.loads(zip_file.read(name).decode("utf-8"))
             if url not in relevant_strings_dict:
                 relevant_strings_dict[url] = set()
-            if Config.H5P_DRAG_TEXT in name:
+            if ExerciseTypePath.DRAG_TEXT in name:
                 text_field_content: str = content["textField"]
                 asterisks: List[int] = [i for i, char in enumerate(text_field_content) if char == "*"]
                 for i in range(round(len(asterisks) / 2)):
                     solution_text: str = text_field_content[(asterisks[i * 2] + 1):asterisks[(i * 2) + 1]]
                     for target in solution_text.split(":")[0].strip().split():
                         relevant_strings_dict[url].add(target)
-            elif Config.H5P_FILL_BLANKS in name:
+            elif ExerciseTypePath.FILL_BLANKS in name:
                 handle_fill_blanks(content, file_name, fill_blanks_black_list, url, relevant_strings_dict)
-            elif Config.H5P_MULTI_CHOICE in name and file_name not in multi_choice_black_list:
+            elif ExerciseTypePath.MULTI_CHOICE in name and file_name not in multi_choice_black_list:
                 handle_multi_choice(content, url, relevant_strings_dict, file_name)
-            elif Config.H5P_VOC_LIST in name:
+            elif ExerciseTypePath.VOC_LIST in name:
                 handle_voc_list(content, url, relevant_strings_dict)
     return relevant_strings_dict
 

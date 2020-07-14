@@ -355,6 +355,25 @@ paths:
           description: JSON template for an interactive H5P exercise.
       summary: Provides JSON templates for client-side H5P exercise layouts.
       x-openapi-router-controller: openapi_server.controllers.default_controller
+    post:
+      operationId: mcserver_app_api_h5p_api_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/H5PForm'
+        required: true
+      responses:
+        "200":
+          content:
+            application/zip:
+              schema:
+                type: object
+          description: ZIP archive (with the H5P file extension) containing data for
+            a H5P exercise.
+      summary: Offers H5P exercises for download as ZIP archives (with the H5P file
+        extension).
+      x-openapi-router-controller: openapi_server.controllers.default_controller
   /kwic:
     post:
       operationId: mcserver_app_api_kwic_api_post
@@ -1259,7 +1278,39 @@ components:
       - json
       - pdf
       - xml
+      - zip
       example: pdf
+      type: string
+    H5PForm:
+      description: Metadata for the H5P exercise.
+      properties:
+        eid:
+          description: Unique identifier (UUID) for the exercise.
+          example: 12345678-1234-5678-1234-567812345678
+          type: string
+        exercise_type_path:
+          $ref: '#/components/schemas/ExerciseTypePath'
+        lang:
+          description: ISO 639-1 Language Code for the localization of exercise content.
+          example: en
+          type: string
+        solution_indices:
+          description: Indices for the solutions that should be included in the download.
+          items:
+            example: 0
+            type: integer
+          type: array
+      type: object
+      x-body-name: h5p_data
+    ExerciseTypePath:
+      description: Paths to the data directories for various H5P exercise types.
+      enum:
+      - drag_text
+      - fill_blanks
+      - mark_words
+      - multi_choice
+      - voc_list
+      example: drag_text
       type: string
     KwicForm:
       description: Relevant parameters for creating a Keyword In Context view.

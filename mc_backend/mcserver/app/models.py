@@ -105,8 +105,10 @@ class Lemma(Enum):
 
 class MimeType(Enum):
     docx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    json = "application/json"
     pdf = "application/pdf"
     xml = "text/xml"
+    zip = "application/zip"
 
 
 class ObjectType(Enum):

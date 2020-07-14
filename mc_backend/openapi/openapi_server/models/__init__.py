@@ -9,9 +9,11 @@ from openapi.openapi_server.models.exercise_base import ExerciseBase
 from openapi.openapi_server.models.exercise_extension import ExerciseExtension
 from openapi.openapi_server.models.exercise_form import ExerciseForm
 from openapi.openapi_server.models.exercise_form_all_of import ExerciseFormAllOf
+from openapi.openapi_server.models.exercise_type_path import ExerciseTypePath
 from openapi.openapi_server.models.file_type import FileType
 from openapi.openapi_server.models.frequency_item import FrequencyItem
 from openapi.openapi_server.models.graph_data import GraphData
+from openapi.openapi_server.models.h5_p_form import H5PForm
 from openapi.openapi_server.models.inline_object import InlineObject
 from openapi.openapi_server.models.kwic_form import KwicForm
 from openapi.openapi_server.models.link import Link

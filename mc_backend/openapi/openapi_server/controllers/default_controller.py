@@ -3,6 +3,7 @@ import six
 
 from openapi.openapi_server.models.annis_response import AnnisResponse  # noqa: E501
 from openapi.openapi_server.models.corpus import Corpus  # noqa: E501
+from openapi.openapi_server.models.exercise_type_path import ExerciseTypePath  # noqa: E501
 from openapi.openapi_server.models.file_type import FileType  # noqa: E501
 from openapi.openapi_server.models.frequency_item import FrequencyItem  # noqa: E501
 from openapi.openapi_server.models.matching_exercise import MatchingExercise  # noqa: E501
@@ -183,6 +184,27 @@ def mcserver_app_api_h5p_api_get(eid, lang, solution_indices=None):  # noqa: E50
 
     :rtype: object
     """
+    return 'do some magic!'
+
+
+def mcserver_app_api_h5p_api_post(eid=None, exercise_type_path=None, lang=None, solution_indices=None):  # noqa: E501
+    """Offers H5P exercises for download as ZIP archives (with the H5P file extension).
+
+     # noqa: E501
+
+    :param eid: Unique identifier (UUID) for the exercise.
+    :type eid: str
+    :param exercise_type_path: 
+    :type exercise_type_path: dict | bytes
+    :param lang: ISO 639-1 Language Code for the localization of exercise content.
+    :type lang: str
+    :param solution_indices: Indices for the solutions that should be included in the download.
+    :type solution_indices: List[int]
+
+    :rtype: object
+    """
+    if connexion.request.is_json:
+        exercise_type_path = ExerciseTypePath.from_dict(connexion.request.get_json())  # noqa: E501
     return 'do some magic!'
 
 

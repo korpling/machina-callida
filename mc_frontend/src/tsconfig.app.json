@@ -33,7 +33,8 @@
     "app/models/xAPI/UnstoredStatementModel.ts",
     "app/models/xAPI/StoredStatementModel.ts",
     "app/models/xAPI/UpRef.ts",
-    "app/models/xAPI/UnstoredStatementModel.ts"
+    "app/models/xAPI/UnstoredStatementModel.ts",
+    "assets/h5p-standalone-master/src/js/h5p-standalone.class.ts"
   ]
   //  "files": [
   //    "main.ts",

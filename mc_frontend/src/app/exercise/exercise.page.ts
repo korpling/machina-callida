@@ -5,6 +5,7 @@ import {ExerciseService} from 'src/app/exercise.service';
 import {ExerciseParams} from '../models/exerciseParams';
 import {CorpusService} from '../corpus.service';
 import {HelperService} from '../helper.service';
+import {NavController} from '@ionic/angular';
 
 @Component({
     selector: 'app-exercise',
@@ -16,7 +17,8 @@ export class ExercisePage implements OnInit {
     constructor(public activatedRoute: ActivatedRoute,
                 public exerciseService: ExerciseService,
                 public corpusService: CorpusService,
-                public helperService: HelperService) {
+                public helperService: HelperService,
+                public navCtrl: NavController) {
     }
 
     initExercise(): Promise<void> {

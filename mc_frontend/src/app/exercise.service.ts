@@ -3,10 +3,9 @@ import {Injectable} from '@angular/core';
 import configMC from '../configMC';
 import {HelperService} from './helper.service';
 import {ExercisePart} from './models/exercisePart';
-import {DisplayOptions, Options} from './models/h5p-standalone.class';
 import {EventMC, ExerciseType, MoodleExerciseType} from './models/enum';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {AnnisResponse} from '../../openapi';
+import {AnnisResponse, ExerciseTypePath, H5PForm} from '../../openapi';
 import {take} from 'rxjs/operators';
 import {ApplicationState} from './models/applicationState';
 import {ToastController} from '@ionic/angular';
@@ -14,6 +13,7 @@ import {CorpusService} from './corpus.service';
 import {TranslateService} from '@ngx-translate/core';
 import {Storage} from '@ionic/storage';
 import {ExerciseParams} from './models/exerciseParams';
+import {DisplayOptions, Options} from './models/h5pStandalone';
 
 declare var H5PStandalone: any;
 
@@ -49,11 +49,11 @@ export class ExerciseService {
         icon: true,
         export: true
     };
+    public downloadButtonString = '.h5p-scroll-content';
     public embedButtonString = '.h5p-embed';
     public embedSizeInputString = '.h5p-embed-size';
     public embedTextAreaString = '.h5p-embed-code-container';
     public excludeOOV = false;
-    public fillBlanksString = 'fill_blanks';
     public h5pContainerString = '.h5p-container';
     public h5pIframeString = '.h5p-iframe';
     public kwicGraphs: string;
@@ -62,7 +62,7 @@ export class ExerciseService {
         frameJs: 'assets/h5p-standalone-master/dist/frame.bundle.js',
         preventH5PInit: false
     };
-    public vocListString = 'voc_list';
+    public reuseButtonString = '.h5p-export';
 
     constructor(public helperService: HelperService,
                 public http: HttpClient,
@@ -87,12 +87,64 @@ export class ExerciseService {
         return new H5PStandalone.H5P(el, h5pLocation, options, displayOptions);
     }
 
+    downloadBlobAsFile(blob: Blob, fileName: string) {
+        // Convert your blob into a special url that points to an object in the browser's memory
+        const blobUrl: string = URL.createObjectURL(blob);
+        // Create a link element
+        const anchor: HTMLAnchorElement = document.createElement('a');
+        // Set link's href to point to the Blob URL
+        anchor.href = blobUrl;
+        anchor.download = fileName;
+        // Append link to the body
+        document.body.appendChild(anchor);
+        // Dispatch click event on the link
+        // This is necessary as link.click() does not work on the latest firefox
+        anchor.dispatchEvent(new MouseEvent('click',
+            {bubbles: true, cancelable: true, view: window}));
+        // Remove link from body
+        document.body.removeChild(anchor);
+    }
+
+    downloadH5Pexercise(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const url = `${configMC.backendBaseUrl}${configMC.backendApiH5pPath}`;
+            const indices: number[] = this.corpusService.currentSolutions.map(
+                x => this.corpusService.annisResponse.solutions.indexOf(x));
+            const exerciseTypePath: ExerciseTypePath =
+                this.corpusService.exercise.type === ExerciseType.markWords ?
+                    ExerciseTypePath.MarkWords : ExerciseTypePath.DragText;
+            const h5pForm: H5PForm = {
+                eid: this.corpusService.annisResponse.exercise_id,
+                exercise_type_path: exerciseTypePath,
+                lang: this.translateService.currentLang,
+                solution_indices: indices
+            };
+            const formData: FormData = new FormData();
+            Object.keys(h5pForm).forEach((key: string) => formData.append(key, h5pForm[key]));
+            const options = {responseType: 'blob' as const};
+            const errorMsg: string = HelperService.generalErrorAlertMessage;
+            this.helperService.makePostRequest(this.http, this.toastCtrl, url, formData, errorMsg, options)
+                .then((result: Blob) => {
+                    const fileName = exerciseTypePath + '.h5p';
+                    this.downloadBlobAsFile(result, fileName);
+                    return resolve();
+                }, () => {
+                    return reject();
+                });
+        });
+    }
+
     getH5Pelements(selector: string, multi: boolean = false): any {
-        const iframe: HTMLIFrameElement = document.querySelector(this.h5pIframeString);
+        const iframe: HTMLIFrameElement = this.getH5PIframe();
         if (!iframe) {
             return iframe;
         }
-        return multi ? iframe.contentWindow.document.querySelectorAll(selector) : iframe.contentWindow.document.querySelector(selector);
+        return multi ? iframe.contentWindow.document.querySelectorAll(selector) :
+            iframe.contentWindow.document.querySelector(selector);
+    }
+
+    getH5PIframe(): HTMLIFrameElement {
+        return document.querySelector(this.h5pIframeString);
     }
 
     initH5P(exerciseTypePath: string, showActions: boolean = true): Promise<void> {
@@ -135,7 +187,8 @@ export class ExerciseService {
                 });
             } else {
                 const exerciseType: string = params.type;
-                const exerciseTypePath: string = exerciseType === this.vocListString ? this.fillBlanksString : exerciseType;
+                const exerciseTypePath: string = exerciseType === ExerciseTypePath.VocList ?
+                    ExerciseTypePath.FillBlanks : exerciseType;
                 const file: string = params.file;
                 const lang: string = this.translateService.currentLang;
                 this.storage.set(configMC.localStorageKeyH5P,
@@ -154,11 +207,24 @@ export class ExerciseService {
             `?eid=${eid}&lang=${this.translateService.currentLang}`;
         this.storage.set(configMC.localStorageKeyH5P, url).then();
         const exerciseTypePath: string = this.corpusService.exercise.type === ExerciseType.markWords ?
-            configMC.excerciseTypePathMarkWords : configMC.exerciseTypePathDragText;
+            ExerciseTypePath.MarkWords : ExerciseTypePath.DragText;
         return this.initH5P(exerciseTypePath);
     }
 
+    setH5PdownloadEventHandler(): void {
+        const downloadButton: HTMLDivElement = this.getH5Pelements(this.downloadButtonString);
+        const clonedButton: Node = downloadButton.cloneNode(true);
+        downloadButton.parentNode.replaceChild(clonedButton, downloadButton);
+        clonedButton.addEventListener('click', (downloadEvent: Event) => {
+            downloadEvent.preventDefault();
+            this.downloadH5Pexercise().then(() => {
+            }, () => {
+            });
+        });
+    }
+
     setH5PeventHandlers(): void {
+        const loadingTime = 300;
         const embedButton: HTMLUListElement = this.getH5Pelements(this.embedButtonString);
         if (embedButton) {
             embedButton.addEventListener('click', () => {
@@ -166,7 +232,14 @@ export class ExerciseService {
                     const inputs: NodeListOf<HTMLInputElement> = this.getH5Pelements(this.embedSizeInputString, true);
                     inputs.forEach(input => input.addEventListener('change', this.updateEmbedUrl.bind(this)));
                     this.updateEmbedUrl();
-                }, 300);
+                }, loadingTime);
+            });
+        }
+        const reuseButton: HTMLUListElement = this.getH5Pelements(this.reuseButtonString);
+        if (reuseButton) {
+            reuseButton.addEventListener('click', (reuseEvent: MouseEvent) => {
+                reuseEvent.preventDefault();
+                setTimeout(this.setH5PdownloadEventHandler.bind(this), loadingTime);
             });
         }
     }

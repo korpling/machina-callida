@@ -24,6 +24,7 @@ import Definition from '../models/xAPI/Definition';
 import {HttpClientModule} from '@angular/common/http';
 import {By} from '@angular/platform-browser';
 import Spy = jasmine.Spy;
+import {ExerciseTypePath} from '../../../openapi';
 
 describe('TestPage', () => {
     let testPage: TestPage;
@@ -128,13 +129,48 @@ describe('TestPage', () => {
         expect(name.length).toBe(15);
     });
 
+    it('should handle the solutions event', () => {
+        const hideButtonSpy: Spy = spyOn(testPage, 'hideRetryButton');
+        const iframe: HTMLIFrameElement = document.createElement('iframe');
+        spyOn(testPage.exerciseService, 'getH5PIframe').and.returnValue(iframe);
+        const checkButton: HTMLButtonElement = document.createElement('button');
+        const getSpy: Spy = spyOn(testPage.exerciseService, 'getH5Pelements')
+            .withArgs(testPage.h5pCheckButtonClassString).and.returnValue(checkButton);
+        testPage.exerciseService.currentExerciseIndex = 0;
+        const description = 'description';
+        testPage.vocService.currentTestResults[0] = new TestResultMC({
+            statement: new StatementBase({
+                context: new Context({
+                    contextActivities: new ContextActivities({category: [new Activity({id: testPage.h5pMultiChoiceString})]})
+                }),
+                object: new Activity({
+                    definition: new Definition({choices: [{description: {'en-US': description}, id: 'id'}]})
+                }),
+                result: new Result({response: 'id'})
+            })
+        });
+        const ul: HTMLUListElement = document.createElement('ul');
+        ul.innerText = description + 's';
+        const clickSpy: Spy = spyOn(ul, 'click');
+        getSpy.withArgs(testPage.h5pAnswerClassString, true).and.returnValue([ul]);
+        testPage.handleSolutionsEvent();
+        expect(clickSpy).toHaveBeenCalledTimes(1);
+        testPage.vocService.currentTestResults[0].statement.context.contextActivities.category[0].id = testPage.h5pBlanksString;
+        const input: HTMLInputElement = document.createElement('input');
+        getSpy.withArgs(testPage.h5pTextInputClassString, true).and.returnValue([input]);
+        testPage.handleSolutionsEvent();
+        expect(input.value).toBe(testPage.vocService.currentTestResults[0].statement.result.response);
+        testPage.vocService.currentTestResults[0].statement.context.contextActivities.category[0].id = testPage.h5pDragTextString;
+        testPage.handleSolutionsEvent();
+        expect(hideButtonSpy).toHaveBeenCalledTimes(3);
+    });
+
     it('should hide the retry button', () => {
-        const iframe: HTMLIFrameElement = MockMC.addIframe(testPage.exerciseService.h5pIframeString, testPage.h5pRetryClassString);
-        const retryButton: HTMLButtonElement = iframe.contentWindow.document.querySelector(testPage.h5pRetryClassString);
+        const retryButton: HTMLButtonElement = document.createElement('button');
         retryButton.style.display = 'block';
+        spyOn(testPage.exerciseService, 'getH5Pelements').and.returnValue(retryButton);
         testPage.hideRetryButton();
         expect(retryButton.style.display).toBe('none');
-        iframe.parentNode.removeChild(iframe);
     });
 
     it('should initialize the timer', () => {
@@ -152,15 +188,18 @@ describe('TestPage', () => {
     });
 
     it('should save the current result', () => {
-        const iframe: HTMLIFrameElement = MockMC.addIframe(testPage.exerciseService.h5pIframeString, testPage.h5pShowSolutionClassString);
-        const input: HTMLInputElement = iframe.contentWindow.document.createElement('input');
-        input.setAttribute('id', testPage.h5pKnownIDstring.slice(1));
-        iframe.contentWindow.document.body.appendChild(input);
+        const iframe: HTMLIFrameElement = MockMC.addIframe(testPage.exerciseService.h5pIframeString);
+        spyOn(testPage.exerciseService, 'getH5PIframe').and.returnValue(iframe);
+        const knownCheckbox: HTMLInputElement = document.createElement('input');
+        const solutionButton: HTMLButtonElement = document.createElement('button');
+        const getSpy: Spy = spyOn(testPage.exerciseService, 'getH5Pelements').withArgs(testPage.h5pKnownIDstring)
+            .and.returnValue(knownCheckbox);
+        getSpy.withArgs(testPage.h5pShowSolutionClassString).and.returnValue(solutionButton);
         testPage.exerciseService.currentExerciseIndex = 5;
         testPage.knownCount = [0, 0];
         testPage.saveCurrentExerciseResult(true, new XAPIevent({data: {statement: new StatementBase()}}));
         expect(testPage.knownCount[0]).toBe(0);
-        input.checked = true;
+        knownCheckbox.checked = true;
         testPage.saveCurrentExerciseResult(true, new XAPIevent({data: {statement: new StatementBase()}}));
         expect(testPage.knownCount[0]).toBe(1);
         iframe.parentNode.removeChild(iframe);
@@ -199,24 +238,35 @@ describe('TestPage', () => {
         newDispatcher.trigger(EventMC.xAPI, xapiEvent);
         expect(finishSpy).toHaveBeenCalledTimes(1);
         const inputEventSpy: Spy = spyOn(testPage, 'setInputEventHandler');
-        const solutionsEventSpy: Spy = spyOn(testPage, 'triggerSolutionsEventHandler');
+        const solutionsEventSpy: Spy = spyOn(testPage, 'handleSolutionsEvent');
         testPage.currentState = TestModuleState.inProgress;
         const domChangedEvent: any = {data: {library: testPage.fillBlanksString}};
-        testPage.areEventHandlersSet = false;
         testPage.helperService.events.trigger(EventMC.h5pCreated, domChangedEvent);
         expect(inputEventSpy).toHaveBeenCalledTimes(1);
         testPage.currentState = TestModuleState.showSolutions;
-        testPage.areEventHandlersSet = false;
         testPage.helperService.events.trigger(EventMC.h5pCreated, domChangedEvent);
         expect(solutionsEventSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('should set the input event handler', () => {
+        const checkButton: HTMLButtonElement = document.createElement('button');
+        const clickSpy: Spy = spyOn(checkButton, 'click');
+        const getSpy: Spy = spyOn(testPage.exerciseService, 'getH5Pelements')
+            .withArgs(testPage.h5pCheckButtonClassString).and.returnValue(checkButton);
+        const input: HTMLInputElement = document.createElement('input');
+        getSpy.withArgs(testPage.h5pTextInputClassString, true).and.returnValue([input]);
+        testPage.setInputEventHandler();
+        const kbe: KeyboardEvent = new KeyboardEvent('keydown', {key: 'Enter'});
+        input.dispatchEvent(kbe);
+        expect(clickSpy).toHaveBeenCalledTimes(1);
+    });
+
     it('should show the next exercise', (done) => {
-        spyOn(testPage, 'triggerSolutionsEventHandler');
+        spyOn(testPage, 'handleSolutionsEvent');
         const resultsSpy: Spy = spyOn(testPage, 'analyzeResults');
         const hideButtonSpy: Spy = spyOn(testPage, 'hideRetryButton');
         let targetExercisePartIndex: number = testPage.exerciseService.currentExerciseParts
-            .findIndex(x => x.exercises.some(y => y.startsWith(testPage.exerciseService.vocListString)));
+            .findIndex(x => x.exercises.some(y => y.startsWith(ExerciseTypePath.VocList)));
         if (targetExercisePartIndex < 0) {
             testPage.exerciseService.currentExerciseParts.push(testPage.availableExerciseParts[4]);
             testPage.adjustStartIndices();
@@ -225,92 +275,39 @@ describe('TestPage', () => {
         const previousExercises: number[] = testPage.exerciseService.currentExerciseParts.slice(0, targetExercisePartIndex)
             .map(x => x.exercises.length);
         testPage.exerciseService.currentExerciseIndex = previousExercises.reduce((a, b) => a + b);
-        let callCount = 0;
         testPage.helperService.events.on(EventMC.h5pCreated, async (event: any) => {
-            callCount += 1;
-            if (callCount === 1) {
-                const url: string = window.localStorage.getItem(configMC.localStorageKeyH5P);
-                const result: any = await testPage.http.get(url).toPromise();
-                const parEl: HTMLParagraphElement = testPage.exerciseService.getH5Pelements('p');
-                expect(result.text).toContain(parEl.textContent);
-                testPage.helperService.events.off(EventMC.h5pCreated);
-                testPage.vocService.currentTestResults[2] = new TestResultMC({
-                    statement: new StatementBase({
-                        context: new Context({
-                            contextActivities: new ContextActivities({category: [new Activity({id: testPage.h5pDragTextString})]})
-                        })
+            expect(event.data.library).toBe(ExerciseTypePath.FillBlanks);
+            testPage.helperService.events.off(EventMC.h5pCreated);
+            testPage.vocService.currentTestResults[2] = new TestResultMC({
+                statement: new StatementBase({
+                    context: new Context({
+                        contextActivities: new ContextActivities({category: [new Activity({id: testPage.h5pDragTextString})]})
                     })
-                });
-                testPage.exerciseService.currentExerciseIndex = 2;
-                await testPage.showNextExercise(2, true);
-                expect(hideButtonSpy).toHaveBeenCalledTimes(1);
-                testPage.exerciseService.currentExerciseName = testPage.nonH5Pstring;
-                await testPage.showNextExercise(testPage.exerciseService.currentExerciseParts
-                    [testPage.exerciseService.currentExerciseParts.length - 1].startIndex);
-                expect(resultsSpy).toHaveBeenCalledTimes(1);
-                done();
-            }
+                })
+            });
+            testPage.exerciseService.currentExerciseIndex = 2;
+            const iframe: HTMLIFrameElement = MockMC.addIframe(testPage.exerciseService.h5pIframeString);
+            fixture.detectChanges();
+            await testPage.showNextExercise(2, true);
+            expect(hideButtonSpy).toHaveBeenCalledTimes(1);
+            testPage.exerciseService.currentExerciseName = testPage.nonH5Pstring;
+            await testPage.showNextExercise(testPage.exerciseService.currentExerciseParts
+                [testPage.exerciseService.currentExerciseParts.length - 1].startIndex);
+            expect(resultsSpy).toHaveBeenCalledTimes(1);
+            iframe.parentElement.removeChild(iframe);
+            done();
         });
+        spyOn(testPage.exerciseService, 'createH5Pstandalone').and.returnValue(Promise.resolve());
         testPage.showNextExercise(testPage.exerciseService.currentExerciseIndex).then();
-    });
-
-    it('should trigger the input event handler', () => {
-        const iframe: HTMLIFrameElement = MockMC.addIframe(testPage.exerciseService.h5pIframeString, testPage.h5pCheckButtonClassString);
-        const checkButton: HTMLButtonElement = iframe.contentWindow.document.querySelector(testPage.h5pCheckButtonClassString);
-        const clickSpy: Spy = spyOn(checkButton, 'click');
-        const input: HTMLInputElement = iframe.contentWindow.document.createElement('input');
-        input.classList.add(testPage.h5pTextInputClassString.slice(1));
-        iframe.contentWindow.document.body.appendChild(input);
-        testPage.setInputEventHandler();
-        const inputs: NodeListOf<HTMLInputElement> = iframe.contentWindow.document.querySelectorAll(testPage.h5pTextInputClassString);
-        const kbe: KeyboardEvent = new KeyboardEvent('keydown', {key: 'Enter'});
-        inputs[0].dispatchEvent(kbe);
-        expect(clickSpy).toHaveBeenCalledTimes(1);
-        iframe.parentNode.removeChild(iframe);
-    });
-
-    it('should trigger the solutions event handler', () => {
-        const hideButtonSpy: Spy = spyOn(testPage, 'hideRetryButton');
-        const iframe: HTMLIFrameElement = MockMC.addIframe(testPage.exerciseService.h5pIframeString, testPage.h5pCheckButtonClassString);
-        testPage.exerciseService.currentExerciseIndex = 0;
-        const description = 'description';
-        testPage.vocService.currentTestResults[0] = new TestResultMC({
-            statement: new StatementBase({
-                context: new Context({
-                    contextActivities: new ContextActivities({category: [new Activity({id: testPage.h5pMultiChoiceString})]})
-                }),
-                object: new Activity({
-                    definition: new Definition({choices: [{description: {'en-US': description}, id: 'id'}]})
-                }),
-                result: new Result({response: 'id'})
-            })
-        });
-        const ul: HTMLUListElement = iframe.contentWindow.document.createElement('ul');
-        ul.innerText = description + 's';
-        ul.classList.add(testPage.h5pAnswerClassString.slice(1));
-        iframe.contentWindow.document.body.appendChild(ul);
-        const clickSpy: Spy = spyOn(ul, 'click');
-        testPage.triggerSolutionsEventHandler();
-        expect(clickSpy).toHaveBeenCalledTimes(1);
-        testPage.vocService.currentTestResults[0].statement.context.contextActivities.category[0].id = testPage.h5pBlanksString;
-        const input: HTMLInputElement = iframe.contentWindow.document.createElement('input');
-        input.classList.add(testPage.h5pTextInputClassString.slice(1));
-        iframe.contentWindow.document.body.appendChild(input);
-        testPage.triggerSolutionsEventHandler();
-        expect(input.value).toBe(testPage.vocService.currentTestResults[0].statement.result.response);
-        testPage.vocService.currentTestResults[0].statement.context.contextActivities.category[0].id = testPage.h5pDragTextString;
-        testPage.triggerSolutionsEventHandler();
-        expect(hideButtonSpy).toHaveBeenCalledTimes(3);
-        iframe.parentNode.removeChild(iframe);
     });
 
     it('should update the timer', fakeAsync(() => {
         testPage.countDownDateTime = new Date().getTime() - 1;
-        const iframe: HTMLIFrameElement = MockMC.addIframe(testPage.exerciseService.h5pIframeString, testPage.h5pCheckButtonClassString);
+        const checkButton: HTMLButtonElement = document.createElement('button');
+        spyOn(testPage.exerciseService, 'getH5Pelements').and.returnValue(checkButton);
         const showNextSpy: Spy = spyOn(testPage, 'showNextExercise').and.returnValue(Promise.resolve());
         testPage.updateTimer();
         expect(showNextSpy).toHaveBeenCalledTimes(1);
-        iframe.parentNode.removeChild(iframe);
         tick(testPage.finishExerciseTimeout);
     }));
 });

@@ -17,6 +17,7 @@ import {ExerciseService} from 'src/app/exercise.service';
 import configMC from '../../configMC';
 import {Storage} from '@ionic/storage';
 import {CorpusService} from '../corpus.service';
+import {ExerciseTypePath} from '../../../openapi';
 
 @Component({
     selector: 'app-test',
@@ -29,7 +30,6 @@ export class TestPage implements OnDestroy, OnInit {
     Object = Object;
     TestModuleState = TestModuleState;
     TestType = TestType;
-    public areEventHandlersSet = false;
     public availableExerciseParts: ExercisePart[] = [new ExercisePart({
         startIndex: 0,
         durationSeconds: 0,
@@ -243,6 +243,44 @@ export class TestPage implements OnDestroy, OnInit {
         });
     }
 
+    handleSolutionsEvent(): void {
+        const iframe: HTMLIFrameElement = this.exerciseService.getH5PIframe();
+        if (iframe) {
+            if (this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex]) {
+                const oldActivity: Activity = this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex]
+                    .statement.object as Activity;
+                const oldContext: Context = this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex].statement.context;
+                const oldResponse: string = this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex]
+                    .statement.result.response;
+                const singleResponses: string[] = oldResponse.split('[,]');
+                if (oldContext.contextActivities.category[0].id.indexOf(this.h5pMultiChoiceString) > -1) {
+                    const oldChosen: { description: LanguageMap, id: string }[] = oldActivity.definition.choices.filter(
+                        x => singleResponses.indexOf(x.id) > -1);
+                    const oldCheckedStrings: string[] = oldChosen.map(x => x.description[Object.keys(x.description)[0]]);
+                    const newOptions: NodeListOf<HTMLUListElement> = this.exerciseService.getH5Pelements(this.h5pAnswerClassString, true);
+                    newOptions.forEach((newOption: HTMLUListElement) => {
+                        if (oldCheckedStrings.indexOf(newOption.innerText.slice(0, -1)) > -1) {
+                            newOption.click();
+                        }
+                    });
+                } else if (oldContext.contextActivities.category[0].id.indexOf(this.h5pBlanksString) > -1) {
+                    const inputs: NodeList = this.exerciseService.getH5Pelements(this.h5pTextInputClassString, true);
+                    inputs.forEach((input: HTMLInputElement, index: number) => {
+                        input.value = singleResponses[index];
+                    });
+                } else if (oldContext.contextActivities.category[0].id.indexOf(this.h5pDragTextString) > -1) {
+                    // this case is handled elsewhere because we cannot fake the drag text exercises easily
+                }
+            }
+            const checkButton: HTMLButtonElement = this.exerciseService.getH5Pelements(this.h5pCheckButtonClassString);
+            if (checkButton) {
+                // prevent the check button from jumping to the next exercise
+                checkButton.click();
+                this.hideRetryButton();
+            }
+        }
+    }
+
     hideRetryButton(): void {
         // hide the retry button during review
         const retryButton: HTMLButtonElement = this.exerciseService.getH5Pelements(this.h5pRetryClassString);
@@ -302,20 +340,18 @@ export class TestPage implements OnDestroy, OnInit {
     }
 
     saveCurrentExerciseResult(showSolutions: boolean, event: XAPIevent): void {
-        const iframe: HTMLIFrameElement = document.querySelector(this.exerciseService.h5pIframeString);
+        const iframe: HTMLIFrameElement = this.exerciseService.getH5PIframe();
         if (iframe) {
-            const iframeDoc: Document = iframe.contentWindow.document;
-            const inner: string = iframeDoc.documentElement.innerHTML;
             this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex] = new TestResultMC({
                 statement: event.data.statement,
-                innerHTML: inner
+                innerHTML: iframe.contentWindow.document.documentElement.innerHTML
             });
-            const knownCheckbox: HTMLInputElement = iframeDoc.querySelector(this.h5pKnownIDstring);
+            const knownCheckbox: HTMLInputElement = this.exerciseService.getH5Pelements(this.h5pKnownIDstring);
             if (knownCheckbox) {
                 this.knownCount = [this.knownCount[0] + (knownCheckbox.checked ? 1 : 0), this.knownCount[1] + 1];
             }
             if (showSolutions) {
-                const solutionButton: HTMLButtonElement = iframeDoc.querySelector(this.h5pShowSolutionClassString);
+                const solutionButton: HTMLButtonElement = this.exerciseService.getH5Pelements(this.h5pShowSolutionClassString);
                 if (solutionButton) {
                     solutionButton.click();
                 }
@@ -357,15 +393,11 @@ export class TestPage implements OnDestroy, OnInit {
             }
         });
         this.helperService.events.on(EventMC.h5pCreated, (event: any) => {
-            // dirty hack because domChanged events are triggered twice for every new H5P exercise
-            if (!this.areEventHandlersSet) {
-                if (this.currentState === TestModuleState.inProgress && event.data.library === this.fillBlanksString) {
-                    this.setInputEventHandler();
-                } else if (this.currentState === TestModuleState.showSolutions) {
-                    this.triggerSolutionsEventHandler();
-                }
+            if (this.currentState === TestModuleState.inProgress && event.data.library === this.fillBlanksString) {
+                this.setInputEventHandler();
+            } else if (this.currentState === TestModuleState.showSolutions) {
+                this.handleSolutionsEvent();
             }
-            this.areEventHandlersSet = !this.areEventHandlersSet;
         });
     }
 
@@ -411,7 +443,7 @@ export class TestPage implements OnDestroy, OnInit {
                     .statement.context.contextActivities.category[0].id;
                 // handle the drag text exercise solutions
                 if (id.indexOf(this.h5pDragTextString) > -1) {
-                    const iframe: HTMLIFrameElement = document.querySelector(this.exerciseService.h5pIframeString);
+                    const iframe: HTMLIFrameElement = this.exerciseService.getH5PIframe();
                     const iframeDoc: Document = iframe.contentWindow.document;
                     iframeDoc.documentElement.innerHTML = this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex]
                         .innerHTML;
@@ -423,52 +455,13 @@ export class TestPage implements OnDestroy, OnInit {
                 this.translate.currentLang + '.json';
             let exerciseType = this.exerciseService.currentExerciseName.split('_').slice(0, 2).join('_');
             this.exerciseService.setH5Purl(this.helperService.baseUrl + '/assets/h5p/' + exerciseType + '/content/' + fileName);
-            if (exerciseType.startsWith(this.exerciseService.vocListString)) {
-                exerciseType = this.exerciseService.fillBlanksString;
+            if (exerciseType.startsWith(ExerciseTypePath.VocList)) {
+                exerciseType = ExerciseTypePath.FillBlanks;
             }
             this.exerciseService.initH5P(exerciseType, false).then(() => {
                 return resolve();
             });
         });
-    }
-
-    triggerSolutionsEventHandler(): void {
-        const iframe: HTMLIFrameElement = document.querySelector(this.exerciseService.h5pIframeString);
-        if (iframe) {
-            if (this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex]) {
-                const oldActivity: Activity = this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex]
-                    .statement.object as Activity;
-                const oldContext: Context = this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex].statement.context;
-                const oldResponse: string = this.vocService.currentTestResults[this.exerciseService.currentExerciseIndex]
-                    .statement.result.response;
-                const singleResponses: string[] = oldResponse.split('[,]');
-                if (oldContext.contextActivities.category[0].id.indexOf(this.h5pMultiChoiceString) > -1) {
-                    const oldChosen: { description: LanguageMap, id: string }[] = oldActivity.definition.choices.filter(
-                        x => singleResponses.indexOf(x.id) > -1);
-                    const oldCheckedStrings: string[] = oldChosen.map(x => x.description[Object.keys(x.description)[0]]);
-                    const newOptions: NodeListOf<HTMLUListElement> = iframe.contentWindow.document.querySelectorAll(
-                        this.h5pAnswerClassString);
-                    newOptions.forEach((newOption: HTMLUListElement) => {
-                        if (oldCheckedStrings.indexOf(newOption.innerText.slice(0, -1)) > -1) {
-                            newOption.click();
-                        }
-                    });
-                } else if (oldContext.contextActivities.category[0].id.indexOf(this.h5pBlanksString) > -1) {
-                    const inputs: NodeList = iframe.contentWindow.document.querySelectorAll(this.h5pTextInputClassString);
-                    inputs.forEach((input: HTMLInputElement, index: number) => {
-                        input.value = singleResponses[index];
-                    });
-                } else if (oldContext.contextActivities.category[0].id.indexOf(this.h5pDragTextString) > -1) {
-                    // this case is handled elsewhere because we cannot fake the drag text exercises easily
-                }
-            }
-            const checkButton: HTMLButtonElement = iframe.contentWindow.document.body.querySelector(this.h5pCheckButtonClassString);
-            if (checkButton) {
-                // prevent the check button from jumping to the next exercise
-                checkButton.click();
-                this.hideRetryButton();
-            }
-        }
     }
 
     public updateTimer(): void {

@@ -14,12 +14,13 @@
 /**
  * File format for the requested serialization.
  */
-export type FileType = 'docx' | 'json' | 'pdf' | 'xml';
+export type FileType = 'docx' | 'json' | 'pdf' | 'xml' | 'zip';
 
 export const FileType = {
     Docx: 'docx' as FileType,
     Json: 'json' as FileType,
     Pdf: 'pdf' as FileType,
-    Xml: 'xml' as FileType
+    Xml: 'xml' as FileType,
+    Zip: 'zip' as FileType
 };
 

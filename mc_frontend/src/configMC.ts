@@ -16,8 +16,6 @@ export default {
     bambergCoreVocabularyUrl: 'https://www.ccbuchner.de/reihe-0-0/adeo-53/',
     callidusProjectUrl: 'https://www.projekte.hu-berlin.de/de/callidus',
     developerMailTo: 'mailto:sulzkons@hu-berlin.de',
-    exerciseTypePathDragText: 'drag_text',
-    excerciseTypePathMarkWords: 'mark_words',
     frontendBaseUrl: '',
     frontendExercisePage: 'exercise',
     intervalCorporaUpdate: 1209600000,

@@ -52,8 +52,7 @@ def get(id: str, type: FileType, solution_indices: List[int]) -> Union[ETagRespo
         (x for x in FileService.downloadable_files if x.id + "." + str(x.file_type) == file_name), None)
     if existing_file is None:
         existing_file = FileService.make_tmp_file_from_exercise(type, exercise, solution_indices)
-    return send_from_directory(Config.TMP_DIRECTORY, existing_file.file_name, mimetype=mime_type,
-                               as_attachment=True)
+    return send_from_directory(Config.TMP_DIRECTORY, existing_file.file_name, mimetype=mime_type, as_attachment=True)
 
 
 def post(file_data: dict) -> Response:

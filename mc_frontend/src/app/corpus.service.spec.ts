@@ -49,9 +49,6 @@ describe('CorpusService', () => {
         helperService = TestBed.inject(HelperService);
     });
 
-    afterEach(() => {
-    });
-
     it('should be created', () => {
         expect(corpusService).toBeTruthy();
     });
@@ -224,6 +221,7 @@ describe('CorpusService', () => {
             }, () => {
                 expect(corpusService.currentText).toBeFalsy();
                 spy.and.returnValue(Promise.resolve(MockMC.apiResponseTextGet));
+                helperService.applicationState.next(helperService.deepCopy(MockMC.applicationState) as ApplicationState);
                 corpusService.getText().then(() => {
                     expect(corpusService.currentText).toBeTruthy();
                     done();

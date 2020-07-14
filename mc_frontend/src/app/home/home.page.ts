@@ -7,6 +7,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {ExerciseService} from 'src/app/exercise.service';
 import {CorpusService} from 'src/app/corpus.service';
 import {take} from 'rxjs/operators';
+import { version } from 'src/version';
 
 @Component({
     selector: 'app-home',
@@ -15,6 +16,7 @@ import {take} from 'rxjs/operators';
 })
 export class HomePage implements OnInit {
     public isCorpusUpdateInProgress = false;
+    public version: string;
 
     constructor(public navCtrl: NavController,
                 public http: HttpClient,
@@ -54,6 +56,7 @@ export class HomePage implements OnInit {
                 tabs.style.maxWidth = '65%';
             }
         }
+        this.version = version;
     }
 
     refreshCorpora(): Promise<void> {

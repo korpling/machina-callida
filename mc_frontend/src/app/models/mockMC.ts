@@ -58,6 +58,6 @@ export default class MockMC {
             button.classList.add(buttonClass.slice(1));
             iframe.contentWindow.document.body.appendChild(button);
         }
-        return document.querySelector(h5pIframeString);
+        return iframe;
     }
 }

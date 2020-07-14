@@ -4,25 +4,24 @@ import {HelperService} from 'src/app/helper.service';
 import {NavController, ToastController} from '@ionic/angular';
 import {ExerciseService} from 'src/app/exercise.service';
 import {CorpusService} from 'src/app/corpus.service';
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterContentInit, Component, OnDestroy, OnInit} from '@angular/core';
 import {TranslateService} from '@ngx-translate/core';
 import {HttpClient} from '@angular/common/http';
 import {XAPIevent} from 'src/app/models/xAPIevent';
 import {TestResultMC} from 'src/app/models/testResultMC';
 import configMC from '../../configMC';
 import {Storage} from '@ionic/storage';
-import {AnnisResponse, Solution, FileType} from '../../../openapi';
+import {AnnisResponse, Solution, FileType, ExerciseTypePath} from '../../../openapi';
 
 @Component({
     selector: 'app-preview',
     templateUrl: './preview.page.html',
     styleUrls: ['./preview.page.scss'],
 })
-export class PreviewPage implements OnDestroy, OnInit {
+export class PreviewPage implements AfterContentInit, OnDestroy, OnInit {
     public configMC = configMC;
     public ExerciseType = ExerciseType;
     public FileType = FileType;
-    public currentSolutions: Solution[];
     public inputSelector = 'input[type="text"]';
     public maxGapLength = 0;
     public showShareLink = false;
@@ -57,29 +56,22 @@ export class PreviewPage implements OnDestroy, OnInit {
 
     initH5P(): void {
         const solutionIndicesString: string = this.exerciseService.excludeOOV ?
-            this.getSolutionIndices(this.currentSolutions) : '';
+            this.getSolutionIndices(this.corpusService.currentSolutions) : '';
         // this will be called via GET request from the h5p standalone javascript library
         const url: string = `${configMC.backendBaseUrl + configMC.backendApiH5pPath}` +
             `?eid=${this.corpusService.annisResponse.exercise_id}&lang=${this.translateService.currentLang + solutionIndicesString}`;
         this.exerciseService.setH5Purl(url);
         const exerciseTypePath: string = this.corpusService.exercise.type === ExerciseType.markWords ?
-            configMC.excerciseTypePathMarkWords : configMC.exerciseTypePathDragText;
+            ExerciseTypePath.MarkWords : ExerciseTypePath.DragText;
         this.exerciseService.initH5P(exerciseTypePath).then();
         this.updateFileUrl();
     }
 
-    ngOnDestroy(): void {
-        this.helperService.getH5P().externalDispatcher.off(EventMC.xAPI);
-    }
-
-    ngOnInit(): Promise<void> {
-        return new Promise<void>((resolve) => {
-            this.currentSolutions = [];
-            if (!this.helperService.isVocabularyCheck) {
-                this.exerciseService.excludeOOV = false;
-            }
-            this.setXAPIeventHandler();
+    ngAfterContentInit(): Promise<void> {
+        console.log('INIT');
+        return new Promise<void>(resolve => {
             this.corpusService.checkAnnisResponse().then(() => {
+                console.log('CHECK RESOLVED');
                 this.processAnnisResponse(this.corpusService.annisResponse);
                 this.initH5P();
                 return resolve();
@@ -87,6 +79,18 @@ export class PreviewPage implements OnDestroy, OnInit {
                 return resolve();
             });
         });
+    }
+
+    ngOnDestroy(): void {
+        this.helperService.getH5P().externalDispatcher.off(EventMC.xAPI);
+    }
+
+    ngOnInit(): void {
+        this.corpusService.currentSolutions = [];
+        if (!this.helperService.isVocabularyCheck) {
+            this.exerciseService.excludeOOV = false;
+        }
+        this.setXAPIeventHandler();
     }
 
     processAnnisResponse(ar: AnnisResponse): void {
@@ -116,7 +120,7 @@ export class PreviewPage implements OnDestroy, OnInit {
                 return s1.target.content < s2.target.content ? -1 : (s1.target.content > s2.target.content ? 1 : 0);
             });
         }
-        this.currentSolutions = newSolutions;
+        this.corpusService.currentSolutions = newSolutions;
     }
 
     selectLink(): void {
@@ -142,7 +146,7 @@ export class PreviewPage implements OnDestroy, OnInit {
         this.helperService.getH5P().externalDispatcher.on(EventMC.xAPI, (event: XAPIevent) => {
             // results are only available when a task has been completed/answered, not in the "attempted" or "interacted" stages
             if (event.data.statement.verb.id === configMC.xAPIverbIDanswered && event.data.statement.result) {
-                const iframe: HTMLIFrameElement = document.querySelector(this.exerciseService.h5pIframeString);
+                const iframe: HTMLIFrameElement = this.exerciseService.getH5PIframe();
                 if (iframe) {
                     const iframeDoc: Document = iframe.contentWindow.document;
                     const inner: string = iframeDoc.documentElement.innerHTML;
@@ -157,7 +161,7 @@ export class PreviewPage implements OnDestroy, OnInit {
     }
 
     switchOOV(): void {
-        this.currentSolutions = [];
+        this.corpusService.currentSolutions = [];
         this.processSolutions(this.corpusService.annisResponse.solutions);
         this.initH5P();
     }
@@ -168,7 +172,7 @@ export class PreviewPage implements OnDestroy, OnInit {
         this.urlBase = configMC.backendBaseUrl + configMC.backendApiFilePath + '?id=' + fileId + fileTypeBase;
         this.solutionIndicesString = '';
         if (this.exerciseService.excludeOOV) {
-            this.solutionIndicesString = this.getSolutionIndices(this.currentSolutions);
+            this.solutionIndicesString = this.getSolutionIndices(this.corpusService.currentSolutions);
         }
     }
 }

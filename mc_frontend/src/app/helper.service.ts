@@ -353,11 +353,11 @@ export class HelperService {
     }
 
     makePostRequest(http: HttpClient, toastCtrl: ToastController, url: string, formData: FormData,
-                    errorMessage: string = HelperService.generalErrorAlertMessage): Promise<any> {
+                    errorMessage: string = HelperService.generalErrorAlertMessage, options: any = {}): Promise<any> {
         return new Promise(((resolve, reject) => {
             this.currentError = null;
             this.openRequests.push(url);
-            http.post(url, formData).subscribe((result: any) => {
+            http.post(url, formData, options).subscribe((result: any) => {
                 this.openRequests.splice(this.openRequests.indexOf(url), 1);
                 return resolve(result);
             }, async (error: HttpErrorResponse) => {

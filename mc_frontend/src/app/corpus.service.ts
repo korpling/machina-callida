@@ -29,7 +29,7 @@ import {TextData} from './models/textData';
 import {Storage} from '@ionic/storage';
 import {UpdateInfo} from './models/updateInfo';
 import configMC from '../configMC';
-import {AnnisResponse, FrequencyItem, Link, NodeMC} from '../../openapi';
+import {AnnisResponse, FrequencyItem, Link, NodeMC, Solution} from '../../openapi';
 import {Phenomenon} from '../../openapi';
 
 @Injectable({
@@ -45,6 +45,7 @@ export class CorpusService {
     public currentAuthor: Author;
     public currentCorpus: ReplaySubject<CorpusMC>;
     private currentCorpusCache: CorpusMC;
+    public currentSolutions: Solution[];
     public currentText = '';
     public currentTextRange: ReplaySubject<TextRange>;
     private currentTextRangeCache: TextRange = new TextRange({start: ['', '', ''], end: ['', '', '']});

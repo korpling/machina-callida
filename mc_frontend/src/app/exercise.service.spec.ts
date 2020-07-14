@@ -8,11 +8,11 @@ import {TranslateTestingModule} from './translate-testing/translate-testing.modu
 import {ExercisePart} from './models/exercisePart';
 import MockMC from './models/mockMC';
 import {ApplicationState} from './models/applicationState';
-import {AnnisResponse} from '../../openapi';
+import {AnnisResponse, ExerciseTypePath} from '../../openapi';
 import {ExerciseType, MoodleExerciseType} from './models/enum';
 import {ExerciseParams} from './models/exerciseParams';
-import Spy = jasmine.Spy;
 import configMC from '../configMC';
+import Spy = jasmine.Spy;
 
 declare var H5PStandalone: any;
 
@@ -61,14 +61,50 @@ describe('ExerciseService', () => {
         });
     });
 
+    it('should download a Blob as file', () => {
+        const blob: Blob = new Blob([]);
+        const anchor: HTMLAnchorElement = document.createElement('a');
+        anchor.addEventListener('click', (downloadEvent: MouseEvent) => {
+            downloadEvent.preventDefault();
+        });
+        spyOn(document, 'createElement').and.returnValue(anchor);
+        exerciseService.downloadBlobAsFile(blob, '');
+        expect(document.createElement).toHaveBeenCalledTimes(1);
+    });
+
+    it('should download a H5P exercise', (done) => {
+        const postSpy: Spy = spyOn(exerciseService.helperService, 'makePostRequest').and.callFake(() => Promise.resolve(new Blob()));
+        const downloadSpy: Spy = spyOn(exerciseService, 'downloadBlobAsFile');
+        exerciseService.corpusService.annisResponse = {exercise_id: ''};
+        exerciseService.corpusService.currentSolutions = exerciseService.corpusService.annisResponse.solutions = [{
+            target: {
+                token_id: 1,
+                sentence_id: 1
+            }
+        }];
+        exerciseService.corpusService.exercise.type = ExerciseType.markWords;
+        exerciseService.downloadH5Pexercise().then(() => {
+            expect(downloadSpy).toHaveBeenCalledTimes(1);
+            postSpy.and.callFake(() => Promise.reject());
+            exerciseService.corpusService.exercise.type = ExerciseType.cloze;
+            exerciseService.downloadH5Pexercise().then(() => {
+            }, () => {
+                expect(downloadSpy).toHaveBeenCalledTimes(1);
+                done();
+            });
+        });
+    });
+
     it('should get H5P elements', () => {
-        expect(exerciseService.getH5Pelements('')).toBeFalsy();
-        const iframe: HTMLIFrameElement = MockMC.addIframe(exerciseService.h5pIframeString);
+        const getSpy: Spy = spyOn(exerciseService, 'getH5PIframe').and.returnValue(null);
+        expect(exerciseService.getH5Pelements('.nonExistingClass')).toBeFalsy();
+        const iframe: HTMLIFrameElement = document.createElement('iframe');
+        document.body.appendChild(iframe);
+        getSpy.and.returnValue(iframe);
         const element: HTMLElement = exerciseService.getH5Pelements('body');
         expect(element).toBeTruthy();
         const nodeList: NodeList = exerciseService.getH5Pelements('head', true);
         expect(nodeList.length).toBe(1);
-        iframe.parentNode.removeChild(iframe);
     });
 
     it('should initialize H5P', (done) => {
@@ -98,7 +134,7 @@ describe('ExerciseService', () => {
                 expect(initSpy).toHaveBeenCalledTimes(1);
                 ep = {file: '', type: ''};
                 exerciseService.loadExercise(ep).then(() => {
-                    ep = {file: '', type: exerciseService.vocListString};
+                    ep = {file: '', type: ExerciseTypePath.VocList};
                     exerciseService.loadExercise(ep).then(() => {
                         expect(initSpy).toHaveBeenCalledTimes(3);
                         done();
@@ -117,24 +153,39 @@ describe('ExerciseService', () => {
         });
     });
 
+    it('should set the H5P download event handler', () => {
+        const downloadSpy: Spy = spyOn(exerciseService, 'downloadH5Pexercise').and.returnValue(Promise.resolve());
+        const iframe: HTMLIFrameElement = MockMC.addIframe(exerciseService.h5pIframeString, exerciseService.downloadButtonString);
+        exerciseService.setH5PdownloadEventHandler();
+        const downloadButton: HTMLButtonElement = exerciseService.getH5Pelements(exerciseService.downloadButtonString);
+        downloadButton.click();
+        downloadSpy.and.callFake(() => Promise.reject());
+        downloadButton.click();
+        expect(downloadSpy).toHaveBeenCalledTimes(2);
+    });
+
     it('should set H5P event handlers', (done) => {
-        const iframe: HTMLIFrameElement = MockMC.addIframe(exerciseService.h5pIframeString);
         const listElement: HTMLElement = document.createElement('ul');
-        const embedElement: HTMLElement = document.createElement('li');
-        embedElement.classList.add(exerciseService.embedButtonString.slice(1));
+        const embedElement: HTMLLIElement = document.createElement('li');
         listElement.appendChild(embedElement);
-        iframe.contentWindow.document.body.appendChild(listElement);
+        const reuseButton: HTMLLIElement = document.createElement('li');
+        listElement.appendChild(reuseButton);
         const input: HTMLInputElement = document.createElement('input');
-        input.classList.add(exerciseService.embedSizeInputString.slice(1));
-        iframe.contentWindow.document.body.appendChild(input);
-        const updateSpy: Spy = spyOn(exerciseService, 'updateEmbedUrl');
-        exerciseService.setH5PeventHandlers();
-        embedElement.click();
-        setTimeout(() => {
-            expect(updateSpy).toHaveBeenCalledTimes(1);
-            iframe.parentElement.removeChild(iframe);
+        const getSpy: Spy = spyOn(exerciseService, 'getH5Pelements').withArgs(exerciseService.embedButtonString)
+            .and.returnValue(embedElement);
+        getSpy.withArgs(exerciseService.embedSizeInputString, true).and.returnValue([input]);
+        getSpy.withArgs(exerciseService.reuseButtonString).and.returnValue(reuseButton);
+        let downloadClicked = false;
+        spyOn(exerciseService, 'updateEmbedUrl').and.callFake(() => {
+            expect(downloadClicked).toBe(true);
             done();
-        }, 500);
+        });
+        spyOn(exerciseService, 'setH5PdownloadEventHandler').and.callFake(() => {
+            downloadClicked = true;
+            embedElement.click();
+        });
+        exerciseService.setH5PeventHandlers();
+        reuseButton.click();
     });
 
     it('should set the current exercise index', () => {
@@ -157,18 +208,13 @@ describe('ExerciseService', () => {
     });
 
     it('should update the embed URL', () => {
-        const iframe: HTMLIFrameElement = MockMC.addIframe(exerciseService.h5pIframeString);
         const textarea: HTMLTextAreaElement = document.createElement('textarea');
-        textarea.classList.add(exerciseService.embedTextAreaString.slice(1));
         const inputs: HTMLInputElement[] = [document.createElement('input'), document.createElement('input')];
-        inputs.forEach((input) => {
-            input.classList.add(exerciseService.embedSizeInputString.slice(1));
-            iframe.contentWindow.document.body.appendChild(input);
-        });
-        iframe.contentWindow.document.body.appendChild(textarea);
+        const getSpy: Spy = spyOn(exerciseService, 'getH5Pelements')
+            .withArgs(exerciseService.embedTextAreaString).and.returnValue(textarea);
+        getSpy.withArgs(exerciseService.embedSizeInputString, true).and.returnValue(inputs);
         exerciseService.corpusService.annisResponse = {exercise_type: MoodleExerciseType.cloze.toString()};
         exerciseService.updateEmbedUrl();
         expect(textarea.innerHTML).toBeTruthy();
-        iframe.parentElement.removeChild(iframe);
     });
 });

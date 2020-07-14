@@ -253,9 +253,14 @@ components:
           required:
             - type
             - urn
+    ExerciseTypePath:
+      type: string
+      enum: [drag_text, fill_blanks, mark_words, multi_choice, voc_list]
+      description: Paths to the data directories for various H5P exercise types.
+      example: drag_text
     FileType:
       type: string
-      enum: [docx, json, pdf, xml]
+      enum: [docx, json, pdf, xml, zip]
       description: File format for the requested serialization.
       example: pdf
     FrequencyItem:
@@ -308,6 +313,27 @@ components:
       required:
         - links
         - nodes
+    H5PForm:
+      type: object
+      description: Metadata for the H5P exercise.
+      x-body-name: h5p_data
+      properties:
+        eid:
+          type: string
+          description: Unique identifier (UUID) for the exercise.
+          example: 12345678-1234-5678-1234-567812345678
+        exercise_type_path:
+          $ref: '#/components/schemas/ExerciseTypePath'
+        lang:
+          type: string
+          description: ISO 639-1 Language Code for the localization of exercise content.
+          example: en
+        solution_indices:
+          type: array
+          items:
+            type: integer
+            example: 0
+          description: Indices for the solutions that should be included in the download.
     KwicForm:
       x-body-name: kwic_data
       type: object

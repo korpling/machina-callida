@@ -254,6 +254,22 @@ paths:
         - $ref: '../openapi_models.yaml#/components/parameters/EidParam'
         - $ref: '../openapi_models.yaml#/components/parameters/LangParam'
         - $ref: '../openapi_models.yaml#/components/parameters/SolutionIndicesParam'
+    post:
+      summary: Offers H5P exercises for download as ZIP archives (with the H5P file extension).
+      operationId: mcserver.app.api.h5pAPI.post
+      responses:
+        "200":
+          description: ZIP archive (with the H5P file extension) containing data for a H5P exercise.
+          content:
+            application/zip:
+              schema:
+                type: object
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '../openapi_models.yaml#/components/schemas/H5PForm'
   /kwic:
     post:
       summary: Provides example contexts for a given phenomenon in a given corpus.

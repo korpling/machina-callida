@@ -19,6 +19,7 @@ import { Observable }                                        from 'rxjs';
 
 import { AnnisResponse } from '../model/models';
 import { Corpus } from '../model/models';
+import { ExerciseTypePath } from '../model/models';
 import { FileType } from '../model/models';
 import { FrequencyItem } from '../model/models';
 import { MatchingExercise } from '../model/models';
@@ -722,6 +723,86 @@ export class DefaultService {
         return this.httpClient.get<object>(`${this.configuration.basePath}/h5p`,
             {
                 params: queryParameters,
+                responseType: <any>responseType,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Offers H5P exercises for download as ZIP archives (with the H5P file extension).
+     * @param eid Unique identifier (UUID) for the exercise.
+     * @param exerciseTypePath 
+     * @param lang ISO 639-1 Language Code for the localization of exercise content.
+     * @param solutionIndices Indices for the solutions that should be included in the download.
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public mcserverAppApiH5pAPIPost(eid?: string, exerciseTypePath?: ExerciseTypePath, lang?: string, solutionIndices?: Array<number>, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/zip'}): Observable<object>;
+    public mcserverAppApiH5pAPIPost(eid?: string, exerciseTypePath?: ExerciseTypePath, lang?: string, solutionIndices?: Array<number>, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/zip'}): Observable<HttpResponse<object>>;
+    public mcserverAppApiH5pAPIPost(eid?: string, exerciseTypePath?: ExerciseTypePath, lang?: string, solutionIndices?: Array<number>, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/zip'}): Observable<HttpEvent<object>>;
+    public mcserverAppApiH5pAPIPost(eid?: string, exerciseTypePath?: ExerciseTypePath, lang?: string, solutionIndices?: Array<number>, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/zip'}): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        let httpHeaderAcceptSelected: string | undefined = options && options.httpHeaderAccept;
+        if (httpHeaderAcceptSelected === undefined) {
+            // to determine the Accept header
+            const httpHeaderAccepts: string[] = [
+                'application/zip'
+            ];
+            httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        }
+        if (httpHeaderAcceptSelected !== undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/x-www-form-urlencoded'
+        ];
+
+        const canConsumeForm = this.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any; };
+        let useForm = false;
+        let convertFormParamsToString = false;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new HttpParams({encoder: this.encoder});
+        }
+
+        if (eid !== undefined) {
+            formParams = formParams.append('eid', <any>eid) as any || formParams;
+        }
+        if (exerciseTypePath !== undefined) {
+            formParams = formParams.append('exercise_type_path', <any>exerciseTypePath) as any || formParams;
+        }
+        if (lang !== undefined) {
+            formParams = formParams.append('lang', <any>lang) as any || formParams;
+        }
+        if (solutionIndices) {
+            if (useForm) {
+                solutionIndices.forEach((element) => {
+                    formParams = formParams.append('solution_indices', <any>element) as any || formParams;
+            })
+            } else {
+                formParams = formParams.append('solution_indices', solutionIndices.join(COLLECTION_FORMATS['csv'])) as any || formParams;
+            }
+        }
+
+        let responseType: 'text' | 'json' = 'json';
+        if(httpHeaderAcceptSelected && httpHeaderAcceptSelected.startsWith('text')) {
+            responseType = 'text';
+        }
+
+        return this.httpClient.post<object>(`${this.configuration.basePath}/h5p`,
+            convertFormParamsToString ? formParams.toString() : formParams,
+            {
                 responseType: <any>responseType,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

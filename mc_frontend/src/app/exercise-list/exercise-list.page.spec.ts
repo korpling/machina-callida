@@ -53,7 +53,7 @@ describe('ExerciseListPage', () => {
         expect(exerciseListPage).toBeTruthy();
         expect(exerciseListPage.getExerciseList).toHaveBeenCalled();
         getExerciseListSpy.and.callFake(() => Promise.reject());
-        exerciseListPage.ngOnInit().then(() => {}, () => {
+        exerciseListPage.ngOnInit().then(() => {
             done();
         });
     });

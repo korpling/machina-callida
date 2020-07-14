@@ -29,6 +29,7 @@ class Config(object):
     MC_SERVER_APP_DIRECTORY = os.path.join(MC_SERVER_DIRECTORY, "app") if os.path.split(MC_SERVER_DIRECTORY)[
                                                                               -1] == "mcserver" else MC_SERVER_DIRECTORY
     IS_DOCKER = os.environ.get("IS_THIS_A_DOCKER_CONTAINER", False)
+    MC_FRONTEND_DIRECTORY = os.path.join(Path(MC_SERVER_DIRECTORY).parent.parent, "mc_frontend")
     ASSETS_DIRECTORY = os.path.join(MC_SERVER_APP_DIRECTORY, "assets")
     FILES_DIRECTORY = os.path.join(MC_SERVER_APP_DIRECTORY, "files")
     TMP_DIRECTORY = os.path.join(FILES_DIRECTORY, "tmp")
@@ -95,10 +96,7 @@ class Config(object):
     FLASK_MIGRATE = "migrate"
     GRAPHANNIS_DEPENDENCY_LINK = "dep"
     GRAPHANNIS_LOG_PATH = os.path.join(os.getcwd(), "graphannis.log")
-    H5P_DRAG_TEXT = "drag_text"
-    H5P_FILL_BLANKS = "fill_blanks"
-    H5P_MULTI_CHOICE = "multi_choice"
-    H5P_VOC_LIST = "voc_list"
+    H5P_DIRECTORY = "/home/mc/h5p" if IS_DOCKER else os.path.join(MC_FRONTEND_DIRECTORY, "src", "assets", "h5p")
     # Windows: use 127.0.0.1 as host IP fallback
     HOST_IP_FALLBACK = "0.0.0.0"
     HOST_IP_CSM = DOCKER_SERVICE_NAME_CSM if IS_DOCKER else HOST_IP_FALLBACK

@@ -74,7 +74,7 @@ describe('PreviewPage', () => {
     it('should initialize H5P', () => {
         spyOn(previewPage.exerciseService, 'initH5P').and.returnValue(Promise.resolve());
         previewPage.corpusService.annisResponse = {exercise_id: '', solutions: [{}]};
-        previewPage.currentSolutions = previewPage.corpusService.annisResponse.solutions;
+        previewPage.corpusService.currentSolutions = previewPage.corpusService.annisResponse.solutions;
         previewPage.initH5P();
         expect(previewPage.solutionIndicesString.length).toBe(0);
         previewPage.exerciseService.excludeOOV = true;
@@ -93,25 +93,25 @@ describe('PreviewPage', () => {
         const newDispatcher: EventRegistry = new EventRegistry();
         spyOn(previewPage.helperService, 'getH5P').and.returnValue({externalDispatcher: newDispatcher});
         xapiSpy.and.callThrough();
-        previewPage.ngOnInit().then(() => {
-            newDispatcher.trigger(EventMC.xAPI, new XAPIevent({
-                data: {
-                    statement: new StatementBase({
-                        result: new Result(),
-                        verb: new Verb({id: configMC.xAPIverbIDanswered})
-                    })
-                }
-            }));
-            checkAnnisResponseSpy.and.returnValue(Promise.resolve());
-            spyOn(previewPage, 'initH5P');
-            spyOn(previewPage, 'processAnnisResponse');
-            previewPage.currentSolutions = [{}];
-            previewPage.ngOnInit().then(() => {
-                expect(previewPage.currentSolutions.length).toBe(0);
-                iframe = document.querySelector(previewPage.exerciseService.h5pIframeString);
-                iframe.parentNode.removeChild(iframe);
-                done();
-            });
+        previewPage.ngOnInit();
+        newDispatcher.trigger(EventMC.xAPI, new XAPIevent({
+            data: {
+                statement: new StatementBase({
+                    result: new Result(),
+                    verb: new Verb({id: configMC.xAPIverbIDanswered})
+                })
+            }
+        }));
+        checkAnnisResponseSpy.and.returnValue(Promise.resolve());
+        spyOn(previewPage, 'initH5P');
+        spyOn(previewPage, 'processAnnisResponse');
+        previewPage.corpusService.currentSolutions = [{}];
+        previewPage.ngAfterContentInit().then(() => {
+            previewPage.ngOnInit();
+            expect(previewPage.corpusService.currentSolutions.length).toBe(0);
+            iframe = previewPage.exerciseService.getH5PIframe();
+            iframe.parentNode.removeChild(iframe);
+            done();
         });
     });
 
@@ -151,7 +151,7 @@ describe('PreviewPage', () => {
             solutions
         };
         previewPage.processSolutions(solutions);
-        expect(previewPage.currentSolutions[2]).toBe(solutions[0]);
+        expect(previewPage.corpusService.currentSolutions[2]).toBe(solutions[0]);
     });
 
     it('should send data', (done) => {
@@ -169,11 +169,11 @@ describe('PreviewPage', () => {
     });
 
     it('should switch OOV', () => {
-        previewPage.currentSolutions = [{}];
+        previewPage.corpusService.currentSolutions = [{}];
         previewPage.corpusService.annisResponse = {};
         spyOn(previewPage, 'processSolutions');
         spyOn(previewPage, 'initH5P');
         previewPage.switchOOV();
-        expect(previewPage.currentSolutions.length).toBe(0);
+        expect(previewPage.corpusService.currentSolutions.length).toBe(0);
     });
 });

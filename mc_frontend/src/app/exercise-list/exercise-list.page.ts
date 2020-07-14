@@ -126,7 +126,7 @@ export class ExerciseListPage implements OnInit {
             this.getExerciseList().then(() => {
                 return resolve();
             }, () => {
-                return reject();
+                return resolve();
             });
         }));
     }

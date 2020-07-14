@@ -8,11 +8,10 @@
     `git clone https://scm.cms.hu-berlin.de/callidus/machina-callida.git`.
 3. Move to the newly created folder:
     `cd machina-callida`.
-4. Run `docker-compose build`.
-5. Run `docker-compose up -d`.
+4. Run `./deploy.sh`.
 
    When using the application for the first time, it may take a few minutes until the container "mc_frontend" has finished compiling the application.
-6. Visit http://localhost:8100.
+5. Visit http://localhost:8100.
 
 ### Command line 
 For installation via command line, see the respective subdirectories (`mc_frontend` and `mc_backend`).

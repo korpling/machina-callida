@@ -354,6 +354,7 @@
   "UNIT_MODUS_LEARNING": "In the learning mode you first work out important words and the main content of the Cicero text. Then a random mode decides whether you practice these important words of the Cicero text with a Latin gap text or with a vocabulary list. At the end there is a test about the practised words, so that you can see how much you know about the practised words. After each exercise you will immediately receive feedback as to whether you have done everything right or what the right solution is.",
   "UNIT_MODUS_TEST": "The test mode differs from the learning mode mainly in two things: First, you will be 'checked' before the original text for the words of the text (basic vocabulary only), so that after practicing you can compare with the software whether you know more about the words you have practiced. Second, all exercises are timed by a timer and you don't get any feedback on your answers (like in the school tests). Only after the evaluation you can look at all your answers again.",
   "UNIT_TEST_TITLE": "Final test",
+  "VERSION": "Version",
   "VOCABULARY_CHECK": "Compare vocabulary",
   "VOCABULARY_CHECK_ADAPT_PASSAGES": "Intelligent choice of text passages",
   "VOCABULARY_CHECK_ADAPT_PASSAGES_OPTION": "(uncheck for all possibilities)",

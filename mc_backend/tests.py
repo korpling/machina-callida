@@ -45,7 +45,7 @@ from mcserver.config import TestingConfig, Config
 from mcserver.models_auto import Corpus, Exercise, UpdateInfo, LearningResult
 from mocks import Mocks, MockResponse, MockW2V, MockQuery, TestHelper
 from openapi.openapi_server.models import VocabularyForm, VocabularyMC, TextComplexityForm, ExerciseForm, KwicForm, \
-    VectorNetworkForm, MatchingExercise
+    VectorNetworkForm, MatchingExercise, ExerciseTypePath, H5PForm
 
 
 class McTestCase(unittest.TestCase):
@@ -283,7 +283,7 @@ class McTestCase(unittest.TestCase):
         del ui_file
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_FILE, query_string=args)
         os.remove(file_path)
-        self.assertEqual(response.data.decode("utf-8"), file_content)
+        self.assertEqual(response.get_data(as_text=True), file_content)
         # add the mapped exercise to the database
         db.session.add(Mocks.exercise)
         DatabaseService.commit()
@@ -327,7 +327,7 @@ class McTestCase(unittest.TestCase):
         db.session.add(Mocks.exercise)
         DatabaseService.commit()
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_H5P, query_string=args)
-        self.assertIn(Mocks.h5p_json_cloze[1:-1], response.data.decode("utf-8"))
+        self.assertIn(Mocks.h5p_json_cloze[1:-1], response.get_data(as_text=True))
         Mocks.exercise.exercise_type = ExerciseType.kwic.value
         DatabaseService.commit()
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_H5P, query_string=args)
@@ -335,13 +335,32 @@ class McTestCase(unittest.TestCase):
         Mocks.exercise.exercise_type = ExerciseType.matching.value
         DatabaseService.commit()
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_H5P, query_string=args)
-        self.assertIn(Mocks.h5p_json_matching[1:-1], response.data.decode("utf-8"))
+        self.assertIn(Mocks.h5p_json_matching[1:-1], response.get_data(as_text=True))
         Mocks.exercise.exercise_type = ExerciseType.cloze.value
         args["lang"] = "fr"
         response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_H5P, query_string=args)
-        self.assertIn(Mocks.h5p_json_cloze[1:-1], response.data.decode("utf-8"))
+        self.assertIn(Mocks.h5p_json_cloze[1:-1], response.get_data(as_text=True))
         db.session.query(Exercise).delete()
         session.make_transient(Mocks.exercise)
+
+    def test_api_h5p_post(self):
+        """The POST method for the H5P REST API. It offers client-side H5P exercises for download as ZIP archives."""
+        exercise: Exercise = copy.deepcopy(Mocks.exercise)
+        hf: H5PForm = H5PForm(eid=Mocks.exercise.eid, exercise_type_path=ExerciseTypePath.DRAG_TEXT,
+                              lang=Language.English.value, solution_indices=[])
+        response: Response = Mocks.app_dict[self.class_name].client.post(
+            TestingConfig.SERVER_URI_H5P, headers=Mocks.headers_form_data, data=hf.to_dict())
+        self.assertEqual(response.status_code, 404)
+        db.session.add(exercise)
+        DatabaseService.commit()
+        response = Mocks.app_dict[self.class_name].client.post(
+            TestingConfig.SERVER_URI_H5P, headers=Mocks.headers_form_data, data=hf.to_dict())
+        self.assertEqual(len(response.get_data()), 1940089)
+        with patch.object(mcserver.app.api.h5pAPI, "get_text_field_content", return_value=""):
+            response = Mocks.app_dict[self.class_name].client.post(
+                TestingConfig.SERVER_URI_H5P, headers=Mocks.headers_form_data, data=hf.to_dict())
+            self.assertEqual(response.status_code, 422)
+        db.session.query(Exercise).delete()
 
     def test_api_kwic_post(self):
         """ Posts an AQL query to create a KWIC visualization in SVG format. """
@@ -391,15 +410,15 @@ class McTestCase(unittest.TestCase):
     def test_api_static_exercises_get(self):
         """ Retrieves static exercises from the frontend and publishes deep URLs for each one of them. """
         exercises: List[Tuple[str, str, str]] = [
-            (Config.H5P_FILL_BLANKS,) + Mocks.h5p_json_fill_blanks_1,
-            (Config.H5P_FILL_BLANKS,) + Mocks.h5p_json_fill_blanks_3,
-            (Config.H5P_FILL_BLANKS,) + Mocks.h5p_json_fill_blanks_4,
-            (Config.H5P_FILL_BLANKS,) + Mocks.h5p_json_fill_blanks_13,
-            (Config.H5P_DRAG_TEXT, "1_en", Mocks.h5p_json_cloze),
-            (Config.H5P_MULTI_CHOICE, "1_en", Mocks.h5p_json_multi_choice),
-            (Config.H5P_MULTI_CHOICE, "2_en", Mocks.h5p_json_multi_choice_2),
-            (Config.H5P_MULTI_CHOICE,) + Mocks.h5p_json_multi_choice_9,
-            (Config.H5P_VOC_LIST, "1_en", Mocks.h5p_json_voc_list)]
+            (ExerciseTypePath.FILL_BLANKS,) + Mocks.h5p_json_fill_blanks_1,
+            (ExerciseTypePath.FILL_BLANKS,) + Mocks.h5p_json_fill_blanks_3,
+            (ExerciseTypePath.FILL_BLANKS,) + Mocks.h5p_json_fill_blanks_4,
+            (ExerciseTypePath.FILL_BLANKS,) + Mocks.h5p_json_fill_blanks_13,
+            (ExerciseTypePath.DRAG_TEXT, "1_en", Mocks.h5p_json_cloze),
+            (ExerciseTypePath.MULTI_CHOICE, "1_en", Mocks.h5p_json_multi_choice),
+            (ExerciseTypePath.MULTI_CHOICE, "2_en", Mocks.h5p_json_multi_choice_2),
+            (ExerciseTypePath.MULTI_CHOICE,) + Mocks.h5p_json_multi_choice_9,
+            (ExerciseTypePath.VOC_LIST, "1_en", Mocks.h5p_json_voc_list)]
         paths: List[str] = []
         for exercise in exercises:
             file_name: str = exercise[1] + ".json"
