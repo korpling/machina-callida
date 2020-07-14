@@ -8,6 +8,7 @@ import {HelperService} from '../helper.service';
 import {ExerciseService} from '../exercise.service';
 import {ApplicationState} from '../models/applicationState';
 import {take} from 'rxjs/operators';
+import configMC from '../../configMC';
 
 /**
  * Generated class for the AuthorPage page.
@@ -68,7 +69,7 @@ export class AuthorPage implements OnInit {
         return new Promise<void>((resolve, reject) => {
             this.corpusService.restoreLastCorpus().then(() => {
                 if (this.helperService.isVocabularyCheck) {
-                    this.helperService.goToVocabularyCheckPage(this.navCtrl).then();
+                    this.helperService.goToPage(this.navCtrl, configMC.pageUrlVocabularyCheck).then();
                     return resolve();
                 } else {
                     this.helperService.goToShowTextPage(this.navCtrl).then();
@@ -85,7 +86,7 @@ export class AuthorPage implements OnInit {
         this.helperService.applicationState.pipe(take(1)).subscribe((as: ApplicationState) => {
             as.currentSetup.currentAuthor = author;
             this.helperService.saveApplicationState(as).then();
-            this.helperService.goToAuthorDetailPage(this.navCtrl).then();
+            this.helperService.goToPage(this.navCtrl, configMC.pageUrlAuthorDetail).then();
         });
     }
 

@@ -57,7 +57,7 @@ describe('VocabularyCheckPage', () => {
         vocabularyCheckPage.vocService.frequencyUpperBound = -1;
         const getVocSpy: Spy = spyOn(vocabularyCheckPage.vocService, 'getMatchingSentences')
             .and.returnValue(Promise.resolve([]));
-        const navSpy: Spy = spyOn(vocabularyCheckPage.helperService, 'goToRankingPage').and.returnValue(Promise.resolve(true));
+        const navSpy: Spy = spyOn(vocabularyCheckPage.helperService, 'goToPage').and.returnValue(Promise.resolve(true));
         vocabularyCheckPage.checkVocabulary().then(async () => {
             expect(getVocSpy).toHaveBeenCalledTimes(0);
             vocabularyCheckPage.vocService.frequencyUpperBound = 500;

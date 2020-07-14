@@ -264,13 +264,11 @@ describe('TextRangePage', () => {
             getTextSpy.and.returnValue(Promise.resolve());
             await expectNavigationCalled(showTextSpy);
             textRangePage.helperService.isVocabularyCheck = true;
-            const vocCheckSpy: Spy = spyOn(textRangePage.helperService, 'goToVocabularyCheckPage')
+            const goToSpy: Spy = spyOn(textRangePage.helperService, 'goToPage')
                 .and.returnValue(Promise.resolve(true));
-            await expectNavigationCalled(vocCheckSpy);
+            await expectNavigationCalled(goToSpy);
             textRangePage.citationValuesStart = [];
-            const exParamSpy: Spy = spyOn(textRangePage.helperService, 'goToExerciseParametersPage')
-                .and.returnValue(Promise.resolve(true));
-            await expectNavigationCalled(exParamSpy, 1, true);
+            await expectNavigationCalled(goToSpy, 2, true);
             done();
         });
     });

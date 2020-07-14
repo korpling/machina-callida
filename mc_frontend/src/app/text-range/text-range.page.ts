@@ -12,6 +12,7 @@ import {CorpusMC} from '../models/corpusMC';
 import {BehaviorSubject} from 'rxjs';
 import {take} from 'rxjs/operators';
 import {TextRange} from '../models/textRange';
+import configMC from '../../configMC';
 
 @Component({
     selector: 'app-text-range',
@@ -270,9 +271,9 @@ export class TextRangePage implements OnInit {
                             this.corpusService.isTextRangeCorrect = true;
                             this.corpusService.getText().then(() => {
                                 if (skipText) {
-                                    this.helperService.goToExerciseParametersPage(this.navCtrl).then();
+                                    this.helperService.goToPage(this.navCtrl, configMC.pageUrlExerciseParameters).then();
                                 } else if (this.helperService.isVocabularyCheck) {
-                                    this.helperService.goToVocabularyCheckPage(this.navCtrl).then();
+                                    this.helperService.goToPage(this.navCtrl, configMC.pageUrlVocabularyCheck).then();
                                 } else {
                                     this.helperService.goToShowTextPage(this.navCtrl).then();
                                 }

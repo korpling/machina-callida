@@ -110,11 +110,11 @@
                 <ion-button (click)="navCtrl.pop()">{{ 'BACK' | translate }}</ion-button>
             </ion-col>
             <ion-col>
-                <ion-button (click)="helperService.goToVocabularyCheckPage(navCtrl)">
+                <ion-button (click)="helperService.goToPage(navCtrl, configMC.pageUrlVocabularyCheck)">
                     {{ 'VOCABULARY_CHECK' | translate }}</ion-button>
             </ion-col>
             <ion-col>
-                <ion-button (click)="helperService.goToExerciseParametersPage(navCtrl).then()">
+                <ion-button (click)="helperService.goToPage(navCtrl, configMC.pageUrlExerciseParameters).then()">
                     {{ "EXERCISE_SET_PARAMETERS" | translate}}</ion-button>
             </ion-col>
         </ion-row>

@@ -28,7 +28,7 @@
                 </ion-row>
                 <ion-row>
                     <ion-col>
-                        <a (click)="helperService.goToExerciseListPage(navCtrl).then(closeMenu.bind(this))">
+                        <a (click)="helperService.goToPage(navCtrl, configMC.pageUrlExerciseList).then(closeMenu.bind(this))">
                             {{ 'EXERCISE_LIST' | translate }}
                         </a>
                     </ion-col>
@@ -42,7 +42,7 @@
                 </ion-row>
                 <ion-row>
                     <ion-col>
-                        <a (click)="helperService.goToSemanticsPage(navCtrl).then(closeMenu.bind(this))">
+                        <a (click)="helperService.goToPage(navCtrl, configMC.pageUrlSemantics).then(closeMenu.bind(this))">
                             {{ 'SEMANTICS' | translate }}
                         </a>
                     </ion-col>
@@ -54,35 +54,35 @@
                         </ion-title>
                         <ion-row>
                             <ion-col>
-                                <a (click)="helperService.goToInfoPage(navCtrl).then(closeMenu.bind(this))">
+                                <a (click)="helperService.goToPage(navCtrl, configMC.pageUrlInfo).then(closeMenu.bind(this))">
                                     {{ 'ABOUT' | translate }}
                                 </a>
                             </ion-col>
                         </ion-row>
                         <ion-row>
                             <ion-col>
-                                <a (click)="helperService.goToDocSoftwarePage(navCtrl).then(closeMenu.bind(this))">
+                                <a (click)="helperService.goToPage(navCtrl, configMC.pageUrlDocSoftware).then(closeMenu.bind(this))">
                                     {{ 'DOC_SOFTWARE' | translate }}
                                 </a>
                             </ion-col>
                         </ion-row>
                         <ion-row>
                             <ion-col>
-                                <a (click)="helperService.goToDocExercisesPage(navCtrl).then(closeMenu.bind(this))">
+                                <a (click)="helperService.goToPage(navCtrl, configMC.pageUrlDocExercises).then(closeMenu.bind(this))">
                                     {{ 'DOC_EXERCISES' | translate }}
                                 </a>
                             </ion-col>
                         </ion-row>
                         <ion-row>
                             <ion-col>
-                                <a (click)="helperService.goToDocVocUnitPage(navCtrl).then(closeMenu.bind(this))">
+                                <a (click)="helperService.goToPage(navCtrl, configMC.pageUrlDocVocUnit).then(closeMenu.bind(this))">
                                     {{ 'DOC_VOC_UNIT' | translate }}
                                 </a>
                             </ion-col>
                         </ion-row>
                         <ion-row>
                             <ion-col>
-                                <a (click)="helperService.goToSourcesPage(navCtrl).then(closeMenu.bind(this))">
+                                <a (click)="helperService.goToPage(navCtrl, configMC.pageUrlSources).then(closeMenu.bind(this))">
                                     {{ 'SOURCES' | translate }}
                                 </a>
                             </ion-col>

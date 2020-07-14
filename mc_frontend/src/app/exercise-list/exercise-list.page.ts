@@ -151,7 +151,7 @@ export class ExerciseListPage implements OnInit {
                 this.corpusService.annisResponse = ar;
                 const met: MoodleExerciseType = MoodleExerciseType[exercise.exercise_type];
                 this.corpusService.exercise.type = ExerciseType[met.toString()];
-                this.helperService.goToPreviewPage(this.navCtrl).then();
+                this.helperService.goToPage(this.navCtrl, configMC.pageUrlPreview).then();
                 return resolve();
             }, () => {
                 return resolve();

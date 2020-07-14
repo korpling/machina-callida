@@ -99,10 +99,10 @@ describe('HelperService', () => {
     });
 
     it('should go to a specific page', (done) => {
-        function checkNavigation(navFunctions: any[], pageUrls: string[], navController: NavController, navSpy: Spy): Promise<void> {
+        function checkNavigation(pageUrls: string[], navController: NavController, navSpy: Spy): Promise<void> {
             return new Promise<void>(resolve => {
-                range(0, navFunctions.length).forEach(async (idx: number) => {
-                    await navFunctions[idx](navController);
+                range(0, pageUrls.length).forEach(async (idx: number) => {
+                    await helperService.goToPage(navController, pageUrls[idx]);
                     expect(navSpy).toHaveBeenCalledWith(pageUrls[idx]);
                 });
                 return resolve();
@@ -111,16 +111,12 @@ describe('HelperService', () => {
 
         const navCtrl: NavController = TestBed.inject(NavController);
         const forwardSpy: Spy = spyOn(navCtrl, 'navigateForward').and.returnValue(Promise.resolve(true));
-        const navFnArr: any[] = [helperService.goToAuthorDetailPage, helperService.goToDocExercisesPage, helperService.goToDocSoftwarePage,
-            helperService.goToDocVocUnitPage, helperService.goToExerciseListPage, helperService.goToExerciseParametersPage,
-            helperService.goToImprintPage, helperService.goToInfoPage, helperService.goToPreviewPage, helperService.goToSourcesPage,
-            helperService.goToTextRangePage, helperService.goToVocabularyCheckPage, helperService.goToKwicPage,
-            helperService.goToRankingPage, helperService.goToSemanticsPage];
-        const pageUrlArr: string[] = [configMC.pageUrlAuthorDetail, configMC.pageUrlDocExercises, configMC.pageUrlDocSoftware,
-            configMC.pageUrlDocVocUnit, configMC.pageUrlExerciseList, configMC.pageUrlExerciseParameters, configMC.pageUrlImprint,
-            configMC.pageUrlInfo, configMC.pageUrlPreview, configMC.pageUrlSources, configMC.pageUrlTextRange,
-            configMC.pageUrlVocabularyCheck, configMC.pageUrlKwic, configMC.pageUrlRanking, configMC.pageUrlSemantics];
-        checkNavigation(navFnArr, pageUrlArr, navCtrl, forwardSpy).then(async () => {
+        const pageUrlArr: string[] = [configMC.pageUrlSemantics, configMC.pageUrlVocabularyCheck, configMC.pageUrlTextRange,
+            configMC.pageUrlSources, configMC.pageUrlRanking, configMC.pageUrlPreview, configMC.pageUrlKwic,
+            configMC.pageUrlInfo, configMC.pageUrlImprint, configMC.pageUrlExerciseParameters,
+            configMC.pageUrlExerciseList, configMC.pageUrlDocVocUnit, configMC.pageUrlDocSoftware,
+            configMC.pageUrlDocExercises, configMC.pageUrlAuthorDetail];
+        checkNavigation(pageUrlArr, navCtrl, forwardSpy).then(async () => {
             await helperService.goToAuthorPage(navCtrl);
             expect(helperService.isVocabularyCheck).toBeFalsy();
             await helperService.goToShowTextPage(navCtrl, true);

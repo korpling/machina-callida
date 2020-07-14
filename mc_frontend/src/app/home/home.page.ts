@@ -8,6 +8,7 @@ import {ExerciseService} from 'src/app/exercise.service';
 import {CorpusService} from 'src/app/corpus.service';
 import {take} from 'rxjs/operators';
 import { version } from 'src/version';
+import configMC from '../../configMC';
 
 @Component({
     selector: 'app-home',
@@ -15,6 +16,7 @@ import { version } from 'src/version';
     styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
+    public configMC = configMC;
     public isCorpusUpdateInProgress = false;
     public version: string;
 

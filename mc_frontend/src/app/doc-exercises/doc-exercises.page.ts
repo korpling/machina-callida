@@ -4,6 +4,7 @@ import {NavController} from '@ionic/angular';
 import {HttpClient} from '@angular/common/http';
 import {TranslateService} from '@ngx-translate/core';
 import {ExerciseDocumentation} from 'src/app/models/exerciseDocumentation';
+import configMC from '../../configMC';
 
 @Component({
     selector: 'app-doc-exercises',
@@ -12,6 +13,7 @@ import {ExerciseDocumentation} from 'src/app/models/exerciseDocumentation';
 })
 
 export class DocExercisesPage implements OnInit {
+    public configMC = configMC;
     exerciseGenDocs: ExerciseDocumentation[] = [];
     vocUnitDocs: ExerciseDocumentation[] = [];
 

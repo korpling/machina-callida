@@ -17,7 +17,7 @@ import {QueryMC} from '../models/queryMC';
 import {PhenomenonMapContent} from '../models/phenomenonMap';
 import Spy = jasmine.Spy;
 import MockMC from '../models/mockMC';
-import {Phenomenon} from '../../../openapi';
+import {ExerciseForm, Phenomenon} from '../../../openapi';
 
 describe('ExerciseParametersPage', () => {
     let exerciseParametersPage: ExerciseParametersPage;
@@ -54,6 +54,7 @@ describe('ExerciseParametersPage', () => {
 
     it('should generate an exercise', (done) => {
         exerciseParametersPage.corpusService.annisResponse = {solutions: []};
+        exerciseParametersPage.helperService.applicationState.next(exerciseParametersPage.helperService.deepCopy(MockMC.applicationState));
         exerciseParametersPage.corpusService.initCurrentCorpus().then(async () => {
             exerciseParametersPage.corpusService.currentTextRange = new ReplaySubject<TextRange>(1);
             exerciseParametersPage.corpusService.currentTextRange.next(new TextRange({start: [], end: []}));
@@ -104,6 +105,7 @@ describe('ExerciseParametersPage', () => {
     });
 
     it('should get exercise data', (done) => {
+        exerciseParametersPage.helperService.applicationState.next(exerciseParametersPage.helperService.deepCopy(MockMC.applicationState));
         exerciseParametersPage.corpusService.initCurrentCorpus().then(async () => {
             exerciseParametersPage.corpusService.currentTextRange = new ReplaySubject<TextRange>(1);
             exerciseParametersPage.corpusService.currentTextRange.next(new TextRange({start: ['', ''], end: ['', '']}));
@@ -124,13 +126,14 @@ describe('ExerciseParametersPage', () => {
 
     it('should get a H5P exercise', (done) => {
         const requestSpy: Spy = spyOn(exerciseParametersPage.helperService, 'makePostRequest').and.returnValue(Promise.resolve({}));
-        const navSpy: Spy = spyOn(exerciseParametersPage.helperService, 'goToPreviewPage').and.returnValue(Promise.resolve(true));
+        const navSpy: Spy = spyOn(exerciseParametersPage.helperService, 'goToPage').and.returnValue(Promise.resolve(true));
         exerciseParametersPage.corpusService.annisResponse = {};
         exerciseParametersPage.helperService.applicationState.next(exerciseParametersPage.helperService.deepCopy(MockMC.applicationState));
-        exerciseParametersPage.getH5Pexercise(new FormData()).then(() => {
+        const ef: ExerciseForm = {instructions: '', search_values: '', type: '', urn: ''};
+        exerciseParametersPage.getH5Pexercise(ef).then(() => {
             expect(navSpy).toHaveBeenCalledTimes(1);
             requestSpy.and.callFake(() => Promise.reject());
-            exerciseParametersPage.getH5Pexercise(new FormData()).then(() => {
+            exerciseParametersPage.getH5Pexercise(ef).then(() => {
             }, () => {
                 expect(navSpy).toHaveBeenCalledTimes(1);
                 done();
@@ -139,7 +142,7 @@ describe('ExerciseParametersPage', () => {
     });
 
     it('should get a KWIC exercise', (done) => {
-        const navSpy: Spy = spyOn(exerciseParametersPage.helperService, 'goToKwicPage').and.returnValue(Promise.resolve(true));
+        const navSpy: Spy = spyOn(exerciseParametersPage.helperService, 'goToPage').and.returnValue(Promise.resolve(true));
         const requestSpy: Spy = spyOn(exerciseParametersPage.helperService, 'makePostRequest').and.returnValue(Promise.resolve('svg'));
         exerciseParametersPage.getKwicExercise('').then(() => {
             expect(exerciseParametersPage.exerciseService.kwicGraphs.length).toBe(3);

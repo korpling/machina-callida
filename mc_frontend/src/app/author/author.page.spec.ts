@@ -75,7 +75,7 @@ describe('AuthorPage', () => {
     it('should restore the last setup', (done) => {
         const restoreSpy: Spy = spyOn(authorPage.corpusService, 'restoreLastCorpus').and.callFake(() => Promise.reject());
         const showTextSpy: Spy = spyOn(authorPage.helperService, 'goToShowTextPage').and.returnValue(Promise.resolve(true));
-        const vocCheckSpy: Spy = spyOn(authorPage.helperService, 'goToVocabularyCheckPage').and.returnValue(Promise.resolve(true));
+        const vocCheckSpy: Spy = spyOn(authorPage.helperService, 'goToPage').and.returnValue(Promise.resolve(true));
         authorPage.helperService.isVocabularyCheck = false;
         authorPage.restoreLastSetup().then(() => {
         }, () => {
@@ -95,7 +95,7 @@ describe('AuthorPage', () => {
 
     it('should show corpora', () => {
         authorPage.helperService.applicationState.next(authorPage.helperService.deepCopy(MockMC.applicationState));
-        spyOn(authorPage.helperService, 'goToAuthorDetailPage').and.returnValue(Promise.resolve(true));
+        spyOn(authorPage.helperService, 'goToPage').and.returnValue(Promise.resolve(true));
         const author: Author = new Author({name: '', corpora: []});
         authorPage.showCorpora(author);
         expect(authorPage.corpusService.currentAuthor).toBe(author);

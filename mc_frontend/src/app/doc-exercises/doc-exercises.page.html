@@ -118,19 +118,19 @@
     <ion-toolbar>
         <ion-tabs>
             <ion-tab-bar slot="bottom">
-                <ion-tab-button (click)="helperService.goToInfoPage(navCtrl)">
+                <ion-tab-button (click)="helperService.goToPage(navCtrl, configMC.pageUrlInfo)">
                     <ion-icon name="information-circle"></ion-icon>
                     <ion-label>{{ 'ABOUT' | translate }}</ion-label>
                 </ion-tab-button>
-                <ion-tab-button (click)="helperService.goToDocSoftwarePage(navCtrl)">
+                <ion-tab-button (click)="helperService.goToPage(navCtrl, configMC.pageUrlDocSoftware)">
                     <ion-icon name="code"></ion-icon>
                     <ion-label>{{ 'DOC_SOFTWARE' | translate}}</ion-label>
                 </ion-tab-button>
-                <ion-tab-button (click)="helperService.goToDocVocUnitPage(navCtrl)">
+                <ion-tab-button (click)="helperService.goToPage(navCtrl, configMC.pageUrlDocVocUnit)">
                     <ion-icon name="school"></ion-icon>
                     <ion-label>{{'DOC_VOC_UNIT' | translate}}</ion-label>
                 </ion-tab-button>
-                <ion-tab-button (click)="helperService.goToImprintPage(navCtrl)">
+                <ion-tab-button (click)="helperService.goToPage(navCtrl, configMC.pageUrlImprint)">
                     <ion-icon name="today"></ion-icon>
                     <ion-label>{{ 'IMPRINT' | translate }}</ion-label>
                 </ion-tab-button>

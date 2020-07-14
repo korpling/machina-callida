@@ -11,6 +11,7 @@ import {CorpusMC} from '../models/corpusMC';
 import {take} from 'rxjs/operators';
 import {TextRange} from '../models/textRange';
 import {Sentence} from '../../../openapi';
+import configMC from '../../configMC';
 
 @Component({
     selector: 'app-vocabulary-check',
@@ -51,7 +52,7 @@ export class VocabularyCheckPage {
                     this.corpusService.currentUrn = this.corpusService.currentUrn.split('@')[0];
                     this.vocService.getMatchingSentences(this.corpusService.currentUrn).then((sentences: Sentence[]) => {
                         this.processSentences(sentences);
-                        this.helperService.goToRankingPage(this.navCtrl).then();
+                        this.helperService.goToPage(this.navCtrl, configMC.pageUrlRanking).then();
                         return resolve();
                     }, async (error: HttpErrorResponse) => {
                         return resolve();

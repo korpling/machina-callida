@@ -62,7 +62,8 @@
                         {{'EXERCISE_TYPE_MATCHING' | translate }}<br>
                     </p>
                     <p>
-                        <ion-button (click)="helperService.goToExerciseListPage(navCtrl)">{{ 'CONTINUE' | translate }}
+                        <ion-button
+                                (click)="helperService.goToPage(navCtrl, configMC.pageUrlExerciseList)">{{ 'CONTINUE' | translate }}
                         </ion-button>
                     </p>
                 </div>
@@ -96,7 +97,8 @@
                         {{'DOC_VOC_UNIT' | translate }}<br>
                     </p>
                     <p>
-                        <ion-button (click)="helperService.goToInfoPage(navCtrl)">{{ 'CONTINUE' | translate }}
+                        <ion-button
+                                (click)="helperService.goToPage(navCtrl, configMC.pageUrlInfo)">{{ 'CONTINUE' | translate }}
                         </ion-button>
                     </p>
                 </div>
@@ -113,7 +115,7 @@
     <ion-toolbar>
         <ion-tabs id="tabs">
             <ion-tab-bar slot="bottom">
-                <ion-tab-button (click)="helperService.goToImprintPage(navCtrl)">
+                <ion-tab-button (click)="helperService.goToPage(navCtrl, configMC.pageUrlImprint)">
                     <ion-icon name="today"></ion-icon>
                     <ion-label>{{ 'IMPRINT' | translate }}</ion-label>
                 </ion-tab-button>

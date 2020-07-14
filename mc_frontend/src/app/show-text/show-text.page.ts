@@ -20,6 +20,7 @@ import {FileType, VocabularyMC} from 'openapi';
 export class ShowTextPage implements OnInit {
     FileType = FileType;
     ObjectKeys = Object.keys;
+    public configMC = configMC;
     public downloadLinkSelector = '#download';
     public highlightOOV = false;
     public isDownloading = false;

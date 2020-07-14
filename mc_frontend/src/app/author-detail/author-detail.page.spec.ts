@@ -41,7 +41,7 @@ describe('AuthorDetailPage', () => {
 
     it('should show possible references', () => {
         const currentCorpusSpy: Spy = spyOn(authorDetailPage.corpusService, 'setCurrentCorpus');
-        const textRangeSpy: Spy = spyOn(authorDetailPage.helperService, 'goToTextRangePage').and.returnValue(Promise.resolve(true));
+        const textRangeSpy: Spy = spyOn(authorDetailPage.helperService, 'goToPage').and.returnValue(Promise.resolve(true));
         authorDetailPage.showPossibleReferences({source_urn: ''});
         expect(currentCorpusSpy).toHaveBeenCalledTimes(1);
         expect(textRangeSpy).toHaveBeenCalledTimes(1);

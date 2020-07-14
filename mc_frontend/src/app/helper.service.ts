@@ -200,86 +200,30 @@ export class HelperService {
         return H5P;
     }
 
-    goToAuthorDetailPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlAuthorDetail);
-    }
-
     goToAuthorPage(navCtrl: NavController): Promise<boolean> {
         this.isVocabularyCheck = false;
-        return navCtrl.navigateForward(configMC.pageUrlAuthor);
-    }
-
-    goToDocExercisesPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlDocExercises);
-    }
-
-    goToDocSoftwarePage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlDocSoftware);
-    }
-
-    goToDocVocUnitPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlDocVocUnit);
-    }
-
-    goToExerciseListPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlExerciseList);
-    }
-
-    goToExerciseParametersPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlExerciseParameters);
+        return this.goToPage(navCtrl, configMC.pageUrlAuthor);
     }
 
     goToHomePage(navCtrl: NavController): Promise<boolean> {
         return navCtrl.navigateRoot(configMC.pageUrlHome);
     }
 
-    goToImprintPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlImprint);
-    }
-
-    goToInfoPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlInfo);
-    }
-
-    goToKwicPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlKwic);
-    }
-
-    goToPreviewPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlPreview);
-    }
-
-    goToRankingPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlRanking);
-    }
-
-    goToSemanticsPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlSemantics);
+    goToPage(navCtrl: NavController, pageUrl: string): Promise<boolean> {
+        return navCtrl.navigateForward(pageUrl);
     }
 
     goToShowTextPage(navCtrl: NavController, isVocabularyCheck: boolean = false): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
-            navCtrl.navigateForward(configMC.pageUrlShowText).then((result: boolean) => {
+            this.goToPage(navCtrl, configMC.pageUrlShowText).then((result: boolean) => {
                 this.isVocabularyCheck = isVocabularyCheck;
                 return resolve(result);
             });
         });
     }
 
-    goToSourcesPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlSources);
-    }
-
     goToTestPage(navCtrl: NavController): Promise<boolean> {
         return navCtrl.navigateRoot(configMC.pageUrlTest);
-    }
-
-    goToTextRangePage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlTextRange);
-    }
-
-    goToVocabularyCheckPage(navCtrl: NavController): Promise<boolean> {
-        return navCtrl.navigateForward(configMC.pageUrlVocabularyCheck);
     }
 
     handleRequestError(toastCtrl: ToastController, error: HttpErrorResponse, errorMessage: string, url: string): void {
@@ -315,7 +259,7 @@ export class HelperService {
             configMC.backendBaseUrl = part1.concat(configMC.backendBaseApiPath).concat('/');
         }
         if (!configMC.frontendBaseUrl) {
-            configMC.frontendBaseUrl = location.href.slice(0, -configMC.pageUrlHome.length);
+            configMC.frontendBaseUrl = location.href.substring(0, location.href.lastIndexOf('/') + 1);
         }
     }
 

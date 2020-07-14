@@ -103,7 +103,7 @@ describe('ExerciseListPage', () => {
 
     it('should show an exercise', (done) => {
         const requestSpy: Spy = spyOn(exerciseListPage.helperService, 'makeGetRequest').and.callFake(() => Promise.reject());
-        spyOn(exerciseListPage.helperService, 'goToPreviewPage').and.returnValue(Promise.resolve(true));
+        spyOn(exerciseListPage.helperService, 'goToPage').and.returnValue(Promise.resolve(true));
         exerciseListPage.showExercise(new ExerciseMC()).then(() => {
             requestSpy.and.returnValue(Promise.resolve({}));
             exerciseListPage.showExercise(new ExerciseMC({exercise_type: MoodleExerciseType.markWords.toString()})).then(() => {

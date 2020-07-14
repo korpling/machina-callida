@@ -5,6 +5,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {HelperService} from '../helper.service';
 import {CorpusService} from 'src/app/corpus.service';
 import {HttpClient} from '@angular/common/http';
+import configMC from '../../configMC';
 
 @Component({
     selector: 'app-author-detail',
@@ -22,6 +23,6 @@ export class AuthorDetailPage {
 
     showPossibleReferences(corpus: CorpusMC) {
         this.corpusService.setCurrentCorpus(corpus);
-        this.helperService.goToTextRangePage(this.navCtrl).then();
+        this.helperService.goToPage(this.navCtrl, configMC.pageUrlTextRange).then();
     }
 }
