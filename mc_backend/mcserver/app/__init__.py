@@ -18,14 +18,6 @@ from flask_sqlalchemy import SQLAlchemy
 from open_alchemy import init_yaml
 from mcserver.config import Config
 
-# remove stale connections from the connection pool after 1 hour
-db: SQLAlchemy = SQLAlchemy()  # session_options={"autocommit": True, "pool_recycle": 3600}
-migrate: Migrate = Migrate(directory=Config.MIGRATIONS_DIRECTORY)
-if not hasattr(open_alchemy.models, Config.DATABASE_TABLE_CORPUS):
-    # do this _BEFORE_ you add any APIs to your application
-    init_yaml(Config.API_SPEC_MODELS_YAML_FILE_PATH, base=db.Model,
-              models_filename=os.path.join(Config.MC_SERVER_DIRECTORY, "models_auto.py"))
-
 
 def apply_event_handlers(app: FlaskApp):
     """Applies event handlers to a given Flask application, such as logging after requests or teardown logic."""
@@ -62,6 +54,11 @@ def create_app(cfg: Type[Config] = Config) -> Flask:
     app.register_blueprint(api_bp)
     init_logging(app, Config.LOG_PATH_MCSERVER)
     return app
+
+
+def create_database() -> SQLAlchemy:
+    """Creates a new connection to a database, which will handle all future database transactions."""
+    return SQLAlchemy()  # session_options={"autocommit": True}
 
 
 def full_init(app: Flask, cfg: Type[Config] = Config) -> None:
@@ -144,6 +141,13 @@ def shutdown_session(exception=None):
     """ Shuts down the session when the application exits. (maybe also after every request ???) """
     db.session.remove()
 
+
+db: SQLAlchemy = create_database()
+migrate: Migrate = Migrate(directory=Config.MIGRATIONS_DIRECTORY)
+if not hasattr(open_alchemy.models, Config.DATABASE_TABLE_CORPUS):
+    # do this _BEFORE_ you add any APIs to your application
+    init_yaml(Config.API_SPEC_MODELS_YAML_FILE_PATH, base=db.Model,
+              models_filename=os.path.join(Config.MC_SERVER_DIRECTORY, "models_auto.py"))
 
 # import the models so we can access them from other parts of the app using imports from "app.models";
 # this has to be at the bottom of the file

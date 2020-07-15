@@ -145,6 +145,8 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or DATABASE_URL_SQLITE
     # BEWARE: if True, logs every single database statement executed by this application to STDOUT
     SQLALCHEMY_ECHO = False
+    # remove stale connections from the connection pool after 1 hour
+    SQLALCHEMY_POOL_RECYCLE = 3600
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STATIC_EXERCISES_REPOSITORY_URL = "https://scm.cms.hu-berlin.de/callidus/machina-callida/-/archive/master/machina-callida-master.zip?path=mc_frontend%2Fsrc%2Fassets%2Fh5p"
     STOP_WORDS_LATIN_PATH = os.path.join(CACHE_DIRECTORY, "stop_words_latin.json")

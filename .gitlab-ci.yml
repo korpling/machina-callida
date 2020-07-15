@@ -17,7 +17,7 @@ ci_frontend:
 ci_backend:
   stage: ci
   script:
-    - docker-compose run --rm mcserver bash -c "source ../venv/bin/activate && coverage run --rcfile=.coveragerc tests.py && coverage combine && coverage report -m" > ci_backend.log
+    - docker-compose run --rm --entrypoint="./coverage_backend.sh" mcserver > ci_backend.log
   artifacts:
     paths:
       - ci_backend.log
