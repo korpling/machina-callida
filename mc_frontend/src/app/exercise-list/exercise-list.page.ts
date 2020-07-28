@@ -36,6 +36,7 @@ export class ExerciseListPage implements OnInit {
     public Math = Math;
     public metadata: { [eid: string]: string } = {};
     public ObjectKeys = Object.keys;
+    public showHelp = false;
     public showVocabularyCorpus = false;
     public SortingCategory = SortingCategory;
     public sortingCategoriesAsc: Set<SortingCategory> = new Set<SortingCategory>([
@@ -117,7 +118,7 @@ export class ExerciseListPage implements OnInit {
     }
 
     getMatchingDegree(exercise: ExerciseMC): string {
-        return exercise.matching_degree ? Math.round(exercise.matching_degree).toString() : '';
+        return exercise.matching_degree ? `${Math.round(exercise.matching_degree)}%` : '';
     }
 
     ngOnInit(): Promise<void> {

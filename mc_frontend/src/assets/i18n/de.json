@@ -188,7 +188,7 @@
   "EXERCISE_FEEDBACK_PARTIALLY_CORRECT_DEFAULT": "Das ist teilweise korrekt.",
   "EXERCISE_GENERATE": "Übung erstellen",
   "EXERCISE_LIST": "Übungsspeicher",
-  "EXERCISE_LIST_LEGEND": "Legende",
+  "EXERCISE_LIST_LEGEND": "Das Hantel-Symbol zeigt die Komplexität des Textes an, für den die Übung generiert wurde. Ein niedriger Wert weist auf einen einfachen Text hin, ein hoher auf einen schweren. Sofern ein Vokabelabgleich durchgeführt wurde, gibt die Prozentzahl die Übereinstimmung des Textes mit dem gewählten Zielvokabular an.",
   "EXERCISE_NO_OOV": "Unbekannte Vokabeln ausschließen",
   "EXERCISE_PARAMETERS": "Übungsparameter",
   "EXERCISE_SET_PARAMETERS": "Parameter festlegen",

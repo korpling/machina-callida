@@ -188,7 +188,7 @@
   "EXERCISE_FEEDBACK_PARTIALLY_CORRECT_DEFAULT": "That is partially correct.",
   "EXERCISE_GENERATE": "Create exercise",
   "EXERCISE_LIST": "Exercise Repository",
-  "EXERCISE_LIST_LEGEND": "Legend",
+  "EXERCISE_LIST_LEGEND": "The barbell symbol indicates the complexity of the text from which the exercise was generated. A low value represents an easy text, a high value represents a difficult text. If a vocabulary check has been performed, the percentage indicates the amount of overlap between the text and the desired target vocabulary.",
   "EXERCISE_NO_OOV": "Exclude unknown words",
   "EXERCISE_PARAMETERS": "Exercise parameters",
   "EXERCISE_SET_PARAMETERS": "Set parameters",

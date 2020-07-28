@@ -30,15 +30,16 @@
                 </label>
             </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row style="padding-top: 1em; font-size: 1.2em">
             <ion-col>
-                <ion-label>{{ 'SORT_BY' | translate }}</ion-label>
-                <ion-select [(ngModel)]="currentSortingCategory" (ngModelChange)="sortExercises()"
-                            name="currentSortingCategory">
-                    <ion-select-option *ngFor="let key of helperService.getEnumValues(SortingCategory)" value="{{key}}">
-                        {{ key | translate }}
-                    </ion-select-option>
-                </ion-select>
+                <label>{{ 'SORT_BY' | translate }}
+                    <select [(ngModel)]="currentSortingCategory" (ngModelChange)="sortExercises()"
+                            name="currentSortingCategory" style="border-radius: 2em !important; padding: 0.2em">
+                        <option *ngFor="let key of helperService.getEnumValues(SortingCategory)" value="{{key}}">
+                            {{ key | translate }}
+                        </option>
+                    </select>
+                </label>
             </ion-col>
         </ion-row>
         <ion-row>
@@ -108,6 +109,14 @@
             </ion-col>
         </ion-row>
         <ion-row>
+            <ion-col>
+                <button (click)="showHelp = !showHelp" style="padding:0.2em;">
+                    <ion-icon name="help-circle"></ion-icon>
+                </button>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf="showHelp" style="padding-bottom: 1em">
+            {{ 'EXERCISE_LIST_LEGEND' | translate }}
         </ion-row>
         <ion-row *ngIf="exercises?.length; else loading">
             <ion-grid style="padding: 0">
@@ -120,10 +129,12 @@
                             <ion-col size="4">
                                 {{ getDateString(exercise.last_access_time) }}
                             </ion-col>
-                            <ion-col size="2">
+                            <ion-col size="2" style="padding: 0">
                                 {{Math.round(exercise.text_complexity)}}
+                                <ion-icon name="barbell-outline"
+                                          style="font-size: 1.1em; vertical-align: sub; padding: 0 0 0 0.1em"></ion-icon>
                             </ion-col>
-                            <ion-col size="2">
+                            <ion-col size="2" style="padding-right: 1em">
                                 {{getMatchingDegree(exercise)}}
                             </ion-col>
                         </ion-row>
