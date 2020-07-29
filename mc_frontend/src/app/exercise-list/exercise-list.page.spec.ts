@@ -96,7 +96,7 @@ describe('ExerciseListPage', () => {
 
     it('should get the matching degree', () => {
         let degree: string = exerciseListPage.getMatchingDegree(new ExerciseMC({matching_degree: 20}));
-        expect(degree).toBe('20');
+        expect(degree).toBe('20%');
         degree = exerciseListPage.getMatchingDegree(new ExerciseMC());
         expect(degree).toBeFalsy();
     });
