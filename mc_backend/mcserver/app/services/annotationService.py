@@ -240,14 +240,6 @@ class AnnotationService:
         return graph_data
 
     @staticmethod
-    def map_graph_data_to_exercise(graph_data_raw: Dict, xml_guid: str, solutions: List[Solution]):
-        """ Creates an ExerciseData object from the separate parts. """
-        # create the basis for the download URL
-        xml_url = "/" + xml_guid
-        graph_data: GraphData = AnnotationService.map_graph_data(graph_data_raw)
-        return ExerciseData(graph=graph_data, solutions=solutions, uri=xml_url)
-
-    @staticmethod
     def map_node(node: dict):
         """ Maps a node dictionary to the native NodeMC class. """
         return NodeMC(annis_node_name=node["annis::node_name"], annis_node_type=node["annis::node_type"],

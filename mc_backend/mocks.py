@@ -38,6 +38,7 @@ class MockQuery:
         self.ui: UpdateInfo = ui
 
     def all(self):
+        # DO NOT MAKE THIS POINT TO THE DATABASE SERVICE, IT WILL BE MOCKED ANYWAY
         return db.session.query(Corpus).all()
 
     def filter_by(self, **kwargs):

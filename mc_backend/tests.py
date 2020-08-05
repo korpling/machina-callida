@@ -26,7 +26,7 @@ from gensim.models import Word2Vec
 from lxml import etree
 from networkx import MultiDiGraph, Graph
 from requests import HTTPError
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, InvalidRequestError
 from sqlalchemy.orm import session
 from werkzeug.wrappers import Response
 
@@ -40,7 +40,7 @@ from mcserver.app.models import ResourceType, FileType, ExerciseType, ExerciseDa
     VocabularyCorpus, TextComplexityMeasure, CitationLevel, FrequencyItem, TextComplexity, Dependency, PartOfSpeech, \
     Choice, XapiStatement, ExerciseMC, CorpusMC, make_solution_element_from_salt_id, Sentence
 from mcserver.app.services import AnnotationService, CorpusService, FileService, CustomCorpusService, DatabaseService, \
-    XMLservice, TextService, FrequencyService
+    XMLservice, TextService, FrequencyService, ExerciseService
 from mcserver.config import TestingConfig, Config
 from mcserver.models_auto import Corpus, Exercise, UpdateInfo, LearningResult
 from mocks import Mocks, MockResponse, MockW2V, MockQuery, TestHelper
@@ -140,14 +140,14 @@ class McTestCase(unittest.TestCase):
             ui: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.cts_data.name,
                                                   last_modified_time=lmt.timestamp(), created_time=1)
             mock.session.query.return_value = MockQuery(ui)
-            response: Response = Mocks.app_dict[self.class_name].client.get(TestingConfig.SERVER_URI_CORPORA,
-                                                                            query_string=dict(last_update_time=lut))
+            response: Response = Mocks.app_dict[self.class_name].client.get(
+                TestingConfig.SERVER_URI_CORPORA, query_string=dict(last_update_time=lut))
             data_json = json.loads(response.get_data())
             if data_json:
                 result = [x.to_dict() for x in result]
             self.assertEqual(data_json, result)
 
-        with patch.object(mcserver.app.api.corpusListAPI, "db") as mock_db:
+        with patch.object(mcserver.app.services.databaseService, "db") as mock_db:
             expect_result(self, mock_db, str(int(datetime.utcnow().timestamp() * 1000)), None,
                           datetime.fromtimestamp(0))
             db.session.add_all(Mocks.corpora)
@@ -299,7 +299,7 @@ class McTestCase(unittest.TestCase):
         learning_result: str = Mocks.xapi_json_string
         Mocks.app_dict[self.class_name].client.post(TestingConfig.SERVER_URI_FILE, headers=Mocks.headers_form_data,
                                                     data=dict(learning_result=learning_result))
-        lrs: List[LearningResult] = db.session.query(LearningResult).all()
+        lrs: List[LearningResult] = DatabaseService.query(LearningResult)
         self.assertEqual(len(lrs), 1)
         data_dict: dict = dict(file_type=FileType.XML, urn=Mocks.urn_custom, html_content="<html></html>")
         response: Response = Mocks.app_dict[self.class_name].client.post(
@@ -364,11 +364,11 @@ class McTestCase(unittest.TestCase):
 
     def test_api_kwic_post(self):
         """ Posts an AQL query to create a KWIC visualization in SVG format. """
-        ed1: ExerciseData = AnnotationService.map_graph_data_to_exercise(
+        ed1: ExerciseData = ExerciseService.map_graph_data_to_exercise(
             Mocks.annis_response_dict["graph_data_raw"],
             "", [Solution(target=make_solution_element_from_salt_id(
                 'salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159692tok1'))])
-        ed2: ExerciseData = AnnotationService.map_graph_data_to_exercise(
+        ed2: ExerciseData = ExerciseService.map_graph_data_to_exercise(
             Mocks.annis_response_dict["graph_data_raw"],
             "", [Solution(target=make_solution_element_from_salt_id(
                 'salt:/urn:custom:latinLit:proiel.pal-agr.lat:1.1.1/doc1#sent159695tok10'))])
@@ -628,7 +628,7 @@ class McTestCase(unittest.TestCase):
             exercise.partially_correct_feedback, exercise.correct_feedback, exercise.instructions,
             exercise.exercise_type_translation, exercise.exercise_type, exercise.solutions, exercise.eid]
         self.assertEqual(expected_values, actual_values)
-        exercise_from_db: Exercise = db.session.query(Exercise).one()
+        exercise_from_db: Exercise = DatabaseService.query(Exercise, first=True)
         self.assertEqual(exercise, exercise_from_db)
         db.session.query(Exercise).delete()
         db.session.query(UpdateInfo).delete()
@@ -754,8 +754,9 @@ class CsmTestCase(unittest.TestCase):
         db.session.add(ui_cts)
         DatabaseService.commit()
         utc_now: datetime = datetime.utcnow()
-        DatabaseService.check_corpus_list_age(Mocks.app_dict[self.class_name].app)
-        ui_cts: UpdateInfo = db.session.query(UpdateInfo).filter_by(resource_type=ResourceType.cts_data.name).first()
+        CorpusService.check_corpus_list_age(Mocks.app_dict[self.class_name].app)
+        ui_cts: UpdateInfo = DatabaseService.query(
+            UpdateInfo, filter_by=dict(resource_type=ResourceType.cts_data.name), first=True)
         self.assertGreater(ui_cts.last_modified_time, utc_now.timestamp())
         db.session.query(UpdateInfo).delete()
 
@@ -834,7 +835,7 @@ class CsmTestCase(unittest.TestCase):
 
     def test_init_updater(self):
         """Initializes the corpus list updater."""
-        with patch.object(DatabaseService, 'check_corpus_list_age', side_effect=OperationalError("", [], "")):
+        with patch.object(CorpusService, 'check_corpus_list_age', side_effect=OperationalError("", [], "")):
             ui_cts: UpdateInfo = UpdateInfo.from_dict(resource_type=ResourceType.cts_data.name,
                                                       last_modified_time=1, created_time=1)
             db.session.add(ui_cts)
@@ -1065,8 +1066,9 @@ class CommonTestCase(unittest.TestCase):
         old_corpus.source_urn = cc.corpus.source_urn
         McTestCase.add_corpus(old_corpus)
         del old_corpus
-        DatabaseService.init_db_corpus()
-        corpus: Corpus = db.session.query(Corpus).filter_by(source_urn=cc.corpus.source_urn).first()
+        CorpusService.init_corpora()
+        corpus: Corpus = DatabaseService.query(
+            Corpus, filter_by=dict(source_urn=cc.corpus.source_urn), first=True)
         self.assertEqual(corpus.title, cc.corpus.title)
         db.session.query(Corpus).delete()
         db.session.query(UpdateInfo).delete()
@@ -1181,6 +1183,16 @@ class CommonTestCase(unittest.TestCase):
         session.make_transient(Mocks.corpora[0])
         session.make_transient(Mocks.exercise)
 
+    def test_query(self) -> None:
+        """Executes a query on the database and rolls back the session if errors occur."""
+
+        def raise_error(table: Any):
+            raise InvalidRequestError()
+
+        with patch.object(mcserver.app.services.databaseService, "db") as db_mock:
+            db_mock.session.query.side_effect = raise_error
+            self.assertEqual(DatabaseService.query(Corpus), None)
+
     def test_sort_nodes(self):
         """Sorts the nodes according to the ordering links, i.e. by their tokens' occurrence in the text."""
         old_graph_data: GraphData = GraphData(nodes=[], links=[])
@@ -1217,8 +1229,8 @@ class CommonTestCase(unittest.TestCase):
         with patch.object(mcserver.app.services.textComplexityService.requests, "post",
                           return_value=MockResponse(Mocks.text_complexity_json_string)):
             with patch.object(CorpusService, "get_corpus", return_value=Mocks.annis_response):
-                DatabaseService.update_exercises(False)
-                exercises = db.session.query(Exercise).all()
+                ExerciseService.update_exercises(False)
+                exercises = DatabaseService.query(Exercise)
                 self.assertEqual(len(exercises), 1)
                 self.assertEqual(exercises[0].text_complexity, 54.53)
         db.session.query(Exercise).delete()

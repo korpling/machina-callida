@@ -65,10 +65,11 @@ def full_init(app: Flask, cfg: Type[Config] = Config) -> None:
     """ Fully initializes the application, including logging."""
     from mcserver.app.services import DatabaseService
     DatabaseService.init_db_update_info()
-    DatabaseService.update_exercises(is_csm=True)
-    DatabaseService.init_db_corpus()
+    from mcserver.app.services.corpusService import CorpusService
+    CorpusService.init_corpora()
+    from mcserver.app.services import ExerciseService
+    ExerciseService.update_exercises(is_csm=True)
     if not cfg.TESTING:
-        from mcserver.app.services.corpusService import CorpusService
         CorpusService.init_graphannis_logging()
         start_updater(app)
 
@@ -130,8 +131,8 @@ def log_exception(sender_app: Flask, exception, **extra):
 
 def start_updater(app: Flask) -> Thread:
     """ Starts a new Thread for to perform updates in the background. """
-    from mcserver.app.services import DatabaseService
-    t = Thread(target=DatabaseService.init_updater, args=(app,))
+    from mcserver.app.services import CorpusService
+    t = Thread(target=CorpusService.init_updater, args=(app,))
     t.daemon = True
     t.start()
     return t

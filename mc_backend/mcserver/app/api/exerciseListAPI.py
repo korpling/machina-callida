@@ -13,9 +13,8 @@ from openapi.openapi_server.models import MatchingExercise
 def get(lang: str, frequency_upper_bound: int, last_update_time: int, vocabulary: str = ""):
     """The GET method for the exercise list REST API. It provides metadata for all available exercises."""
     vocabulary_set: Set[str]
-    ui_exercises: UpdateInfo = db.session.query(UpdateInfo).filter_by(
-        resource_type=ResourceType.exercise_list.name).first()
-    DatabaseService.commit()
+    ui_exercises: UpdateInfo = DatabaseService.query(
+        UpdateInfo, filter_by=dict(resource_type=ResourceType.exercise_list.name), first=True)
     if ui_exercises.last_modified_time < last_update_time / 1000:
         return NetworkService.make_json_response([])
     try:
@@ -28,8 +27,7 @@ def get(lang: str, frequency_upper_bound: int, last_update_time: int, vocabulary
         lang = Language(lang)
     except ValueError:
         lang = Language.English
-    exercises: List[Exercise] = db.session.query(Exercise).filter_by(language=lang.value)
-    DatabaseService.commit()
+    exercises: List[Exercise] = DatabaseService.query(Exercise, filter_by=dict(language=lang.value))
     matching_exercises: List[MatchingExercise] = [MatchingExercise.from_dict(x.to_dict()) for x in exercises]
     if len(vocabulary_set):
         for exercise in matching_exercises:

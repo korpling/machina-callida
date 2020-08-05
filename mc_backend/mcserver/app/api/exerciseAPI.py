@@ -10,7 +10,7 @@ from mcserver.app import db
 from mcserver.app.models import ExerciseType, Solution, ExerciseData, AnnisResponse, Phenomenon, TextComplexity, \
     TextComplexityMeasure, ResourceType, ExerciseMC, GraphData
 from mcserver.app.services import AnnotationService, CorpusService, NetworkService, TextComplexityService, \
-    DatabaseService
+    DatabaseService, ExerciseService
 from mcserver.config import Config
 from mcserver.models_auto import Exercise, TExercise, UpdateInfo
 from openapi.openapi_server.models import ExerciseForm
@@ -28,9 +28,8 @@ def adjust_solutions(exercise_data: ExerciseData, exercise_type: str, solutions:
 
 
 def get(eid: str) -> Union[Response, ConnexionResponse]:
-    exercise: TExercise = db.session.query(Exercise).filter_by(eid=eid).first()
-    DatabaseService.commit()
-    if exercise is None:
+    exercise: TExercise = DatabaseService.query(Exercise, filter_by=dict(eid=eid), first=True)
+    if not exercise:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_EXERCISE_NOT_FOUND)
     ar: AnnisResponse = CorpusService.get_corpus(cts_urn=exercise.urn, is_csm=False)
     if not ar.graph_data.nodes:
@@ -67,7 +66,7 @@ def make_new_exercise(conll: str, correct_feedback: str, exercise_type: str, gen
     # generate a GUID so we can offer the exercise XML as a file download
     xml_guid = str(uuid.uuid4())
     # assemble the mapped exercise data
-    ed: ExerciseData = AnnotationService.map_graph_data_to_exercise(
+    ed: ExerciseData = ExerciseService.map_graph_data_to_exercise(
         graph_data_raw=graph_data_raw, solutions=solutions, xml_guid=xml_guid)
     # for markWords exercises, add the maximum number of correct solutions to the description
     instructions += (f"({len(solutions)})" if exercise_type == ExerciseType.markWords.value else "")
@@ -107,8 +106,8 @@ def map_exercise_data_to_database(exercise_data: ExerciseData, exercise_type: st
         work_title=work_title, urn=urn)
     # add the mapped exercise to the database
     db.session.add(new_exercise)
-    ui_exercises: UpdateInfo = db.session.query(UpdateInfo).filter_by(
-        resource_type=ResourceType.exercise_list.name).first()
+    ui_exercises: UpdateInfo = DatabaseService.query(
+        UpdateInfo, filter_by=dict(resource_type=ResourceType.exercise_list.name), first=True)
     ui_exercises.last_modified_time = datetime.utcnow().timestamp()
     DatabaseService.commit()
     return new_exercise

@@ -1,10 +1,12 @@
 import sys
+from datetime import datetime
 import rapidjson as json
 import os
-from typing import List, Union, Set, Tuple
+from typing import List, Union, Set, Tuple, Dict
 import requests
 from MyCapytain.retrievers.cts5 import HttpCtsRetriever
 from conllu import TokenList
+from flask import Flask
 from graphannis import CAPI, ffi
 from graphannis.cs import ResultOrder
 from graphannis.errors import consume_errors, NoSuchCorpus, GraphANNISException
@@ -13,13 +15,14 @@ from lxml import etree
 from networkx import graph, MultiDiGraph
 from networkx.readwrite import json_graph
 from requests import HTTPError
+from sqlalchemy.exc import OperationalError
 from mcserver.app import db
 from mcserver.app.models import CitationLevel, GraphData, Solution, ExerciseType, Phenomenon, AnnisResponse, CorpusMC, \
-    make_solution_element_from_salt_id, FrequencyItem
+    make_solution_element_from_salt_id, FrequencyItem, ResourceType
 from mcserver.app.services import AnnotationService, XMLservice, TextService, FileService, FrequencyService, \
-    CustomCorpusService
+    CustomCorpusService, DatabaseService
 from mcserver.config import Config
-from mcserver.models_auto import Corpus
+from mcserver.models_auto import Corpus, UpdateInfo
 
 
 class CorpusService:
@@ -50,6 +53,24 @@ class CorpusService:
         # now we can build the URI from the Corpus ID
         new_corpus.uri = "/{0}".format(new_corpus.cid)
         db.session.commit()
+
+    @staticmethod
+    def check_corpus_list_age(app: Flask) -> None:
+        """ Checks whether the corpus list needs to be updated. If yes, it performs the update. """
+        app.logger.info("Corpus update started.")
+        ui_cts: UpdateInfo = DatabaseService.query(
+            UpdateInfo, filter_by=dict(resource_type=ResourceType.cts_data.name), first=True)
+        DatabaseService.commit()
+        if ui_cts is None:
+            app.logger.info("UpdateInfo not available!")
+            return
+        else:
+            ui_datetime: datetime = datetime.fromtimestamp(ui_cts.last_modified_time)
+            if (datetime.utcnow() - ui_datetime).total_seconds() > Config.INTERVAL_CORPUS_UPDATE:
+                CorpusService.update_corpora()
+                ui_cts.last_modified_time = datetime.utcnow().timestamp()
+                DatabaseService.commit()
+                app.logger.info("Corpus update completed.")
 
     @staticmethod
     def find_matches(urn: str, aql: str, is_csm: bool = False) -> List[str]:
@@ -282,12 +303,51 @@ class CorpusService:
             return AnnisResponse.from_dict(json.loads(response.text))
 
     @staticmethod
+    def init_corpora() -> None:
+        """Initializes the corpus list if it is not already there and up to date."""
+        if DatabaseService.has_table(Config.DATABASE_TABLE_CORPUS):
+            CorpusService.existing_corpora = DatabaseService.query(Corpus)
+            urn_dict: Dict[str, int] = {v.source_urn: i for i, v in enumerate(CorpusService.existing_corpora)}
+            for cc in CustomCorpusService.custom_corpora:
+                if cc.corpus.source_urn in urn_dict:
+                    existing_corpus: Corpus = CorpusService.existing_corpora[urn_dict[cc.corpus.source_urn]]
+                    CorpusService.update_corpus(
+                        title_value=cc.corpus.title, urn=cc.corpus.source_urn, author=cc.corpus.author,
+                        corpus_to_update=existing_corpus, citation_levels=[
+                            cc.corpus.citation_level_1, cc.corpus.citation_level_2,
+                            cc.corpus.citation_level_3])
+                else:
+                    citation_levels: List[CitationLevel] = []
+                    for cl in [cc.corpus.citation_level_1, cc.corpus.citation_level_2,
+                               cc.corpus.citation_level_3]:
+                        citation_levels += [cl] if cl != CitationLevel.default else []
+                    CorpusService.add_corpus(
+                        title_value=cc.corpus.title, urn=cc.corpus.source_urn,
+                        group_name_value=cc.corpus.author, citation_levels=citation_levels)
+            CorpusService.existing_corpora = DatabaseService.query(Corpus)
+
+    @staticmethod
     def init_graphannis_logging() -> None:
         """Initializes logging for the graphannis backend."""
         err = ffi.new("AnnisErrorList **")
         CAPI.annis_init_logging(os.path.join(os.getcwd(), Config.GRAPHANNIS_LOG_PATH).encode("utf-8"), CAPI.Info,
                                 err)  # Debug
         consume_errors(err)
+
+    @staticmethod
+    def init_updater(app: Flask) -> None:
+        """Initializes a thread that regularly performs updates."""
+        app.app_context().push()
+        while True:
+            try:
+                CorpusService.check_corpus_list_age(app)
+            except OperationalError:
+                pass
+            import gc
+            gc.collect()
+            from time import sleep
+            # sleep for 1 hour
+            sleep(Config.INTERVAL_CORPUS_AGE_CHECK)
 
     @staticmethod
     def is_urn(maybe_urn: str):
@@ -338,7 +398,6 @@ class CorpusService:
     def update_corpora():
         """Checks the remote repositories for new corpora to be included in our database."""
         CorpusService.existing_corpora = db.session.query(Corpus).all()
-        db.session.commit()
         resolver: HttpCtsRetriever = HttpCtsRetriever(Config.CTS_API_BASE_URL)
         # check the appropriate literature for the desired author
         resp: str = resolver.getCapabilities(urn="urn:cts:latinLit")  # "urn:cts:greekLit" for Greek

@@ -17,7 +17,8 @@ from mcserver.models_auto import Exercise, UpdateInfo, LearningResult
 
 def clean_tmp_folder():
     """ Cleans the files directory regularly. """
-    ui_file: UpdateInfo = db.session.query(UpdateInfo).filter_by(resource_type=ResourceType.file_api_clean.name).first()
+    ui_file: UpdateInfo = DatabaseService.query(
+        UpdateInfo, filter_by=dict(resource_type=ResourceType.file_api_clean.name), first=True)
     ui_datetime: datetime = datetime.fromtimestamp(ui_file.last_modified_time)
     if (datetime.utcnow() - ui_datetime).total_seconds() > Config.INTERVAL_FILE_DELETE:
         for file in [x for x in os.listdir(Config.TMP_DIRECTORY) if x not in ".gitignore"]:
@@ -35,8 +36,7 @@ def clean_tmp_folder():
 def get(id: str, type: FileType, solution_indices: List[int]) -> Union[ETagResponseMixin, ConnexionResponse]:
     """The GET method for the file REST API. It provides the URL to download a specific file."""
     clean_tmp_folder()
-    exercise: Exercise = db.session.query(Exercise).filter_by(eid=id).first()
-    DatabaseService.commit()
+    exercise: Exercise = DatabaseService.query(Exercise, filter_by=dict(eid=id), first=True)
     file_name: str = id + "." + str(type)
     mime_type: str = MimeType[type].value
     if exercise is None:

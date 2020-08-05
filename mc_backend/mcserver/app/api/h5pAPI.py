@@ -27,9 +27,8 @@ def determine_language(lang: str) -> Language:
 def get(eid: str, lang: str, solution_indices: List[int]) -> Union[Response, ConnexionResponse]:
     """ The GET method for the H5P REST API. It provides JSON templates for client-side H5P exercise layouts. """
     language: Language = determine_language(lang)
-    exercise: Exercise = db.session.query(Exercise).filter_by(eid=eid).first()
-    DatabaseService.commit()
-    if exercise is None:
+    exercise: Exercise = DatabaseService.query(Exercise, filter_by=dict(eid=eid), first=True)
+    if not exercise:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_EXERCISE_NOT_FOUND)
     text_field_content: str = get_text_field_content(exercise, solution_indices)
     if not text_field_content:
@@ -106,9 +105,8 @@ def post(h5p_data: dict):
     """ The POST method for the H5P REST API. It offers client-side H5P exercises for download as ZIP archives. """
     h5p_form: H5PForm = H5PForm.from_dict(h5p_data)
     language: Language = determine_language(h5p_form.lang)
-    exercise: Exercise = db.session.query(Exercise).filter_by(eid=h5p_form.eid).first()
-    DatabaseService.commit()
-    if exercise is None:
+    exercise: Exercise = DatabaseService.query(Exercise, filter_by=dict(eid=h5p_form.eid), first=True)
+    if not exercise:
         return connexion.problem(404, Config.ERROR_TITLE_NOT_FOUND, Config.ERROR_MESSAGE_EXERCISE_NOT_FOUND)
     text_field_content: str = get_text_field_content(exercise, h5p_form.solution_indices)
     if not text_field_content:
