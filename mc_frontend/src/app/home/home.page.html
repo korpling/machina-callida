@@ -12,7 +12,8 @@
             <div>
                 <ion-spinner *ngIf="helperService.openRequests.length"></ion-spinner>
                 <ion-select [(ngModel)]="helperService.currentLanguage" (ngModelChange)="changeLanguage($event)"
-                            name="currentLanguage" placeholder="{{helperService.currentLanguage?.name}}">
+                            name="currentLanguage" placeholder="{{helperService.currentLanguage?.name}}"
+                            aria-label="currentLanguage">
                     <ion-select-option *ngFor="let lang of helperService.languages" value="{{lang.shortcut}}">
                         {{lang.name}}</ion-select-option>
                 </ion-select>
@@ -37,7 +38,7 @@
         <ion-row>
             <ion-col>
                 <div class="card">
-                    <img src="assets/imgs/drag_drop_exercise.png" alt="Übungsbeispiel"
+                    <img src="assets/imgs/drag_drop_exercise.webp" alt="Übungsbeispiel"
                          style="padding: 0.5em 0.25em 0 0.25em;">
                     <h1>{{ 'EXERCISE_GENERATE' | translate }}</h1>
                     <p>{{'TEXT_SELECTION' | translate }}<br>
@@ -53,7 +54,7 @@
             </ion-col>
             <ion-col>
                 <div class="card">
-                    <img src="assets/imgs/database.png" alt="Screenshot der Datenbank"
+                    <img src="assets/imgs/database.webp" alt="Screenshot der Datenbank"
                          style="padding: 0.5em 0.25em 0 0.25em;">
                     <h1>{{ 'EXERCISE_LIST' | translate }}</h1>
                     <p> {{'EXERCISES_CREATED' | translate }}<br>
@@ -70,7 +71,7 @@
             </ion-col>
             <ion-col>
                 <div class="card">
-                    <img src="assets/imgs/results_testmode.png" alt="Ergebnisübersicht des Testmoduls"
+                    <img src="assets/imgs/results_testmode.webp" alt="Ergebnisübersicht des Testmoduls"
                          style="padding: 0.5em 0.25em 0 0.25em;">
                     <h1>{{ 'TEST' | translate }}</h1>
                     <p>
@@ -87,7 +88,7 @@
             </ion-col>
             <ion-col>
                 <div class="card">
-                    <img src="assets/imgs/callidus_skizze_klein.png"
+                    <img src="assets/imgs/callidus_skizze_klein.webp"
                          alt="Skizze, wie die Software-Architektur aussehen soll"
                          style="padding: 0.5em 0.25em 0 0.25em;">
                     <h1>{{ 'DOCUMENTATION' | translate }}</h1>

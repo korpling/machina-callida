@@ -133,6 +133,11 @@ describe('CorpusService', () => {
         });
     });
 
+    it('should get a corpus list from a JSON string', () => {
+        const corpora: CorpusMC[] = corpusService.getCorpusListFromJSONstring('{"corpora": []}');
+        expect(corpora.length).toBe(0);
+    });
+
     it('should get CTS text passage', (done) => {
         const spy: Spy = spyOn(helperService, 'makeGetRequest').and.returnValue(Promise.reject(
             new HttpErrorResponse({status: 500})));
@@ -231,6 +236,7 @@ describe('CorpusService', () => {
     });
 
     it('should initialize the corpus service', (done) => {
+        const annisRespSpy: Spy = spyOn(corpusService, 'checkAnnisResponse').and.callFake(() => Promise.reject());
         const restoreSpy: Spy = spyOn(corpusService, 'restoreLastCorpus').and.returnValue(Promise.resolve());
         const updateInfoSpy: Spy = spyOn(corpusService, 'initUpdateInfo').and.callFake(() => Promise.reject());
         helperService.applicationState.next(helperService.deepCopy(MockMC.applicationState) as ApplicationState);
@@ -241,9 +247,13 @@ describe('CorpusService', () => {
             updateInfoSpy.and.returnValue(Promise.resolve());
             const getCorporaSpy: Spy = spyOn(corpusService, 'getCorpora').and.returnValue(Promise.resolve());
             corpusService.initCorpusService().then(() => {
-                expect(getCorporaSpy).toHaveBeenCalledTimes(1);
-                expect(restoreSpy).toHaveBeenCalledTimes(1);
-                done();
+                expect(restoreSpy).toHaveBeenCalledTimes(0);
+                annisRespSpy.and.returnValue(Promise.resolve());
+                corpusService.initCorpusService().then(() => {
+                    expect(getCorporaSpy).toHaveBeenCalledTimes(2);
+                    expect(restoreSpy).toHaveBeenCalledTimes(1);
+                    done();
+                });
             });
         });
     });

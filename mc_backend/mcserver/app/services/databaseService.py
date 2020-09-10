@@ -55,6 +55,6 @@ class DatabaseService:
             ret_val = ret_val.first() if first else ret_val.all()
             DatabaseService.commit()
             return ret_val
-        except InvalidRequestError:
+        except:
             db.session.rollback()
             return None

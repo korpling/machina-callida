@@ -175,7 +175,7 @@ export class CorpusService {
                             return resolve();
                         });
                     }
-                }, async () => {
+                }, async (error: HttpErrorResponse) => {
                     this.loadCorporaFromLocalStorage().then(() => {
                         return reject();
                     });
@@ -313,6 +313,8 @@ export class CorpusService {
                         this.restoreLastCorpus().then(() => {
                             return resolve();
                         });
+                    }, () => {
+                        return resolve();
                     });
                 });
             }, () => {

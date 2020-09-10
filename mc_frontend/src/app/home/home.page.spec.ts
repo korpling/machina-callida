@@ -45,6 +45,7 @@ describe('HomePage', () => {
 
     it('should change the language', (done) => {
         const translateSpy: Spy = spyOn(homePage.corpusService, 'adjustTranslations').and.returnValue(Promise.resolve());
+        homePage.corpusService.annisResponse = {};
         spyOn(homePage.corpusService, 'processAnnisResponse');
         homePage.changeLanguage('').then(() => {
             expect(translateSpy).toHaveBeenCalledTimes(1);

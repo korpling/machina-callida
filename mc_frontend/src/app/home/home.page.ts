@@ -7,7 +7,7 @@ import {TranslateService} from '@ngx-translate/core';
 import {ExerciseService} from 'src/app/exercise.service';
 import {CorpusService} from 'src/app/corpus.service';
 import {take} from 'rxjs/operators';
-import { version } from 'src/version';
+import {version} from 'src/version';
 import configMC from '../../configMC';
 
 @Component({
@@ -36,7 +36,9 @@ export class HomePage implements OnInit {
                 this.translate.use(newLanguage).pipe(take(1)).subscribe(() => {
                     this.helperService.loadTranslations(this.translate);
                     this.corpusService.initPhenomenonMap();
-                    this.corpusService.processAnnisResponse(this.corpusService.annisResponse);
+                    if (this.corpusService.annisResponse) {
+                        this.corpusService.processAnnisResponse(this.corpusService.annisResponse);
+                    }
                     this.corpusService.adjustTranslations().then();
                     return resolve();
                 });
