@@ -46,7 +46,7 @@ MarkupSafe==1.1.1
 matplotlib==3.2.1
 MyCapytain==3.0.2
 networkx==2.4
-numpy==1.18.3
+numpy==1.22.0
 OpenAlchemy==1.1.0
 openapi-spec-validator==0.2.8
 pathspec==0.8.0
